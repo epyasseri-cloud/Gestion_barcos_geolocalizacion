@@ -53,7 +53,7 @@
     
     <div>
         <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
-        <button onclick="location.href='map-view.html'">🗺️ Ver Mapa General</button>
+        <button onclick="location.href='map-view.html'"> Ver Mapa General</button>
     </div>
     
     <div class="search-panel">
@@ -64,8 +64,8 @@
             <option value="">Seleccionar puerto...</option>
         </select>
         
-        <button onclick="findNearestBoat()">🔍 Buscar Barco Más Cercano</button>
-        <button onclick="clearResults()">🗑️ Limpiar Resultados</button>
+        <button onclick="findNearestBoat()"> Buscar Barco Más Cercano</button>
+        <button onclick="clearResults()"> Limpiar Resultados</button>
     </div>
     
     <div id="map" style="display: none;"></div>
@@ -142,7 +142,7 @@
             const nearest = result.nearestBoat;
             
             let html = '<div class="result-panel">';
-            html += '<h3>✅ Resultado de la Búsqueda</h3>';
+            html += '<h3> Resultado de la Búsqueda</h3>';
             
             html += '<h4>Puerto Seleccionado:</h4>';
             html += `<p><strong>${port.name}</strong> (${port.country})<br>`;
@@ -208,7 +208,7 @@
                 // Resaltar el más cercano
                 if (index === 0) {
                     marker.bindPopup(
-                        `<strong>🏆 BARCO MÁS CERCANO</strong><br>` +
+                        `<strong> BARCO MÁS CERCANO</strong><br>` +
                         marker.getPopup().getContent()
                     );
                 }
