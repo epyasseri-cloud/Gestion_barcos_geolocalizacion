@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Localizar Barco Cercano - Sistema Geolocalización Barcos</title>    <link rel="stylesheet" href="../assets/css/header.css">    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
         #map {
@@ -71,9 +72,26 @@
     
     <div id="resultPanel" style="display: none;"></div>
     
-    <div id="notificationContainer"></div>    <script src="../assets/js/header.js"></script>
-
+    <div id="notificationContainer"></div>
     
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/map-config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/date-utils.js"></script>
+    <script src="../utils/geo-utils.js"></script>
+    <script src="../services/gps-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/distance-service.js"></script>
+    <script src="../assets/js/map.js"></script>
+
     <script>
         // Verificar autenticación
         if (!Session.isActive()) {
