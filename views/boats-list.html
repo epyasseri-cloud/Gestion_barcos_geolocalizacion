@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Barcos - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Gestión de Barcos</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+        <button onclick="location.href='boat-form.html'">+ Nuevo Barco</button>
+        <button onclick="location.href='map-view.html'"><i class="fas fa-map-marked-alt"></i> Ver en Mapa</button>
+        <button onclick="exportJSON()">📥 Exportar JSON</button>
+        <button onclick="exportCSV()">📥 Exportar CSV</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, matrícula, bandera..." style="width: 300px;">
+        
+        <select id="typeFilter">
+            <option value="">Todos los tipos</option>
+        </select>
+        
+        <select id="statusFilter">
+            <option value="">Todos los estados</option>
+        </select>
+        
+        <select id="flagFilter">
+            <option value="">Todas las banderas</option>
+        </select>
+        
+        <select id="ownerFilter">
+            <option value="">Todos los dueños</option>
+        </select>
+        
+        <button onclick="applyFilters()">Filtrar</button>
+        <button onclick="clearFilters()">Limpiar</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <strong>Estadísticas:</strong>
+        Total: <span id="totalCount">0</span> | 
+        En Viaje: <span id="onTripCount">0</span> | 
+        Activos: <span id="activeCount">0</span> | 
+        Capacidad Total: <span id="totalCapacity">0</span> Ton
+    </div>
+    
+    <br>
+    
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+        <thead>
+            <tr>
+                <th onclick="sortTable('id')">ID</th>
+                <th onclick="sortTable('nombre')">Nombre</th>
+                <th onclick="sortTable('matricula')">Matrícula</th>
+                <th onclick="sortTable('bandera')">Bandera</th>
+                <th onclick="sortTable('tipo')">Tipo</th>
+                <th onclick="sortTable('capacidadToneladas')">Capacidad (Ton)</th>
+                <th onclick="sortTable('estado')">Estado</th>
+                <th>Dueño</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="boatsTable">
+            <tr>
+                <td colspan="9" style="text-align: center;">Cargando barcos...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/owner-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let currentSort = { field: 'id', order: 'asc' };
+        let filteredBoats = [];
+        
+        // Cargar barcos
+        function loadBoats() {
+            const boats = BoatService.getAll();
+            filteredBoats = boats;
+            displayBoats(boats);
+            updateStats();
+            loadFilters();
+        }
+        
+        // Mostrar barcos en la tabla
+        function displayBoats(boats) {
+            const tbody = document.getElementById('boatsTable');
+            
+            if (boats.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay barcos registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = boats.map(boat => {
+                const owner = OwnerService.getById(boat.dueñoId);
+                const ownerName = owner ? `${owner.nombre} ${owner.apellido}` : 'Sin dueño';
+                
+                return `
+                    <tr>
+                        <td>${boat.id}</td>
+                        <td>${boat.nombre}</td>
+                        <td>${boat.matricula}</td>
+                        <td>${boat.bandera}</td>
+                        <td>${boat.tipo}</td>
+                        <td>${boat.capacidadToneladas}</td>
+                        <td>${boat.estado}</td>
+                        <td>${ownerName}</td>
+                        <td>
+                            <button onclick="viewBoat('${boat.id}')">Ver</button>
+                            <button onclick="editBoat('${boat.id}')">Editar</button>
+                            <button onclick="deleteBoat('${boat.id}')">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Actualizar estadísticas
+        function updateStats() {
+            const stats = BoatService.getStats();
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('onTripCount').textContent = stats.enViaje;
+            document.getElementById('activeCount').textContent = stats.activos;
+            document.getElementById('totalCapacity').textContent = stats.capacidadTotal;
+        }
+        
+        // Cargar filtros
+        function loadFilters() {
+            // Tipos
+            const typeSelect = document.getElementById('typeFilter');
+            BoatService.BOAT_TYPES.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeSelect.appendChild(option);
+            });
+            
+            // Estados
+            const statusSelect = document.getElementById('statusFilter');
+            BoatService.BOAT_STATES.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+            
+            // Banderas
+            const flagSelect = document.getElementById('flagFilter');
+            const flags = BoatService.getFlags();
+            flags.forEach(flag => {
+                const option = document.createElement('option');
+                option.value = flag;
+                option.textContent = flag;
+                flagSelect.appendChild(option);
+            });
+            
+            // Dueños
+            const ownerSelect = document.getElementById('ownerFilter');
+            const owners = OwnerService.getAll();
+            owners.forEach(owner => {
+                const option = document.createElement('option');
+                option.value = owner.id;
+                option.textContent = `${owner.nombre} ${owner.apellido}`;
+                ownerSelect.appendChild(option);
+            });
+        }
+        
+        // Aplicar filtros
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const flagFilter = document.getElementById('flagFilter').value;
+            const ownerFilter = document.getElementById('ownerFilter').value;
+            
+            let boats = BoatService.getAll();
+            
+            if (searchQuery) {
+                boats = BoatService.search(searchQuery);
+            }
+            
+            if (typeFilter) {
+                boats = boats.filter(boat => boat.tipo === typeFilter);
+            }
+            
+            if (statusFilter) {
+                boats = boats.filter(boat => boat.estado === statusFilter);
+            }
+            
+            if (flagFilter) {
+                boats = boats.filter(boat => boat.bandera === flagFilter);
+            }
+            
+            if (ownerFilter) {
+                boats = boats.filter(boat => boat.dueñoId === ownerFilter);
+            }
+            
+            filteredBoats = boats;
+            displayBoats(boats);
+            Notification.info(`${boats.length} barcos encontrados`);
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('flagFilter').value = '';
+            document.getElementById('ownerFilter').value = '';
+            loadBoats();
+            Notification.info('Filtros limpiados');
+        }
+        
+        // Buscar al escribir
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (this.value.length > 2 || this.value.length === 0) {
+                        applyFilters();
+                    }
+                });
+            }
+        });
+        
+        // Ordenar tabla
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            
+            const sorted = BoatService.sort(filteredBoats, field, currentSort.order);
+            displayBoats(sorted);
+        }
+        
+        // Ver detalles del barco
+        function viewBoat(id) {
+            window.location.href = `boat-detail.html?id=${id}`;
+        }
+        
+        // Editar barco
+        function editBoat(id) {
+            window.location.href = `boat-form.html?id=${id}`;
+        }
+        
+        // Eliminar barco
+        function deleteBoat(id) {
+            const boat = BoatService.getById(id);
+            
+            if (!boat) {
+                Notification.error('Barco no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar el barco "${boat.nombre}"?`)) {
+                const result = BoatService.delete(id);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    loadBoats();
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Exportar JSON
+        function exportJSON() {
+            BoatService.exportJSON();
+            Notification.success('Barcos exportados a JSON');
+        }
+        
+        // Exportar CSV
+        function exportCSV() {
+            const result = BoatService.exportCSV();
+            
+            if (result.success) {
+                Notification.success(result.message);
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Cargar barcos al inicio
+        loadBoats();
+    </script>
+</body>
+</html>

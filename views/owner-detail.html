@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Dueño - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Detalle del Dueño</h1>
+    
+    <div>
+        <button onclick="location.href='owners-list.html'">← Volver a la Lista</button>
+        <button onclick="editOwner()">✎ Editar</button>
+        <button onclick="deleteOwner()">✗ Eliminar</button>
+    </div>
+    
+    <br>
+    
+    <div id="ownerDetail">
+        <p>Cargando...</p>
+    </div>
+    
+    <hr>
+    
+    <h2>Barcos del Dueño</h2>
+    <p><em>Funcionalidad disponible cuando se implemente el módulo de barcos</em></p>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/date-utils.js"></script>
+    <script src="../services/owner-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let currentOwnerId = null;
+        
+        // Obtener ID de la URL
+        function getOwnerId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Cargar y mostrar detalle del dueño
+        function loadOwnerDetail() {
+            currentOwnerId = getOwnerId();
+            
+            if (!currentOwnerId) {
+                Notification.error('ID de dueño no especificado');
+                setTimeout(() => location.href = 'owners-list.html', 2000);
+                return;
+            }
+            
+            const owner = OwnerService.getById(currentOwnerId);
+            
+            if (!owner) {
+                Notification.error('Dueño no encontrado');
+                setTimeout(() => location.href = 'owners-list.html', 2000);
+                return;
+            }
+            
+            displayOwnerDetail(owner);
+        }
+        
+        // Mostrar detalle del dueño
+        function displayOwnerDetail(owner) {
+            const detailDiv = document.getElementById('ownerDetail');
+            
+            detailDiv.innerHTML = `
+                <table border="1">
+                    <tr>
+                        <th width="200">ID</th>
+                        <td>${owner.id}</td>
+                    </tr>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <td>${owner.nombre} ${owner.apellido}</td>
+                    </tr>
+                    <tr>
+                        <th>Documento</th>
+                        <td>${owner.documento}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td><a href="mailto:${owner.email}">${owner.email}</a></td>
+                    </tr>
+                    <tr>
+                        <th>Teléfono</th>
+                        <td>${owner.telefono ? '<a href="tel:' + owner.telefono + '">' + owner.telefono + '</a>' : '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>Dirección</th>
+                        <td>${owner.direccion || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>País</th>
+                        <td>${owner.pais || '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>Fecha de Registro</th>
+                        <td>${Formatters.formatDateTime(owner.fechaRegistro)}</td>
+                    </tr>
+                    <tr>
+                        <th>Registrado hace</th>
+                        <td>${Formatters.formatRelativeDate(owner.fechaRegistro)}</td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        // Editar dueño
+        function editOwner() {
+            location.href = `owner-form.html?id=${currentOwnerId}`;
+        }
+        
+        // Eliminar dueño
+        function deleteOwner() {
+            if (!confirm('¿Estás seguro de eliminar este dueño?')) {
+                return;
+            }
+            
+            const result = OwnerService.delete(currentOwnerId);
+            
+            if (result.success) {
+                Notification.success(result.message);
+                setTimeout(() => location.href = 'owners-list.html', 1500);
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Cargar al inicio
+        loadOwnerDetail();
+    </script>
+</body>
+</html>

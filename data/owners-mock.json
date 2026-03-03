@@ -1,0 +1,57 @@
+[
+    {
+        "id": "OWN001",
+        "nombre": "Empresa Naviera",
+        "apellido": "Mexicana S.A.",
+        "documento": "MX-ENM-2024",
+        "email": "contacto@naveramexicana.com",
+        "telefono": "+52 229 123 4567",
+        "direccion": "Av. del Puerto 100, Veracruz",
+        "pais": "México",
+        "fechaRegistro": "2024-01-10T10:00:00Z"
+    },
+    {
+        "id": "OWN002",
+        "nombre": "Nihon Shipping",
+        "apellido": "Co. Ltd.",
+        "documento": "JP-NSC-2024",
+        "email": "info@nihonshipping.jp",
+        "telefono": "+81 3 5555 8888",
+        "direccion": "1-1-1 Minato, Tokio",
+        "pais": "Japón",
+        "fechaRegistro": "2024-02-15T09:00:00Z"
+    },
+    {
+        "id": "OWN003",
+        "nombre": "Juan",
+        "apellido": "Pérez García",
+        "documento": "12345678",
+        "email": "juan.perez@email.com",
+        "telefono": "+34 611 222 333",
+        "direccion": "Calle Marina 123, Barcelona",
+        "pais": "España",
+        "fechaRegistro": "2025-01-15T10:30:00Z"
+    },
+    {
+        "id": "OWN004",
+        "nombre": "María",
+        "apellido": "López Martínez",
+        "documento": "87654321",
+        "email": "maria.lopez@email.com",
+        "telefono": "+54 911 444 555",
+        "direccion": "Av. del Puerto 456, Buenos Aires",
+        "pais": "Argentina",
+        "fechaRegistro": "2025-03-20T14:15:00Z"
+    },
+    {
+        "id": "OWN005",
+        "nombre": "Carlos",
+        "apellido": "Rodríguez Silva",
+        "documento": "45678912",
+        "email": "carlos.rodriguez@email.com",
+        "telefono": "+52 55 7788 9900",
+        "direccion": "Calle del Mar 789, Veracruz",
+        "pais": "México",
+        "fechaRegistro": "2025-06-10T09:00:00Z"
+    }
+]

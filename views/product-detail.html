@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Producto - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Detalle del Producto</h1>
+    
+    <div>
+        <button onclick="location.href='products-list.html'">← Volver a Lista</button>
+        <button onclick="editProduct()">✏️ Editar</button>
+        <button onclick="deleteProduct()">🗑️ Eliminar</button>
+    </div>
+    
+    <br>
+    
+    <div id="productDetail">
+        <p>Cargando información del producto...</p>
+    </div>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/product-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de producto desde URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        
+        if (!productId) {
+            Notification.error('ID de producto no especificado');
+            setTimeout(() => {
+                window.location.href = 'products-list.html';
+            }, 2000);
+        }
+        
+        // Cargar detalles del producto
+        function loadProductDetail() {
+            const product = ProductService.getById(productId);
+            
+            if (!product) {
+                document.getElementById('productDetail').innerHTML = 
+                    '<p style="color: red;">Producto no encontrado</p>';
+                Notification.error('Producto no encontrado');
+                return;
+            }
+            
+            const detailHTML = `
+                <fieldset>
+                    <legend>Información del Producto</legend>
+                    <table border="0" cellpadding="5">
+                        <tr>
+                            <td><strong>ID:</strong></td>
+                            <td>${product.id}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre:</strong></td>
+                            <td>${product.nombre}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Categoría:</strong></td>
+                            <td><strong>${product.categoria}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Descripción:</strong></td>
+                            <td>${product.descripcion || 'No especificada'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Unidad de Medida:</strong></td>
+                            <td>${product.unidadMedida}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precio Unitario:</strong></td>
+                            <td>${Formatters.formatCurrency(product.precioUnitario)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stock:</strong></td>
+                            <td>${product.stock} ${product.unidadMedida}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Valor en Inventario:</strong></td>
+                            <td>${Formatters.formatCurrency(product.precioUnitario * product.stock)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Estado:</strong></td>
+                            <td><strong>${product.estado}</strong></td>
+                        </tr>
+                    </table>
+                </fieldset>
+                
+                <br>
+                
+                <fieldset>
+                    <legend>Gestión de Stock</legend>
+                    <label>Cantidad: </label>
+                    <input type="number" id="stockQuantity" min="0" value="10" style="width: 100px;">
+                    
+                    <button onclick="updateStock('add')">➕ Agregar Stock</button>
+                    <button onclick="updateStock('subtract')">➖ Restar Stock</button>
+                    <button onclick="updateStock('set')">🔄 Establecer Stock</button>
+                </fieldset>
+            `;
+            
+            document.getElementById('productDetail').innerHTML = detailHTML;
+        }
+        
+        // Actualizar stock
+        function updateStock(operation) {
+            const quantity = parseInt(document.getElementById('stockQuantity').value);
+            
+            if (isNaN(quantity) || quantity < 0) {
+                Notification.error('Cantidad inválida');
+                return;
+            }
+            
+            const result = ProductService.updateStock(productId, quantity, operation);
+            
+            if (result.success) {
+                Notification.success(result.message);
+                loadProductDetail();
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Editar producto
+        function editProduct() {
+            window.location.href = `product-form.html?id=${productId}`;
+        }
+        
+        // Eliminar producto
+        function deleteProduct() {
+            const product = ProductService.getById(productId);
+            
+            if (!product) {
+                Notification.error('Producto no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar el producto "${product.nombre}"?`)) {
+                const result = ProductService.delete(productId);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    setTimeout(() => {
+                        window.location.href = 'products-list.html';
+                    }, 1500);
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Cargar detalles al inicio
+        loadProductDetail();
+    </script>
+</body>
+</html>

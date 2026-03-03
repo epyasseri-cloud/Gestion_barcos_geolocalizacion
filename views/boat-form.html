@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Barco - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1 id="formTitle">Nuevo Barco</h1>
+    
+    <div>
+        <button onclick="location.href='boats-list.html'">← Volver a Lista</button>
+    </div>
+    
+    <br>
+    
+    <form id="boatForm">
+        <fieldset>
+            <legend>Información del Barco</legend>
+            
+            <label>Nombre: *</label><br>
+            <input type="text" id="nombre" name="nombre" required><br><br>
+            
+            <label>Matrícula: *</label><br>
+            <input type="text" id="matricula" name="matricula" required><br><br>
+            
+            <label>Bandera/País: *</label><br>
+            <input type="text" id="bandera" name="bandera" required><br><br>
+            
+            <label>Tipo: *</label><br>
+            <select id="tipo" name="tipo" required>
+                <option value="">Seleccionar tipo...</option>
+                <option value="Pesquero">Pesquero</option>
+                <option value="Carga">Carga</option>
+                <option value="Pasajeros">Pasajeros</option>
+                <option value="Tanquero">Tanquero</option>
+                <option value="Portacontenedores">Portacontenedores</option>
+                <option value="Turístico">Turístico</option>
+            </select><br><br>
+            
+            <label>Capacidad (Toneladas):</label><br>
+            <input type="number" id="capacidadToneladas" name="capacidadToneladas" min="0" step="0.01"><br><br>
+            
+            <label>Año de Fabricación:</label><br>
+            <input type="number" id="anoFabricacion" name="anoFabricacion" min="1900" max="2026"><br><br>
+            
+            <label>Dueño:</label><br>
+            <select id="dueñoId" name="dueñoId">
+                <option value="">Sin dueño asignado</option>
+            </select><br><br>
+            
+            <label>Estado:</label><br>
+            <select id="estado" name="estado">
+                <option value="Activo">Activo</option>
+                <option value="En Viaje">En Viaje</option>
+                <option value="En Mantenimiento">En Mantenimiento</option>
+                <option value="En Puerto">En Puerto</option>
+                <option value="Inactivo">Inactivo</option>
+            </select><br><br>
+            
+            <label>Fecha de Registro:</label><br>
+            <input type="date" id="fechaRegistro" name="fechaRegistro"><br><br>
+        </fieldset>
+        
+        <br>
+        
+        <fieldset>
+            <legend>Posición GPS Inicial (Opcional)</legend>
+            
+            <label>Latitud:</label><br>
+            <input type="number" id="lat" name="lat" step="0.000001" min="-90" max="90" value="0"><br><br>
+            
+            <label>Longitud:</label><br>
+            <input type="number" id="lng" name="lng" step="0.000001" min="-180" max="180" value="0"><br><br>
+            
+            <label>Velocidad (nudos):</label><br>
+            <input type="number" id="velocidad" name="velocidad" min="0" step="0.1" value="0"><br><br>
+        </fieldset>
+        
+        <br>
+        
+        <button type="submit">💾 Guardar Barco</button>
+        <button type="button" onclick="location.href='boats-list.html'">Cancelar</button>
+    </form>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/owner-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de barco desde URL (si existe)
+        const urlParams = new URLSearchParams(window.location.search);
+        const boatId = urlParams.get('id');
+        const isEditMode = !!boatId;
+        
+        // Cargar dueños en el selector
+        function loadOwnersSelector() {
+            const owners = OwnerService.getAll();
+            const select = document.getElementById('dueñoId');
+            
+            owners.forEach(owner => {
+                const option = document.createElement('option');
+                option.value = owner.id;
+                option.textContent = `${owner.nombre} ${owner.apellido} (${owner.id})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Cargar datos del barco si está en modo edición
+        function loadBoatData() {
+            if (!isEditMode) return;
+            
+            const boat = BoatService.getById(boatId);
+            
+            if (!boat) {
+                Notification.error('Barco no encontrado');
+                setTimeout(() => {
+                    window.location.href = 'boats-list.html';
+                }, 2000);
+                return;
+            }
+            
+            // Cambiar título
+            document.getElementById('formTitle').textContent = `Editar Barco: ${boat.nombre}`;
+            
+            // Rellenar formulario
+            document.getElementById('nombre').value = boat.nombre;
+            document.getElementById('matricula').value = boat.matricula;
+            document.getElementById('bandera').value = boat.bandera;
+            document.getElementById('tipo').value = boat.tipo;
+            document.getElementById('capacidadToneladas').value = boat.capacidadToneladas || 0;
+            document.getElementById('anoFabricacion').value = boat.anoFabricacion || '';
+            document.getElementById('dueñoId').value = boat.dueñoId || '';
+            document.getElementById('estado').value = boat.estado;
+            document.getElementById('fechaRegistro').value = boat.fechaRegistro || '';
+            document.getElementById('lat').value = boat.lat || 0;
+            document.getElementById('lng').value = boat.lng || 0;
+            document.getElementById('velocidad').value = boat.velocidad || 0;
+        }
+        
+        // Establecer fecha actual por defecto
+        function setDefaultDate() {
+            if (!isEditMode) {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaRegistro').value = today;
+            }
+        }
+        
+        // Manejar envío del formulario
+        document.getElementById('boatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nombre: document.getElementById('nombre').value.trim(),
+                matricula: document.getElementById('matricula').value.trim(),
+                bandera: document.getElementById('bandera').value.trim(),
+                tipo: document.getElementById('tipo').value,
+                capacidadToneladas: parseFloat(document.getElementById('capacidadToneladas').value) || 0,
+                anoFabricacion: parseInt(document.getElementById('anoFabricacion').value) || new Date().getFullYear(),
+                dueñoId: document.getElementById('dueñoId').value || null,
+                estado: document.getElementById('estado').value,
+                fechaRegistro: document.getElementById('fechaRegistro').value,
+                lat: parseFloat(document.getElementById('lat').value) || 0,
+                lng: parseFloat(document.getElementById('lng').value) || 0,
+                velocidad: parseFloat(document.getElementById('velocidad').value) || 0
+            };
+            
+            // Validaciones adicionales
+            if (!formData.nombre || !formData.matricula || !formData.bandera) {
+                Notification.error('Nombre, matrícula y bandera son obligatorios');
+                return;
+            }
+            
+            if (!formData.tipo) {
+                Notification.error('El tipo de barco es obligatorio');
+                return;
+            }
+            
+            let result;
+            
+            if (isEditMode) {
+                result = BoatService.update(boatId, formData);
+            } else {
+                result = BoatService.create(formData);
+            }
+            
+            if (result.success) {
+                Notification.success(result.message);
+                setTimeout(() => {
+                    window.location.href = 'boats-list.html';
+                }, 1500);
+            } else {
+                Notification.error(result.message);
+            }
+        });
+        
+        // Inicializar
+        loadOwnersSelector();
+        setDefaultDate();
+        loadBoatData();
+    </script>
+</body>
+</html>

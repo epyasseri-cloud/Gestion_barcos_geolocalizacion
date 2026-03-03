@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas de Viajes - Sistema de Barcos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .statistics-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .statistics-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .statistics-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .statistics-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .statistics-table tr:hover {
+            background: #f8f9fa;
+        }
+        .country-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-export:hover {
+            background: #2c3e50;
+        }
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .top-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .top-card h3 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        .top-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .top-item-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .top-item-value {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .routes-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .routes-section h3 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        .route-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .route-path {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .route-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .route-stat {
+            text-align: center;
+        }
+        .route-stat-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+        .route-stat-label {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
+                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
+                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
+                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
+                <a href="../views/trips-list.html"><span><i class="fas fa-route"></i></span> Viajes</a>
+                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
+                <a href="../views/trip-statistics.html" class="active"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
+                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
+                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div>
+                    <h1><i class="fas fa-chart-pie"></i> Estadísticas de Viajes por País</h1>
+                    <p>Reportes y análisis estadísticos de viajes agrupados por bandera/país</p>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <h3 style="margin-top: 0;"><i class="fas fa-filter"></i> Filtros de Análisis</h3>
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label>País/Bandera</label>
+                        <select id="filterCountry" class="form-control">
+                            <option value="">Todos los países</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado de Viaje</label>
+                        <select id="filterState" class="form-control">
+                            <option value="">Todos los estados</option>
+                            <option value="En curso">En curso</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Pausado">Pausado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Inicio</label>
+                        <input type="date" id="filterDateStart" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Fin</label>
+                        <input type="date" id="filterDateEnd" class="form-control">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button class="btn-primary" onclick="applyFilters()"><i class="fas fa-search"></i> Aplicar Filtros</button>
+                    <button class="btn-secondary" onclick="resetFilters()" style="margin-left: 0.5rem;"><i class="fas fa-redo"></i> Limpiar</button>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportJSON()"><i class="fas fa-file-code"></i> Exportar JSON</button>
+                    <button class="btn-export" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    <button class="btn-export" onclick="generateFullReport()"><i class="fas fa-file-alt"></i> Reporte Completo</button>
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCountries">0</div>
+                    <div class="stat-label">Países</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTrips">0</div>
+                    <div class="stat-label">Total Viajes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBoats">0</div>
+                    <div class="stat-label">Barcos Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDistance">0</div>
+                    <div class="stat-label">Distancia Total (nm)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgDuration">0</div>
+                    <div class="stat-label">Duración Promedio (días)</div>
+                </div>
+            </div>
+
+            <!-- Top Countries -->
+            <div class="top-section">
+                <div class="top-card">
+                    <h3><i class="fas fa-trophy"></i> Top 10 Países por Viajes</h3>
+                    <div id="topCountriesTrips">
+                        <p style="text-align: center; color: #7f8c8d;">Cargando...</p>
+                    </div>
+                </div>
+                <div class="top-card">
+                    <h3><i class="fas fa-water"></i> Top 10 Países por Distancia</h3>
+                    <div id="topCountriesDistance">
+                        <p style="text-align: center; color: #7f8c8d;">Cargando...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Frequent Routes -->
+            <div class="routes-section">
+                <h3><i class="fas fa-map-marked-alt"></i> Rutas Más Frecuentes</h3>
+                <div id="frequentRoutes">
+                    <p style="text-align: center; color: #7f8c8d;">Cargando...</p>
+                </div>
+            </div>
+
+            <!-- Statistics by Country Table -->
+            <div class="statistics-table">
+                <h3 style="padding: 1rem; margin: 0; background: #34495e; color: white; border-radius: 8px 8px 0 0;">
+                    <i class="fas fa-table"></i> Estadísticas Detalladas por País
+                </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>País</th>
+                            <th>Total Viajes</th>
+                            <th>En Curso</th>
+                            <th>Finalizados</th>
+                            <th>Barcos</th>
+                            <th>Distancia Total (nm)</th>
+                            <th>Distancia Promedio</th>
+                            <th>Duración Promedio (días)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                                Cargando estadísticas...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/trip-service.js"></script>
+    <script src="../services/statistics-service.js"></script>
+    <script>
+        let currentStats = {};
+        let currentFilters = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCountries();
+            loadStatistics();
+        });
+
+        function loadCountries() {
+            // Obtener países únicos de los barcos
+            const boats = window.BoatService.getAll();
+            const countries = [...new Set(boats.map(b => b.bandera))].sort();
+            
+            const select = document.getElementById('filterCountry');
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                select.appendChild(option);
+            });
+        }
+
+        function loadStatistics(filters = {}) {
+            currentFilters = filters;
+
+            // Obtener estadísticas
+            currentStats = window.StatisticsService.getTripStatsByCountry(filters);
+            const summary = window.StatisticsService.getGeneralSummary(filters);
+
+            // Mostrar resumen
+            displaySummary(summary);
+
+            // Mostrar tabla de estadísticas por país
+            displayStatsTable(currentStats);
+
+            // Mostrar top países
+            displayTopCountries(filters);
+
+            // Mostrar rutas frecuentes
+            displayFrequentRoutes(filters);
+        }
+
+        function displaySummary(summary) {
+            document.getElementById('totalCountries').textContent = summary.totalPaises;
+            document.getElementById('totalTrips').textContent = summary.totalViajes;
+            document.getElementById('totalBoats').textContent = summary.totalBarcos;
+            document.getElementById('totalDistance').textContent = summary.distanciaTotal.toLocaleString();
+            document.getElementById('avgDuration').textContent = summary.duracionPromedio;
+        }
+
+        function displayStatsTable(statsByCountry) {
+            const tbody = document.getElementById('statsTableBody');
+            const countries = Object.keys(statsByCountry).sort((a, b) => 
+                statsByCountry[b].totalViajes - statsByCountry[a].totalViajes
+            );
+
+            if (countries.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: #7f8c8d;">
+                            No se encontraron estadísticas con los filtros seleccionados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = countries.map(country => {
+                const stats = statsByCountry[country];
+                return `
+                    <tr>
+                        <td><span class="country-badge">${stats.pais}</span></td>
+                        <td><strong>${stats.totalViajes}</strong></td>
+                        <td>${stats.viajesEnCurso}</td>
+                        <td>${stats.viajesFinalizados}</td>
+                        <td>${stats.totalBarcos}</td>
+                        <td>${stats.distanciaTotal.toLocaleString()} nm</td>
+                        <td>${stats.distanciaPromedio} nm</td>
+                        <td>${stats.duracionPromedioDias} días</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function displayTopCountries(filters) {
+            const topTrips = window.StatisticsService.getTopCountriesByTrips(10, filters);
+            const topDistance = window.StatisticsService.getTopCountriesByDistance(10, filters);
+
+            // Top por viajes
+            const tripsContainer = document.getElementById('topCountriesTrips');
+            tripsContainer.innerHTML = topTrips.map((country, index) => `
+                <div class="top-item">
+                    <span class="top-item-name">${index + 1}. ${country.pais}</span>
+                    <span class="top-item-value">${country.totalViajes} viajes</span>
+                </div>
+            `).join('');
+
+            // Top por distancia
+            const distanceContainer = document.getElementById('topCountriesDistance');
+            distanceContainer.innerHTML = topDistance.map((country, index) => `
+                <div class="top-item">
+                    <span class="top-item-name">${index + 1}. ${country.pais}</span>
+                    <span class="top-item-value">${country.distanciaTotal.toLocaleString()} nm</span>
+                </div>
+            `).join('');
+        }
+
+        function displayFrequentRoutes(filters) {
+            const routes = window.StatisticsService.getMostFrequentRoutes(filters.pais, 10);
+            const container = document.getElementById('frequentRoutes');
+
+            if (routes.length === 0) {
+                container.innerHTML = `
+                    <p style="text-align: center; color: #7f8c8d;">No hay rutas disponibles</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = routes.map(route => `
+                <div class="route-item">
+                    <div class="route-path">${route.ruta}</div>
+                    <div class="route-stats">
+                        <div class="route-stat">
+                            <div class="route-stat-value">${route.frecuencia}</div>
+                            <div class="route-stat-label">Viajes</div>
+                        </div>
+                        <div class="route-stat">
+                            <div class="route-stat-value">${route.distanciaPromedio}</div>
+                            <div class="route-stat-label">nm promedio</div>
+                        </div>
+                        <div class="route-stat">
+                            <div class="route-stat-value">${route.duracionPromedio}</div>
+                            <div class="route-stat-label">días promedio</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyFilters() {
+            const filters = {};
+
+            const country = document.getElementById('filterCountry').value;
+            if (country) filters.pais = country;
+
+            const state = document.getElementById('filterState').value;
+            if (state) filters.estado = state;
+
+            const dateStart = document.getElementById('filterDateStart').value;
+            const dateEnd = document.getElementById('filterDateEnd').value;
+            if (dateStart && dateEnd) {
+                filters.fechaInicio = new Date(dateStart).toISOString();
+                filters.fechaFin = new Date(dateEnd).toISOString();
+            }
+
+            loadStatistics(filters);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterCountry').value = '';
+            document.getElementById('filterState').value = '';
+            document.getElementById('filterDateStart').value = '';
+            document.getElementById('filterDateEnd').value = '';
+            loadStatistics();
+        }
+
+        function exportJSON() {
+            const json = window.StatisticsService.exportJSON(currentStats);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `estadisticas_viajes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            const csv = window.StatisticsService.exportCSV(currentStats);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `estadisticas_viajes_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateFullReport() {
+            const report = window.StatisticsService.generateReport(currentFilters);
+            const json = JSON.stringify(report, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte_completo_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('✅ Reporte completo generado correctamente');
+        }
+    </script>
+</body>
+</html>

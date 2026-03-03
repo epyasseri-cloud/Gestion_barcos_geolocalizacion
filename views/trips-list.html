@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Viajes - Sistema de Barcos</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .trip-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .trip-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .trip-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .trip-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .trip-table tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-en-curso {
+            background: #3498db;
+            color: white;
+        }
+        .status-finalizado {
+            background: #27ae60;
+            color: white;
+        }
+        .status-pausado {
+            background: #f39c12;
+            color: white;
+        }
+        .status-cancelado {
+            background: #e74c3c;
+            color: white;
+        }
+        .actions-btn {
+            padding: 0.4rem 0.8rem;
+            margin: 0 0.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+        .btn-end {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-view:hover { background: #2980b9; }
+        .btn-end:hover { background: #229954; }
+        .btn-cancel:hover { background: #c0392b; }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-export:hover {
+            background: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html"><span></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span></span> Dueños</a>
+                <a href="../views/boats-list.html"><span></span> Barcos</a>
+                <a href="../views/employees-list.html"><span></span> Empleados</a>
+                <a href="../views/products-list.html"><span></span> Productos</a>
+                <a href="../views/trips-list.html" class="active"><span></span> Viajes</a>
+                <a href="../views/warehouse-movements.html"><span></span> Bodega</a>
+                <a href="../views/map-view.html"><span></span> Mapa GPS</a>
+                <a href="../views/nearest-boat-finder.html"><span></span> Barco Cercano</a>
+                <a href="../auth/views/login.html"><span></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div>
+                    <h1> Gestión de Viajes</h1>
+                    <p>Administra los viajes de los barcos</p>
+                </div>
+                <button class="btn-primary" onclick="window.location.href='trip-form.html'">
+                    + Nuevo Viaje
+                </button>
+            </header>
+
+            <!-- Statistics -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTrips">0</div>
+                    <div class="stat-label">Total Viajes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeTrips">0</div>
+                    <div class="stat-label">En Curso</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completedTrips">0</div>
+                    <div class="stat-label">Finalizados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pausedTrips">0</div>
+                    <div class="stat-label">Pausados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgDuration">0</div>
+                    <div class="stat-label">Duración Promedio (días)</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="form-group">
+                        <input type="text" id="searchInput" placeholder="Buscar viajes..." class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <select id="filterState" class="form-control">
+                            <option value="">Todos los estados</option>
+                            <option value="En curso">En curso</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Pausado">Pausado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="filterBoat" class="form-control">
+                            <option value="">Todos los barcos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="filterPort" class="form-control">
+                            <option value="">Todos los puertos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportJSON()"> Exportar JSON</button>
+                    <button class="btn-export" onclick="exportCSV()"> Exportar CSV</button>
+                    <button class="btn-export" onclick="loadMockData()"> Cargar Datos Mock</button>
+                </div>
+            </div>
+
+            <!-- Trips Table -->
+            <div class="trip-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('id')">ID ↕</th>
+                            <th onclick="sortTable('barcoId')">Barco ↕</th>
+                            <th onclick="sortTable('puertoOrigen')">Puerto Origen ↕</th>
+                            <th onclick="sortTable('puertoDestino')">Puerto Destino ↕</th>
+                            <th onclick="sortTable('fechaInicio')">Fecha Inicio ↕</th>
+                            <th onclick="sortTable('fechaFin')">Fecha Fin ↕</th>
+                            <th onclick="sortTable('estado')">Estado ↕</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tripsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                                Cargando viajes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/trip-service.js"></script>
+    <script>
+        let currentSort = { field: 'fechaInicio', order: 'desc' };
+        let currentTrips = [];
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFilters();
+            loadTrips();
+            loadStats();
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', debounce(filterTrips, 300));
+            document.getElementById('filterState').addEventListener('change', filterTrips);
+            document.getElementById('filterBoat').addEventListener('change', filterTrips);
+            document.getElementById('filterPort').addEventListener('change', filterTrips);
+        }
+
+        // Debounce para búsqueda
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Cargar filtros
+        function loadFilters() {
+            // Cargar barcos en filtro
+            const boats = window.BoatService.getAll();
+            const boatSelect = document.getElementById('filterBoat');
+            boats.forEach(boat => {
+                const option = document.createElement('option');
+                option.value = boat.id;
+                option.textContent = `${boat.nombre} (${boat.id})`;
+                boatSelect.appendChild(option);
+            });
+
+            // Cargar puertos en filtro
+            const ports = window.TripService.getUniquePorts();
+            const portSelect = document.getElementById('filterPort');
+            ports.todos.forEach(port => {
+                const option = document.createElement('option');
+                option.value = port;
+                option.textContent = port;
+                portSelect.appendChild(option);
+            });
+        }
+
+        // Cargar viajes
+        function loadTrips() {
+            currentTrips = window.TripService.getAll();
+            displayTrips(currentTrips);
+        }
+
+        // Mostrar viajes en tabla
+        function displayTrips(trips) {
+            const tbody = document.getElementById('tripsTableBody');
+            
+            if (trips.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: #7f8c8d;">
+                            No se encontraron viajes. Haz clic en "Nuevo Viaje" para crear uno.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Ordenar trips
+            const sortedTrips = window.TripService.sortBy(trips, currentSort.field, currentSort.order);
+
+            tbody.innerHTML = sortedTrips.map(trip => {
+                // Obtener nombre del barco
+                const boat = window.BoatService.getById(trip.barcoId);
+                const boatName = boat ? boat.nombre : trip.barcoId;
+
+                // Formatear fechas
+                const fechaInicio = new Date(trip.fechaInicio).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const fechaFin = trip.fechaFin 
+                    ? new Date(trip.fechaFin).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : '-';
+
+                // Estado badge
+                const estadoClass = `status-${trip.estado.toLowerCase().replace(' ', '-')}`;
+
+                // Botones de acción según estado
+                let actionButtons = `<button class="actions-btn btn-view" onclick="viewTrip('${trip.id}')">Ver</button>`;
+                
+                if (trip.estado === 'En curso') {
+                    actionButtons += `<button class="actions-btn btn-end" onclick="endTrip('${trip.id}')">Finalizar</button>`;
+                    actionButtons += `<button class="actions-btn btn-cancel" onclick="cancelTrip('${trip.id}')">Cancelar</button>`;
+                }
+
+                return `
+                    <tr>
+                        <td><strong>${trip.id}</strong></td>
+                        <td>${boatName}</td>
+                        <td>${trip.puertoOrigen}</td>
+                        <td>${trip.puertoDestino}</td>
+                        <td>${fechaInicio}</td>
+                        <td>${fechaFin}</td>
+                        <td><span class="status-badge ${estadoClass}">${trip.estado}</span></td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filtrar viajes
+        function filterTrips() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const filterState = document.getElementById('filterState').value;
+            const filterBoat = document.getElementById('filterBoat').value;
+            const filterPort = document.getElementById('filterPort').value;
+
+            let filtered = window.TripService.search(searchTerm);
+
+            if (filterState) {
+                filtered = filtered.filter(trip => trip.estado === filterState);
+            }
+
+            if (filterBoat) {
+                filtered = filtered.filter(trip => trip.barcoId === filterBoat);
+            }
+
+            if (filterPort) {
+                filtered = filtered.filter(trip => 
+                    trip.puertoOrigen === filterPort || trip.puertoDestino === filterPort
+                );
+            }
+
+            displayTrips(filtered);
+        }
+
+        // Ordenar tabla
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            filterTrips();
+        }
+
+        // Cargar estadísticas
+        function loadStats() {
+            const stats = window.TripService.getStats();
+            document.getElementById('totalTrips').textContent = stats.total;
+            document.getElementById('activeTrips').textContent = stats.enCurso;
+            document.getElementById('completedTrips').textContent = stats.finalizados;
+            document.getElementById('pausedTrips').textContent = stats.pausados;
+            document.getElementById('avgDuration').textContent = stats.duracionPromedioDias;
+        }
+
+        // Ver detalle de viaje
+        function viewTrip(tripId) {
+            window.location.href = `trip-detail.html?id=${tripId}`;
+        }
+
+        // Finalizar viaje
+        function endTrip(tripId) {
+            if (!confirm('¿Finalizar este viaje?')) return;
+
+            const observaciones = prompt('Observaciones de finalización (opcional):');
+            const result = window.TripService.endTrip(tripId, { observaciones });
+
+            if (result.success) {
+                alert('Viaje finalizado correctamente');
+                loadTrips();
+                loadStats();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        // Cancelar viaje
+        function cancelTrip(tripId) {
+            if (!confirm('¿Cancelar este viaje?')) return;
+
+            const motivo = prompt('Motivo de cancelación:');
+            if (!motivo) {
+                alert('Debe especificar un motivo');
+                return;
+            }
+
+            const result = window.TripService.cancelTrip(tripId, motivo);
+
+            if (result.success) {
+                alert('Viaje cancelado correctamente');
+                loadTrips();
+                loadStats();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        // Exportar JSON
+        function exportJSON() {
+            const json = window.TripService.exportJSON();
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `viajes_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Exportar CSV
+        function exportCSV() {
+            const csv = window.TripService.exportCSV();
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `viajes_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Cargar datos mock
+        async function loadMockData() {
+            if (!confirm('¿Cargar datos de ejemplo? Esto agregará viajes de prueba.')) return;
+
+            try {
+                const response = await fetch('../data/trips-mock.json');
+                const mockTrips = await response.json();
+                
+                mockTrips.forEach(trip => {
+                    window.TripService.create(trip);
+                });
+
+                alert(`${mockTrips.length} viajes de ejemplo cargados correctamente`);
+                loadTrips();
+                loadStats();
+            } catch (error) {
+                alert('Error al cargar datos mock: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Gestión de Productos y Nomenclatura</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+        <button onclick="location.href='product-form.html'">+ Nuevo Producto</button>
+        <button onclick="exportJSON()">📥 Exportar JSON</button>
+        <button onclick="exportCSV()">📥 Exportar CSV</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, descripción..." style="width: 300px;">
+        
+        <select id="categoryFilter">
+            <option value="">Todas las categorías</option>
+            <option value="Primaria">Primaria</option>
+            <option value="Manufactura">Manufactura</option>
+        </select>
+        
+        <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+        </select>
+        
+        <button onclick="applyFilters()">Filtrar</button>
+        <button onclick="clearFilters()">Limpiar</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <strong>Estadísticas:</strong>
+        Total: <span id="totalCount">0</span> | 
+        Primaria: <span id="primaryCount">0</span> | 
+        Manufactura: <span id="manufactureCount">0</span> | 
+        Activos: <span id="activeCount">0</span> | 
+        Valor Total: $<span id="totalValue">0.00</span>
+    </div>
+    
+    <br>
+    
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+        <thead>
+            <tr>
+                <th onclick="sortTable('id')">ID</th>
+                <th onclick="sortTable('nombre')">Nombre</th>
+                <th onclick="sortTable('categoria')">Categoría</th>
+                <th onclick="sortTable('unidadMedida')">Unidad</th>
+                <th onclick="sortTable('precioUnitario')">Precio</th>
+                <th onclick="sortTable('stock')">Stock</th>
+                <th onclick="sortTable('estado')">Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="productsTable">
+            <tr>
+                <td colspan="8" style="text-align: center;">Cargando productos...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/product-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let currentSort = { field: 'id', order: 'asc' };
+        let filteredProducts = [];
+        
+        // Cargar productos
+        function loadProducts() {
+            const products = ProductService.getAll();
+            filteredProducts = products;
+            displayProducts(products);
+            updateStats();
+        }
+        
+        // Mostrar productos en la tabla
+        function displayProducts(products) {
+            const tbody = document.getElementById('productsTable');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay productos registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = products.map(prod => `
+                <tr>
+                    <td>${prod.id}</td>
+                    <td>${prod.nombre}</td>
+                    <td>${prod.categoria}</td>
+                    <td>${prod.unidadMedida}</td>
+                    <td>${Formatters.formatCurrency(prod.precioUnitario)}</td>
+                    <td>${prod.stock}</td>
+                    <td>${prod.estado}</td>
+                    <td>
+                        <button onclick="viewProduct('${prod.id}')">Ver</button>
+                        <button onclick="editProduct('${prod.id}')">Editar</button>
+                        <button onclick="deleteProduct('${prod.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Actualizar estadísticas
+        function updateStats() {
+            const stats = ProductService.getStats();
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('primaryCount').textContent = stats.primaria;
+            document.getElementById('manufactureCount').textContent = stats.manufactura;
+            document.getElementById('activeCount').textContent = stats.activos;
+            document.getElementById('totalValue').textContent = stats.valorTotal.toFixed(2);
+        }
+        
+        // Aplicar filtros
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let products = ProductService.getAll();
+            
+            // Aplicar búsqueda
+            if (searchQuery) {
+                products = ProductService.search(searchQuery);
+            }
+            
+            // Aplicar filtro de categoría
+            if (categoryFilter) {
+                products = products.filter(prod => prod.categoria === categoryFilter);
+            }
+            
+            // Aplicar filtro de estado
+            if (statusFilter) {
+                products = products.filter(prod => prod.estado === statusFilter);
+            }
+            
+            filteredProducts = products;
+            displayProducts(products);
+            Notification.info(`${products.length} productos encontrados`);
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            loadProducts();
+            Notification.info('Filtros limpiados');
+        }
+        
+        // Buscar al escribir
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (this.value.length > 2 || this.value.length === 0) {
+                        applyFilters();
+                    }
+                });
+            }
+        });
+        
+        // Ordenar tabla
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            
+            const sorted = ProductService.sort(filteredProducts, field, currentSort.order);
+            displayProducts(sorted);
+        }
+        
+        // Ver detalles del producto
+        function viewProduct(id) {
+            window.location.href = `product-detail.html?id=${id}`;
+        }
+        
+        // Editar producto
+        function editProduct(id) {
+            window.location.href = `product-form.html?id=${id}`;
+        }
+        
+        // Eliminar producto
+        function deleteProduct(id) {
+            const product = ProductService.getById(id);
+            
+            if (!product) {
+                Notification.error('Producto no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar el producto "${product.nombre}"?`)) {
+                const result = ProductService.delete(id);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    loadProducts();
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Exportar JSON
+        function exportJSON() {
+            ProductService.exportJSON();
+            Notification.success('Productos exportados a JSON');
+        }
+        
+        // Exportar CSV
+        function exportCSV() {
+            const result = ProductService.exportCSV();
+            
+            if (result.success) {
+                Notification.success(result.message);
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Cargar productos al inicio
+        loadProducts();
+    </script>
+</body>
+</html>

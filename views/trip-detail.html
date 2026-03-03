@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Viaje - Sistema de Barcos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        .detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .detail-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .detail-card h3 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .detail-value {
+            color: #2c3e50;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-en-curso {
+            background: #3498db;
+            color: white;
+        }
+        .status-finalizado {
+            background: #27ae60;
+            color: white;
+        }
+        .status-pausado {
+            background: #f39c12;
+            color: white;
+        }
+        .status-cancelado {
+            background: #e74c3c;
+            color: white;
+        }
+        #routeMap {
+            height: 400px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3498db;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #3498db;
+        }
+        .timeline-item:after {
+            content: '';
+            position: absolute;
+            left: -1.05rem;
+            top: 1.5rem;
+            width: 2px;
+            height: 100%;
+            background: #3498db;
+        }
+        .timeline-item:last-child:after {
+            display: none;
+        }
+        .timeline-time {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .crew-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .crew-member {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .crew-member-icon {
+            width: 32px;
+            height: 32px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .cargo-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .cargo-item {
+            padding: 0.4rem 0.8rem;
+            background: #e8f4f8;
+            color: #2c3e50;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .map-icon {
+            background: transparent !important;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
+                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
+                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
+                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
+                <a href="../views/trips-list.html" class="active"><span><i class="fas fa-route"></i></span> Viajes</a>
+                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
+                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
+                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
+                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div>
+                    <h1 id="pageTitle"><i class="fas fa-route"></i> Detalle del Viaje</h1>
+                    <p id="pageSubtitle">Información completa del viaje</p>
+                </div>
+                <button class="btn btn-secondary" onclick="window.location.href='trips-list.html'">
+                    <i class="fas fa-arrow-left"></i> Volver a Viajes
+                </button>
+            </header>
+
+            <div class="detail-container">
+                <!-- Información General -->
+                <div class="detail-card">
+                    <h3><i class="fas fa-info-circle"></i> Información General</h3>
+                    <div id="generalInfo">
+                        Cargando...
+                    </div>
+                </div>
+
+                <!-- Información del Barco -->
+                <div class="detail-card">
+                    <h3><i class="fas fa-ship"></i> Información del Barco</h3>
+                    <div id="boatInfo">
+                        Cargando...
+                    </div>
+                </div>
+
+                <!-- Tripulación -->
+                <div class="detail-card">
+                    <h3><i class="fas fa-users"></i> Tripulación</h3>
+                    <div id="crewInfo">
+                        Cargando...
+                    </div>
+                </div>
+
+                <!-- Carga Transportada -->
+                <div class="detail-card">
+                    <h3><i class="fas fa-boxes"></i> Carga Transportada</h3>
+                    <div id="cargoInfo">
+                        Cargando...
+                    </div>
+                </div>
+
+                <!-- Timeline/Ruta -->
+                <div class="detail-card full-width">
+                    <h3><i class="fas fa-map-marked-alt"></i> Ruta del Viaje</h3>
+                    <div id="routeMap"></div>
+                </div>
+
+                <!-- Coordenadas de Ruta -->
+                <div class="detail-card full-width">
+                    <h3><i class="fas fa-clock"></i> Timeline de Coordenadas</h3>
+                    <div id="coordinatesTimeline" class="timeline">
+                        Cargando...
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="detail-card full-width">
+                    <h3><i class="fas fa-cog"></i> Acciones</h3>
+                    <div id="actionsContainer" class="action-buttons">
+                        Cargando...
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/owner-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/trip-service.js"></script>
+    <script>
+        let trip = null;
+        let map = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tripId = urlParams.get('id');
+
+            if (!tripId) {
+                alert('ID de viaje no especificado');
+                window.location.href = 'trips-list.html';
+                return;
+            }
+
+            loadTripDetail(tripId);
+        });
+
+        // Cargar detalle del viaje
+        function loadTripDetail(tripId) {
+            trip = window.TripService.getById(tripId);
+
+            if (!trip) {
+                alert('Viaje no encontrado');
+                window.location.href = 'trips-list.html';
+                return;
+            }
+
+            displayTripInfo();
+            displayBoatInfo();
+            displayCrewInfo();
+            displayCargoInfo();
+            displayActions();
+            initRouteMap();
+            displayTimeline();
+        }
+
+        // Mostrar información general
+        function displayTripInfo() {
+            document.getElementById('pageTitle').innerHTML = `<i class="fas fa-route"></i> Viaje ${trip.id}`;
+            
+            const estadoClass = `status-${trip.estado.toLowerCase().replace(' ', '-')}`;
+            const fechaInicio = new Date(trip.fechaInicio).toLocaleString('es-ES');
+            const fechaFin = trip.fechaFin 
+                ? new Date(trip.fechaFin).toLocaleString('es-ES')
+                : '-';
+
+            // Calcular duración
+            let duracion = '-';
+            if (trip.fechaFin) {
+                const diff = new Date(trip.fechaFin) - new Date(trip.fechaInicio);
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                duracion = `${days} días, ${hours} horas`;
+            } else if (trip.estado === 'En curso') {
+                const diff = new Date() - new Date(trip.fechaInicio);
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                duracion = `${days} días, ${hours} horas (en curso)`;
+            }
+
+            document.getElementById('generalInfo').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value"><strong>${trip.id}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Estado:</span>
+                    <span class="status-badge ${estadoClass}">${trip.estado}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Puerto Origen:</span>
+                    <span class="detail-value">${trip.puertoOrigen}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Puerto Destino:</span>
+                    <span class="detail-value">${trip.puertoDestino}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fecha Inicio:</span>
+                    <span class="detail-value">${fechaInicio}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fecha Fin:</span>
+                    <span class="detail-value">${fechaFin}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Duración:</span>
+                    <span class="detail-value">${duracion}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Distancia Estimada:</span>
+                    <span class="detail-value">${trip.distanciaEstimada || '-'} millas</span>
+                </div>
+                ${trip.observaciones ? `
+                <div class="detail-row">
+                    <span class="detail-label">Observaciones:</span>
+                    <span class="detail-value">${trip.observaciones}</span>
+                </div>
+                ` : ''}
+                ${trip.motivoPausa ? `
+                <div class="detail-row">
+                    <span class="detail-label">Motivo Pausa:</span>
+                    <span class="detail-value" style="color: #f39c12;">${trip.motivoPausa}</span>
+                </div>
+                ` : ''}
+                ${trip.motivoCancelacion ? `
+                <div class="detail-row">
+                    <span class="detail-label">Motivo Cancelación:</span>
+                    <span class="detail-value" style="color: #e74c3c;">${trip.motivoCancelacion}</span>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Mostrar información del barco
+        function displayBoatInfo() {
+            const boat = window.BoatService.getById(trip.barcoId);
+            
+            if (!boat) {
+                document.getElementById('boatInfo').innerHTML = `
+                    <p style="color: #e74c3c;">Barco no encontrado</p>
+                `;
+                return;
+            }
+
+            const owner = window.OwnerService.getById(boat.dueñoId);
+            const ownerName = owner ? `${owner.nombre} ${owner.apellido}` : 'N/A';
+
+            document.getElementById('boatInfo').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Nombre:</span>
+                    <span class="detail-value"><strong>${boat.nombre}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Matrícula:</span>
+                    <span class="detail-value">${boat.matricula}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Bandera:</span>
+                    <span class="detail-value">${boat.bandera}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Tipo:</span>
+                    <span class="detail-value">${boat.tipo}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Capacidad:</span>
+                    <span class="detail-value">${boat.capacidadToneladas} ton</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Dueño:</span>
+                    <span class="detail-value">${ownerName}</span>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="window.location.href='boat-detail.html?id=${boat.id}'">
+                        <i class="fas fa-eye"></i> Ver Barco
+                    </button>
+                </div>
+            `;
+        }
+
+        // Mostrar tripulación
+        function displayCrewInfo() {
+            if (!trip.tripulacion || trip.tripulacion.length === 0) {
+                document.getElementById('crewInfo').innerHTML = `
+                    <p style="text-align: center; color: #7f8c8d;">Sin tripulación asignada</p>
+                `;
+                return;
+            }
+
+            const crewHTML = trip.tripulacion.map(empId => {
+                const emp = window.EmployeeService.getById(empId);
+                if (!emp) return '';
+
+                const initials = emp.nombre[0] + emp.apellido[0];
+                return `
+                    <div class="crew-member">
+                        <div class="crew-member-icon">${initials}</div>
+                        <div>
+                            <strong>${emp.nombre} ${emp.apellido}</strong><br>
+                            <small style="color: #7f8c8d;">${emp.rol}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('crewInfo').innerHTML = `
+                <div class="crew-list">
+                    ${crewHTML}
+                </div>
+            `;
+        }
+
+        // Mostrar carga
+        function displayCargoInfo() {
+            if (!trip.cargaTransportada || trip.cargaTransportada.length === 0) {
+                document.getElementById('cargoInfo').innerHTML = `
+                    <p style="text-align: center; color: #7f8c8d;">Sin carga registrada</p>
+                `;
+                return;
+            }
+
+            const cargoHTML = trip.cargaTransportada.map(prodId => 
+                `<span class="cargo-item">${prodId}</span>`
+            ).join('');
+
+            document.getElementById('cargoInfo').innerHTML = `
+                <div class="cargo-list">
+                    ${cargoHTML}
+                </div>
+            `;
+        }
+
+        // Mostrar acciones disponibles
+        function displayActions() {
+            let actions = `
+                <button class="btn btn-secondary" onclick="window.location.href='trips-list.html'">
+                    <i class="fas fa-arrow-left"></i> Volver a Lista
+                </button>
+            `;
+
+            if (trip.estado === 'En curso') {
+                actions += `
+                    <button class="btn btn-success" onclick="endTrip()">
+                        <i class="fas fa-check"></i> Finalizar Viaje
+                    </button>
+                    <button class="btn btn-warning" onclick="pauseTrip()">
+                        <i class="fas fa-pause"></i> Pausar Viaje
+                    </button>
+                    <button class="btn btn-danger" onclick="cancelTrip()">
+                        <i class="fas fa-times"></i> Cancelar Viaje
+                    </button>
+                `;
+            } else if (trip.estado === 'Pausado') {
+                actions += `
+                    <button class="btn btn-primary" onclick="resumeTrip()">
+                        <i class="fas fa-play"></i> Reanudar Viaje
+                    </button>
+                    <button class="btn btn-danger" onclick="cancelTrip()">
+                        <i class="fas fa-times"></i> Cancelar Viaje
+                    </button>
+                `;
+            }
+
+            document.getElementById('actionsContainer').innerHTML = actions;
+        }
+
+        // Inicializar mapa de ruta
+        function initRouteMap() {
+            map = L.map('routeMap').setView([40, -3], 4);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            if (trip.coordenadasRuta && trip.coordenadasRuta.length > 0) {
+                // Dibujar ruta
+                const routeCoords = trip.coordenadasRuta.map(c => [c.lat, c.lng]);
+                L.polyline(routeCoords, { color: '#3498db', weight: 3 }).addTo(map);
+
+                // Marcador de inicio
+                const start = trip.coordenadasRuta[0];
+                L.marker([start.lat, start.lng], {
+                    icon: L.divIcon({
+                        html: '<i class="fas fa-ship" style="font-size: 24px; color: #3498db;"></i>',
+                        className: 'map-icon',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map)
+                    .bindPopup(`<b>Inicio:</b> ${trip.puertoOrigen}`);
+
+                // Marcador de fin o posición actual
+                const end = trip.coordenadasRuta[trip.coordenadasRuta.length - 1];
+                L.marker([end.lat, end.lng], {
+                    icon: L.divIcon({
+                        html: trip.estado === 'Finalizado' ? '<i class="fas fa-flag-checkered" style="font-size: 24px; color: #27ae60;"></i>' : '<i class="fas fa-map-pin" style="font-size: 24px; color: #e74c3c;"></i>',
+                        className: 'map-icon',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map)
+                    .bindPopup(`<b>${trip.estado === 'Finalizado' ? 'Destino' : 'Posición Actual'}:</b> ${trip.estado === 'Finalizado' ? trip.puertoDestino : 'En ruta'}`);
+
+                // Ajustar vista a la ruta
+                map.fitBounds(routeCoords);
+            } else {
+                // Sin coordenadas
+                const mapDiv = document.getElementById('routeMap');
+                mapDiv.innerHTML = `
+                    <p style="text-align: center; padding: 2rem; color: #7f8c8d;">
+                        No hay coordenadas de ruta registradas
+                    </p>
+                `;
+            }
+        }
+
+        // Mostrar timeline
+        function displayTimeline() {
+            const timeline = document.getElementById('coordinatesTimeline');
+            
+            if (!trip.coordenadasRuta || trip.coordenadasRuta.length === 0) {
+                timeline.innerHTML = `
+                    <p style="text-align: center; color: #7f8c8d;">
+                        No hay coordenadas registradas
+                    </p>
+                `;
+                return;
+            }
+
+            timeline.innerHTML = trip.coordenadasRuta.map((coord, index) => {
+                const time = new Date(coord.timestamp).toLocaleString('es-ES');
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-time">${time}</div>
+                        <div class="timeline-content">
+                            <strong>Punto ${index + 1}:</strong> Lat ${coord.lat.toFixed(4)}, Lng ${coord.lng.toFixed(4)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Finalizar viaje
+        function endTrip() {
+            if (!confirm('¿Finalizar este viaje?')) return;
+
+            const observaciones = prompt('Observaciones de finalización (opcional):');
+            const result = window.TripService.endTrip(trip.id, { observaciones });
+
+            if (result.success) {
+                alert('Viaje finalizado correctamente');
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        // Pausar viaje
+        function pauseTrip() {
+            const motivo = prompt('Motivo de la pausa:');
+            if (!motivo) return;
+
+            const result = window.TripService.pauseTrip(trip.id, motivo);
+
+            if (result.success) {
+                alert('Viaje pausado correctamente');
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        // Reanudar viaje
+        function resumeTrip() {
+            if (!confirm('¿Reanudar este viaje?')) return;
+
+            const result = window.TripService.resumeTrip(trip.id);
+
+            if (result.success) {
+                alert('Viaje reanudado correctamente');
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+
+        // Cancelar viaje
+        function cancelTrip() {
+            const motivo = prompt('Motivo de la cancelación:');
+            if (!motivo) return;
+
+            if (!confirm('¿Está seguro de cancelar este viaje?')) return;
+
+            const result = window.TripService.cancelTrip(trip.id, motivo);
+
+            if (result.success) {
+                alert('Viaje cancelado correctamente');
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+    </script>
+</body>
+</html>

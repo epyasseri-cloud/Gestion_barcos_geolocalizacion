@@ -1,0 +1,86 @@
+[
+    {
+        "id": "B001",
+        "nombre": "S.S. Anne",
+        "matricula": "MX-SA-2024-001",
+        "bandera": "México",
+        "tipo": "Carga",
+        "capacidadToneladas": 5000,
+        "añoConstruccion": 2020,
+        "dueñoId": "OWN001",
+        "estadoActual": "En Puerto",
+        "ultimaInspeccion": "2025-12-15T09:00:00Z"
+    },
+    {
+        "id": "B002",
+        "nombre": "Wind Waker",
+        "matricula": "JP-WW-2024-002",
+        "bandera": "Japón",
+        "tipo": "Portacontenedores",
+        "capacidadToneladas": 8000,
+        "añoConstruccion": 2019,
+        "dueñoId": "OWN002",
+        "estadoActual": "En Puerto",
+        "ultimaInspeccion": "2026-01-10T10:00:00Z"
+    },
+    {
+        "id": "B003",
+        "nombre": "Atlántico Explorer",
+        "matricula": "MAT-001",
+        "bandera": "España",
+        "tipo": "Pesquero",
+        "capacidadToneladas": 500,
+        "añoConstruccion": 2018,
+        "dueñoId": "OWN003",
+        "estadoActual": "En Viaje",
+        "ultimaInspeccion": "2025-12-20T10:00:00Z"
+    },
+    {
+        "id": "B004",
+        "nombre": "Pacífico Star",
+        "matricula": "MAT-002",
+        "bandera": "Chile",
+        "tipo": "Carga",
+        "capacidadToneladas": 1200,
+        "añoConstruccion": 2020,
+        "dueñoId": "OWN004",
+        "estadoActual": "Activo",
+        "ultimaInspeccion": "2025-11-15T14:30:00Z"
+    },
+    {
+        "id": "B005",
+        "nombre": "Mediterráneo Queen",
+        "matricula": "MAT-003",
+        "bandera": "Italia",
+        "tipo": "Pasajeros",
+        "capacidadToneladas": 800,
+        "añoConstruccion": 2015,
+        "dueñoId": "OWN003",
+        "estadoActual": "En Mantenimiento",
+        "ultimaInspeccion": "2026-01-05T09:00:00Z"
+    },
+    {
+        "id": "B006",
+        "nombre": "Austral Voyager",
+        "matricula": "MAT-004",
+        "bandera": "Argentina",
+        "tipo": "Tanquero",
+        "capacidadToneladas": 2000,
+        "añoConstruccion": 2017,
+        "dueñoId": "OWN005",
+        "estadoActual": "En Viaje",
+        "ultimaInspeccion": "2025-10-01T11:45:00Z"
+    },
+    {
+        "id": "B007",
+        "nombre": "Santos Navigator",
+        "matricula": "MAT-005",
+        "bandera": "Brasil",
+        "tipo": "Carga",
+        "capacidadToneladas": 1500,
+        "añoConstruccion": 2019,
+        "dueñoId": "OWN005",
+        "estadoActual": "Activo",
+        "ultimaInspeccion": "2025-09-20T16:20:00Z"
+    }
+]

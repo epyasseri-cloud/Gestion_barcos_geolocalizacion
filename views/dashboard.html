@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema Geolocalización Barcos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .action-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .action-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .welcome-card {
+            background: linear-gradient(135deg, #000000 0%, #000000 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .welcome-card h2 {
+            margin: 0 0 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html" class="active"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
+                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
+                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
+                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
+                <a href="../views/trips-list.html"><span><i class="fas fa-route"></i></span> Viajes</a>
+                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
+                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
+                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
+                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <div class="welcome-card">
+                <h2>¡Bienvenido al Sistema de Geolocalización de Barcos!</h2>
+                <div id="welcomeMessage"></div>
+            </div>
+
+            <!-- Stats Grid -->
+            <h3 style="margin-bottom: 1rem;"><i class="fas fa-tasks"></i> Resumen del Sistema</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+                    <div class="stat-value" id="ownersCount">0</div>
+                    <div class="stat-label">Dueños</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-ship"></i></div>
+                    <div class="stat-value" id="boatsCount">0</div>
+                    <div class="stat-label">Barcos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-value" id="employeesCount">0</div>
+                    <div class="stat-label">Empleados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="stat-value" id="productsCount">0</div>
+                    <div class="stat-label">Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-route"></i></div>
+                    <div class="stat-value" id="tripsCount">0</div>
+                    <div class="stat-label">Viajes Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-ship"></i></div>
+                    <div class="stat-value" id="activeTripsCount">0</div>
+                    <div class="stat-label">Viajes Activos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-warehouse"></i></div>
+                    <div class="stat-value" id="warehouseCount">0</div>
+                    <div class="stat-label">Movimientos Almacén</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="stat-value" id="inventoryCount">0</div>
+                    <div class="stat-label">Items en Inventario</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
+            <div class="quick-actions" id="quickActions"></div>
+
+            <!-- Notification History -->
+            <div style="margin-top: 2rem;">
+                <button class="btn-secondary" onclick="testNotifications()"><i class="fas fa-bell"></i> Probar Notificaciones</button>
+                <button class="btn-secondary" onclick="viewNotificationHistory()" style="margin-left: 0.5rem;"><i class="fas fa-history"></i> Ver Historial</button>
+                <div id="notificationHistory" style="margin-top: 1rem;"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/owner-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/product-service.js"></script>
+    <script src="../services/trip-service.js"></script>
+    <script src="../services/warehouse-service.js"></script>
+    <script src="../services/inventory-service.js"></script>
+    <script>
+        // Verificar si hay sesión activa
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar información del usuario
+        const user = Session.getCurrentUser();
+        if (user) {
+            document.getElementById('welcomeMessage').innerHTML = `
+                <strong>${user.nombre} ${user.apellido}</strong><br>
+                <strong>Rol:</strong> ${user.role}<br>
+                <strong>Email:</strong> ${user.email}
+            `;
+            
+            loadQuickActions(user.role);
+            loadSystemStats();
+        }
+        
+        // Cargar acciones rápidas según el rol
+        function loadQuickActions(role) {
+            const actionsDiv = document.getElementById('quickActions');
+            
+            const actions = [
+                { icon: '<i class="fas fa-user-tie"></i>', title: 'Gestionar Dueños', description: 'Ver y administrar dueños de barcos', link: 'owners-list.html' },
+                { icon: '<i class="fas fa-ship"></i>', title: 'Gestionar Barcos', description: 'Ver y administrar flota de barcos', link: 'boats-list.html' },
+                { icon: '<i class="fas fa-users"></i>', title: 'Gestionar Empleados', description: 'Ver y administrar tripulaciones', link: 'employees-list.html' },
+                { icon: '<i class="fas fa-boxes"></i>', title: 'Gestionar Productos', description: 'Ver y administrar inventario de productos', link: 'products-list.html' },
+                { icon: '<i class="fas fa-route"></i>', title: 'Gestión de Viajes', description: 'Iniciar y monitorear viajes', link: 'trips-list.html' },
+                { icon: '<i class="fas fa-chart-bar"></i>', title: 'Disponibilidad', description: 'Consultar productos por bandera', link: 'product-availability.html' },
+                { icon: '<i class="fas fa-chart-pie"></i>', title: 'Estadísticas', description: 'Ver reportes y estadísticas de viajes', link: 'trip-statistics.html' },
+                { icon: '<i class="fas fa-map-marked-alt"></i>', title: 'Mapa GPS', description: 'Ver ubicación en tiempo real', link: 'map-view.html' },
+                { icon: '<i class="fas fa-search-location"></i>', title: 'Barco Cercano', description: 'Localizar barco más cercano', link: 'nearest-boat-finder.html' }
+            ];
+            
+            let actionsHTML = '';
+            
+            if (role === 'admin') {
+                // Admin ve todas las acciones
+                actionsHTML = actions.map(action => `
+                    <a href="${action.link}" class="action-card">
+                        <div class="action-icon">${action.icon}</div>
+                        <div class="action-title">${action.title}</div>
+                        <div class="action-description">${action.description}</div>
+                    </a>
+                `).join('');
+            } else if (role === 'gerente_operaciones') {
+                // Gerente de operaciones ve viajes, disponibilidad, estadísticas y mapa
+                const managerActions = [actions[4], actions[5], actions[6], actions[7], actions[8]];
+                actionsHTML = managerActions.map(action => `
+                    <a href="${action.link}" class="action-card">
+                        <div class="action-icon">${action.icon}</div>
+                        <div class="action-title">${action.title}</div>
+                        <div class="action-description">${action.description}</div>
+                    </a>
+                `).join('');
+            } else {
+                // Usuario regular solo ve mapa y barco cercano
+                const userActions = [actions[7], actions[8]];
+                actionsHTML = userActions.map(action => `
+                    <a href="${action.link}" class="action-card">
+                        <div class="action-icon">${action.icon}</div>
+                        <div class="action-title">${action.title}</div>
+                        <div class="action-description">${action.description}</div>
+                    </a>
+                `).join('');
+            }
+            
+            actionsDiv.innerHTML = actionsHTML;
+        }
+        
+        // Cargar estadísticas del sistema
+        function loadSystemStats() {
+            // CRUD básico
+            const ownersCount = window.OwnerService.getAll().length;
+            const boatsCount = window.BoatService.getAll().length;
+            const employeesCount = window.EmployeeService.getAll().length;
+            const productsCount = window.ProductService.getAll().length;
+            
+            // Estadísticas de viajes
+            const tripStats = window.TripService.getStats();
+            const tripsCount = tripStats.total;
+            const activeTripsCount = tripStats.enCurso;
+            
+            // Estadísticas de almacén e inventario
+            const warehouseStats = window.WarehouseService.getStats();
+            const warehouseCount = warehouseStats.total;
+            
+            const inventory = window.InventoryService.getAll();
+            const inventoryCount = inventory.length;
+            
+            // Actualizar UI
+            document.getElementById('ownersCount').textContent = ownersCount;
+            document.getElementById('boatsCount').textContent = boatsCount;
+            document.getElementById('employeesCount').textContent = employeesCount;
+            document.getElementById('productsCount').textContent = productsCount;
+            document.getElementById('tripsCount').textContent = tripsCount;
+            document.getElementById('activeTripsCount').textContent = activeTripsCount;
+            document.getElementById('warehouseCount').textContent = warehouseCount;
+            document.getElementById('inventoryCount').textContent = inventoryCount;
+        }
+        
+        // Función para probar notificaciones
+        function testNotifications() {
+            Notification.success('Operación exitosa');
+            setTimeout(() => Notification.info('Información del sistema'), 500);
+            setTimeout(() => Notification.warning('Advertencia de prueba'), 1000);
+            setTimeout(() => Notification.error('Error de prueba'), 1500);
+        }
+        
+        // Función para ver historial de notificaciones
+        function viewNotificationHistory() {
+            const history = Notification.getHistory();
+            const historyDiv = document.getElementById('notificationHistory');
+            
+            if (history.length === 0) {
+                historyDiv.innerHTML = '<p style="color: #7f8c8d;">No hay notificaciones en el historial</p>';
+                return;
+            }
+            
+            let html = '<div style="background: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">';
+            html += '<h4 style="margin: 0 0 1rem 0;"><i class="fas fa-history"></i> Historial de Notificaciones</h4>';
+            html += '<ul style="list-style: none; padding: 0;">';
+            history.forEach(notif => {
+                const date = new Date(notif.timestamp).toLocaleString();
+                html += `<li style="padding: 0.5rem; border-bottom: 1px solid #ecf0f1;">
+                    <strong>[${notif.type}]</strong> ${notif.message} - <small>${date}</small>
+                </li>`;
+            });
+            html += '</ul>';
+            html += '<button class="btn-secondary" onclick="clearNotificationHistory()" style="margin-top: 1rem;"><i class="fas fa-trash"></i> Limpiar Historial</button>';
+            html += '</div>';
+            
+            historyDiv.innerHTML = html;
+        }
+        
+        // Función para limpiar historial
+        function clearNotificationHistory() {
+            Notification.clearHistory();
+            const historyDiv = document.getElementById('notificationHistory');
+            historyDiv.innerHTML = '<p style="color: #27ae60;"><i class="fas fa-check-circle"></i> Historial limpiado correctamente</p>';
+            setTimeout(() => {
+                historyDiv.innerHTML = '';
+            }, 2000);
+        }
+        
+        // Mostrar notificación de bienvenida
+        setTimeout(() => {
+            Notification.success('¡Bienvenido al sistema!');
+        }, 500);
+    </script>
+</body>
+</html>

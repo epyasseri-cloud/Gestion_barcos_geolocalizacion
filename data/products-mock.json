@@ -1,0 +1,112 @@
+[
+  {
+    "id": "PROD001",
+    "nombre": "Contenedores de pescado",
+    "categoria": "Primaria",
+    "descripcion": "Contenedores de pescado refrigerado para transporte marítimo",
+    "unidadMedida": "Unidades",
+    "precioUnitario": 500.00,
+    "stock": 60,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD002",
+    "nombre": "Atún",
+    "categoria": "Primaria",
+    "descripcion": "Atún fresco capturado",
+    "unidadMedida": "Kg",
+    "precioUnitario": 12.50,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD003",
+    "nombre": "Salmón",
+    "categoria": "Primaria",
+    "descripcion": "Salmón del atlántico",
+    "unidadMedida": "Kg",
+    "precioUnitario": 18.75,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD004",
+    "nombre": "Camarón",
+    "categoria": "Primaria",
+    "descripcion": "Camarón fresco",
+    "unidadMedida": "Kg",
+    "precioUnitario": 15.00,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD005",
+    "nombre": "Sardina",
+    "categoria": "Primaria",
+    "descripcion": "Sardina en conserva",
+    "unidadMedida": "Kg",
+    "precioUnitario": 8.50,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD006",
+    "nombre": "Merluza",
+    "categoria": "Primaria",
+    "descripcion": "Merluza congelada",
+    "unidadMedida": "Kg",
+    "precioUnitario": 10.25,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD007",
+    "nombre": "Salmón Ahumado",
+    "categoria": "Manufactura",
+    "descripcion": "Salmón ahumado empaquetado",
+    "unidadMedida": "Paquete",
+    "precioUnitario": 25.00,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD008",
+    "nombre": "Camarón Congelado",
+    "categoria": "Manufactura",
+    "descripcion": "Camarón procesado y congelado",
+    "unidadMedida": "Caja",
+    "precioUnitario": 45.00,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD009",
+    "nombre": "Conserva de Sardina",
+    "categoria": "Manufactura",
+    "descripcion": "Sardina en aceite enlatada",
+    "unidadMedida": "Lata",
+    "precioUnitario": 2.75,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD010",
+    "nombre": "Langosta",
+    "categoria": "Primaria",
+    "descripcion": "Langosta fresca",
+    "unidadMedida": "Kg",
+    "precioUnitario": 45.00,
+    "stock": 0,
+    "estado": "Activo"
+  },
+  {
+    "id": "PROD011",
+    "nombre": "Pulpo",
+    "categoria": "Primaria",
+    "descripcion": "Pulpo fresco",
+    "unidadMedida": "Kg",
+    "precioUnitario": 22.00,
+    "stock": 0,
+    "estado": "Inactivo"
+  }
+]

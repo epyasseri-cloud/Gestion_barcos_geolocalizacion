@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Dueños - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Administrar Dueños</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+        <button onclick="location.href='owner-form.html'">+ Nuevo Dueño</button>
+        <button onclick="exportData('json')">Exportar JSON</button>
+        <button onclick="exportData('csv')">Exportar CSV</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <label>Buscar: </label>
+        <input type="text" id="searchInput" placeholder="Nombre, email, documento..." onkeyup="searchOwners()">
+        
+        <label>País: </label>
+        <select id="countryFilter" onchange="filterByCountry()">
+            <option value="">Todos</option>
+        </select>
+        
+        <label>Ordenar por: </label>
+        <select id="sortField" onchange="sortOwners()">
+            <option value="nombre">Nombre</option>
+            <option value="apellido">Apellido</option>
+            <option value="pais">País</option>
+            <option value="fechaRegistro">Fecha Registro</option>
+        </select>
+        
+        <label>
+            <input type="checkbox" id="sortAscending" checked onchange="sortOwners()"> Ascendente
+        </label>
+    </div>
+    
+    <br>
+    <p>Total: <strong id="totalCount">0</strong> dueños</p>
+    
+    <table border="1" width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Documento</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>País</th>
+                <th>Fecha Registro</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="ownersTable">
+            <tr>
+                <td colspan="8">Cargando...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/date-utils.js"></script>
+    <script src="../services/owner-service.js"></script>
+    
+    <script>
+        // Verificar autenticación y permisos
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        if (!Auth.checkPermission(['admin'])) {
+            Notification.error('No tienes permisos para acceder a esta página');
+            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let allOwners = [];
+        
+        // Cargar dueños
+        function loadOwners() {
+            allOwners = OwnerService.getAll();
+            displayOwners(allOwners);
+            updateCountryFilter();
+            updateCount(allOwners.length);
+        }
+        
+        // Mostrar dueños en tabla
+        function displayOwners(owners) {
+            const tbody = document.getElementById('ownersTable');
+            
+            if (owners.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8">No hay dueños registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = owners.map(owner => `
+                <tr>
+                    <td>${owner.id}</td>
+                    <td>${owner.nombre} ${owner.apellido}</td>
+                    <td>${owner.documento}</td>
+                    <td>${owner.email}</td>
+                    <td>${owner.telefono || '-'}</td>
+                    <td>${owner.pais || '-'}</td>
+                    <td>${Formatters.formatDate(owner.fechaRegistro)}</td>
+                    <td>
+                        <button onclick="viewOwner('${owner.id}')">Ver</button>
+                        <button onclick="editOwner('${owner.id}')">Editar</button>
+                        <button onclick="deleteOwner('${owner.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Buscar dueños
+        function searchOwners() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const filtered = OwnerService.search(searchTerm);
+            displayOwners(filtered);
+            updateCount(filtered.length);
+        }
+        
+        // Filtrar por país
+        function filterByCountry() {
+            const country = document.getElementById('countryFilter').value;
+            
+            if (!country) {
+                displayOwners(allOwners);
+                updateCount(allOwners.length);
+                return;
+            }
+            
+            const filtered = OwnerService.filterByCountry(country);
+            displayOwners(filtered);
+            updateCount(filtered.length);
+        }
+        
+        // Ordenar dueños
+        function sortOwners() {
+            const field = document.getElementById('sortField').value;
+            const ascending = document.getElementById('sortAscending').checked;
+            const sorted = OwnerService.sort(field, ascending);
+            displayOwners(sorted);
+        }
+        
+        // Actualizar filtro de países
+        function updateCountryFilter() {
+            const countries = OwnerService.getCountries();
+            const select = document.getElementById('countryFilter');
+            
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                select.appendChild(option);
+            });
+        }
+        
+        // Actualizar contador
+        function updateCount(count) {
+            document.getElementById('totalCount').textContent = count;
+        }
+        
+        // Ver detalle de dueño
+        function viewOwner(id) {
+            location.href = `owner-detail.html?id=${id}`;
+        }
+        
+        // Editar dueño
+        function editOwner(id) {
+            location.href = `owner-form.html?id=${id}`;
+        }
+        
+        // Eliminar dueño
+        function deleteOwner(id) {
+            if (!confirm('¿Estás seguro de eliminar este dueño?')) {
+                return;
+            }
+            
+            const result = OwnerService.delete(id);
+            
+            if (result.success) {
+                Notification.success(result.message);
+                loadOwners();
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Exportar datos
+        function exportData(format) {
+            if (format === 'json') {
+                OwnerService.exportJSON();
+            } else if (format === 'csv') {
+                OwnerService.exportCSV();
+            }
+            Notification.success('Datos exportados correctamente');
+        }
+        
+        // Cargar al inicio
+        loadOwners();
+    </script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Empleados - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Gestión de Empleados</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+        <button onclick="location.href='employee-form.html'">+ Nuevo Empleado</button>
+        <button onclick="exportJSON()">📥 Exportar JSON</button>
+        <button onclick="exportCSV()">📥 Exportar CSV</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <input type="text" id="searchInput" placeholder="Buscar por nombre, documento, email..." style="width: 300px;">
+        
+        <select id="roleFilter">
+            <option value="">Todos los roles</option>
+        </select>
+        
+        <select id="statusFilter">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+        </select>
+        
+        <select id="boatFilter">
+            <option value="">Todos los barcos</option>
+            <option value="unassigned">Sin asignar</option>
+        </select>
+        
+        <button onclick="applyFilters()">Filtrar</button>
+        <button onclick="clearFilters()">Limpiar</button>
+    </div>
+    
+    <br>
+    
+    <div>
+        <strong>Estadísticas:</strong>
+        Total: <span id="totalCount">0</span> | 
+        Activos: <span id="activeCount">0</span> | 
+        Inactivos: <span id="inactiveCount">0</span> | 
+        Asignados: <span id="assignedCount">0</span> | 
+        Sin asignar: <span id="unassignedCount">0</span>
+    </div>
+    
+    <br>
+    
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+        <thead>
+            <tr>
+                <th onclick="sortTable('id')">ID</th>
+                <th onclick="sortTable('nombre')">Nombre</th>
+                <th onclick="sortTable('documento')">Documento</th>
+                <th onclick="sortTable('email')">Email</th>
+                <th onclick="sortTable('telefono')">Teléfono</th>
+                <th onclick="sortTable('rol')">Rol</th>
+                <th onclick="sortTable('barcoAsignado')">Barco</th>
+                <th onclick="sortTable('estado')">Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="employeesTable">
+            <tr>
+                <td colspan="9" style="text-align: center;">Cargando empleados...</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let currentSort = { field: 'id', order: 'asc' };
+        let filteredEmployees = [];
+        
+        // Cargar empleados
+        function loadEmployees() {
+            const employees = EmployeeService.getAll();
+            filteredEmployees = employees;
+            displayEmployees(employees);
+            updateStats();
+            loadRoleFilter();
+            loadBoatFilter();
+        }
+        
+        // Mostrar empleados en la tabla
+        function displayEmployees(employees) {
+            const tbody = document.getElementById('employeesTable');
+            
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay empleados registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = employees.map(emp => `
+                <tr>
+                    <td>${emp.id}</td>
+                    <td>${emp.nombre} ${emp.apellido}</td>
+                    <td>${emp.documento}</td>
+                    <td>${emp.email}</td>
+                    <td>${emp.telefono || '-'}</td>
+                    <td>${emp.rol}</td>
+                    <td>${emp.barcoAsignado || 'Sin asignar'}</td>
+                    <td>${emp.estado}</td>
+                    <td>
+                        <button onclick="viewEmployee('${emp.id}')">Ver</button>
+                        <button onclick="editEmployee('${emp.id}')">Editar</button>
+                        <button onclick="deleteEmployee('${emp.id}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Actualizar estadísticas
+        function updateStats() {
+            const stats = EmployeeService.getStats();
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('activeCount').textContent = stats.activos;
+            document.getElementById('inactiveCount').textContent = stats.inactivos;
+            document.getElementById('assignedCount').textContent = stats.asignados;
+            document.getElementById('unassignedCount').textContent = stats.sinAsignar;
+        }
+        
+        // Cargar filtro de roles
+        function loadRoleFilter() {
+            const roles = EmployeeService.getRoles();
+            const select = document.getElementById('roleFilter');
+            
+            // Limpiar opciones existentes excepto la primera
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role;
+                option.textContent = role;
+                select.appendChild(option);
+            });
+        }
+        
+        // Cargar filtro de barcos
+        function loadBoatFilter() {
+            const boats = BoatService.getAll();
+            const select = document.getElementById('boatFilter');
+            
+            // Limpiar opciones existentes excepto las primeras dos
+            while (select.options.length > 2) {
+                select.remove(2);
+            }
+            
+            boats.forEach(boat => {
+                const option = document.createElement('option');
+                option.value = boat.id;
+                option.textContent = `${boat.nombre} (${boat.id})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Aplicar filtros
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const boatFilter = document.getElementById('boatFilter').value;
+            
+            let employees = EmployeeService.getAll();
+            
+            // Aplicar búsqueda
+            if (searchQuery) {
+                employees = EmployeeService.search(searchQuery);
+            }
+            
+            // Aplicar filtro de rol
+            if (roleFilter) {
+                employees = employees.filter(emp => emp.rol === roleFilter);
+            }
+            
+            // Aplicar filtro de estado
+            if (statusFilter) {
+                employees = employees.filter(emp => emp.estado === statusFilter);
+            }
+            
+            // Aplicar filtro de barco
+            if (boatFilter) {
+                if (boatFilter === 'unassigned') {
+                    employees = employees.filter(emp => !emp.barcoAsignado);
+                } else {
+                    employees = employees.filter(emp => emp.barcoAsignado === boatFilter);
+                }
+            }
+            
+            filteredEmployees = employees;
+            displayEmployees(employees);
+            Notification.info(`${employees.length} empleados encontrados`);
+        }
+        
+        // Limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('roleFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('boatFilter').value = '';
+            loadEmployees();
+            Notification.info('Filtros limpiados');
+        }
+        
+        // Buscar al escribir
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (this.value.length > 2 || this.value.length === 0) {
+                        applyFilters();
+                    }
+                });
+            }
+        });
+        
+        // Ordenar tabla
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            
+            const sorted = EmployeeService.sort(filteredEmployees, field, currentSort.order);
+            displayEmployees(sorted);
+        }
+        
+        // Ver detalles del empleado
+        function viewEmployee(id) {
+            window.location.href = `employee-detail.html?id=${id}`;
+        }
+        
+        // Editar empleado
+        function editEmployee(id) {
+            window.location.href = `employee-form.html?id=${id}`;
+        }
+        
+        // Eliminar empleado
+        function deleteEmployee(id) {
+            const employee = EmployeeService.getById(id);
+            
+            if (!employee) {
+                Notification.error('Empleado no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar al empleado ${employee.nombre} ${employee.apellido}?`)) {
+                const result = EmployeeService.delete(id);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    loadEmployees();
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Exportar JSON
+        function exportJSON() {
+            EmployeeService.exportJSON();
+            Notification.success('Empleados exportados a JSON');
+        }
+        
+        // Exportar CSV
+        function exportCSV() {
+            const result = EmployeeService.exportCSV();
+            
+            if (result.success) {
+                Notification.success(result.message);
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Cargar empleados al inicio
+        loadEmployees();
+    </script>
+</body>
+</html>

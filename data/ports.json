@@ -1,0 +1,288 @@
+[
+  {
+    "id": "PORT001",
+    "nombre": "Puerto de Vigo",
+    "pais": "España",
+    "ciudad": "Vigo",
+    "coordenadas": {
+      "lat": 42.2406,
+      "lng": -8.7207
+    },
+    "tipo": "Pesquero y Comercial",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística"]
+  },
+  {
+    "id": "PORT002",
+    "nombre": "Puerto de Barcelona",
+    "pais": "España",
+    "ciudad": "Barcelona",
+    "coordenadas": {
+      "lat": 41.3851,
+      "lng": 2.1734
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT003",
+    "nombre": "Puerto de Valencia",
+    "pais": "España",
+    "ciudad": "Valencia",
+    "coordenadas": {
+      "lat": 39.4699,
+      "lng": -0.3763
+    },
+    "tipo": "Comercial y Contenedores",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT004",
+    "nombre": "Puerto de Málaga",
+    "pais": "España",
+    "ciudad": "Málaga",
+    "coordenadas": {
+      "lat": 36.7213,
+      "lng": -4.4214
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Turismo"]
+  },
+  {
+    "id": "PORT005",
+    "nombre": "Puerto de Cádiz",
+    "pais": "España",
+    "ciudad": "Cádiz",
+    "coordenadas": {
+      "lat": 36.5297,
+      "lng": -6.2923
+    },
+    "tipo": "Comercial y Militar",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Militar"]
+  },
+  {
+    "id": "PORT006",
+    "nombre": "Puerto de Santander",
+    "pais": "España",
+    "ciudad": "Santander",
+    "coordenadas": {
+      "lat": 43.4623,
+      "lng": -3.8100
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Ferry"]
+  },
+  {
+    "id": "PORT007",
+    "nombre": "Puerto de Algeciras",
+    "pais": "España",
+    "ciudad": "Algeciras",
+    "coordenadas": {
+      "lat": 36.1408,
+      "lng": -5.4500
+    },
+    "tipo": "Comercial y Contenedores",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores", "Ferry"]
+  },
+  {
+    "id": "PORT008",
+    "nombre": "Puerto de Lisboa",
+    "pais": "Portugal",
+    "ciudad": "Lisboa",
+    "coordenadas": {
+      "lat": 38.7223,
+      "lng": -9.1393
+    },
+    "tipo": "Comercial y Turístico",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Turismo"]
+  },
+  {
+    "id": "PORT009",
+    "nombre": "Puerto de Funchal",
+    "pais": "Portugal",
+    "ciudad": "Funchal, Madeira",
+    "coordenadas": {
+      "lat": 32.6669,
+      "lng": -16.9241
+    },
+    "tipo": "Turístico y Comercial",
+    "capacidad": "Mediana",
+    "servicios": ["Combustible", "Turismo", "Aprovisionamiento"]
+  },
+  {
+    "id": "PORT010",
+    "nombre": "Puerto de Génova",
+    "pais": "Italia",
+    "ciudad": "Génova",
+    "coordenadas": {
+      "lat": 44.4056,
+      "lng": 8.9463
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT011",
+    "nombre": "Puerto de Nápoles",
+    "pais": "Italia",
+    "ciudad": "Nápoles",
+    "coordenadas": {
+      "lat": 40.8518,
+      "lng": 14.2681
+    },
+    "tipo": "Comercial y Turístico",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Turismo", "Ferry"]
+  },
+  {
+    "id": "PORT012",
+    "nombre": "Puerto de Palermo",
+    "pais": "Italia",
+    "ciudad": "Palermo",
+    "coordenadas": {
+      "lat": 38.1157,
+      "lng": 13.3615
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Ferry"]
+  },
+  {
+    "id": "PORT013",
+    "nombre": "Puerto de Casablanca",
+    "pais": "Marruecos",
+    "ciudad": "Casablanca",
+    "coordenadas": {
+      "lat": 33.5883,
+      "lng": -7.6114
+    },
+    "tipo": "Comercial",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística"]
+  },
+  {
+    "id": "PORT014",
+    "nombre": "Puerto de Tánger",
+    "pais": "Marruecos",
+    "ciudad": "Tánger",
+    "coordenadas": {
+      "lat": 35.7595,
+      "lng": -5.8340
+    },
+    "tipo": "Comercial y Ferry",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Almacenamiento", "Ferry", "Contenedores"]
+  },
+  {
+    "id": "PORT015",
+    "nombre": "Puerto de Southampton",
+    "pais": "Reino Unido",
+    "ciudad": "Southampton",
+    "coordenadas": {
+      "lat": 50.9097,
+      "lng": -1.4044
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores", "Cruceros"]
+  },
+  {
+    "id": "PORT016",
+    "nombre": "Puerto de Marsella",
+    "pais": "Francia",
+    "ciudad": "Marsella",
+    "coordenadas": {
+      "lat": 43.2965,
+      "lng": 5.3698
+    },
+    "tipo": "Comercial y Pasajeros",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT017",
+    "nombre": "Puerto del Callao",
+    "pais": "Perú",
+    "ciudad": "Callao",
+    "coordenadas": {
+      "lat": -12.0464,
+      "lng": -77.1428
+    },
+    "tipo": "Comercial y Pesquero",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Pesca"]
+  },
+  {
+    "id": "PORT018",
+    "nombre": "Puerto de Paita",
+    "pais": "Perú",
+    "ciudad": "Paita",
+    "coordenadas": {
+      "lat": -5.0892,
+      "lng": -81.1144
+    },
+    "tipo": "Pesquero y Comercial",
+    "capacidad": "Mediana",
+    "servicios": ["Combustible", "Almacenamiento", "Pesca", "Contenedores"]
+  },
+  {
+    "id": "PORT019",
+    "nombre": "Puerto de Guayaquil",
+    "pais": "Ecuador",
+    "ciudad": "Guayaquil",
+    "coordenadas": {
+      "lat": -2.1894,
+      "lng": -79.8883
+    },
+    "tipo": "Comercial",
+    "capacidad": "Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT020",
+    "nombre": "Puerto de Manta",
+    "pais": "Ecuador",
+    "ciudad": "Manta",
+    "coordenadas": {
+      "lat": -0.9587,
+      "lng": -80.7089
+    },
+    "tipo": "Pesquero y Comercial",
+    "capacidad": "Mediana",
+    "servicios": ["Combustible", "Almacenamiento", "Pesca", "Reparaciones"]
+  },
+  {
+    "id": "PORT021",
+    "nombre": "Puerto de Veracruz",
+    "pais": "México",
+    "ciudad": "Veracruz",
+    "coordenadas": {
+      "lat": 19.2006,
+      "lng": -96.1375
+    },
+    "tipo": "Comercial e Industrial",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores"]
+  },
+  {
+    "id": "PORT022",
+    "nombre": "Puerto de Tokio",
+    "pais": "Japón",
+    "ciudad": "Tokio",
+    "coordenadas": {
+      "lat": 35.6167,
+      "lng": 139.7667
+    },
+    "tipo": "Comercial e Industrial",
+    "capacidad": "Muy Grande",
+    "servicios": ["Combustible", "Reparaciones", "Almacenamiento", "Logística", "Contenedores", "Tecnología"]
+  }
+]

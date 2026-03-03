@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <h1>Mi Perfil</h1>
+    
+    <div id="profileInfo">
+        <!-- Se carga dinámicamente -->
+    </div>
+    
+    <br>
+    <button onclick="Auth.logout()">Cerrar Sesión</button>
+    <br><br>
+    <a href="../../views/dashboard.html">Volver al Dashboard</a>
+    
+    <script src="../js/validation.js"></script>
+    <script src="../js/session.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Verificar si hay sesión activa
+        if (!Session.isActive()) {
+            window.location.href = 'login.html';
+        }
+        
+        // Cargar información del perfil
+        const user = Session.getCurrentUser();
+        if (user) {
+            document.getElementById('profileInfo').innerHTML = `
+                <p><strong>Nombre:</strong> ${user.nombre} ${user.apellido}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Rol:</strong> ${user.role}</p>
+                <p><strong>ID:</strong> ${user.id}</p>
+                <p><strong>Fecha de registro:</strong> ${user.fechaRegistro}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

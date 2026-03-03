@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Localizar Barco Cercano - Sistema Geolocalización Barcos</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        
+        .search-panel {
+            padding: 15px;
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        
+        .result-panel {
+            padding: 15px;
+            border: 1px solid #28a745;
+            background-color: #f0f8f0;
+            margin: 20px 0;
+        }
+        
+        .boats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .boats-table th,
+        .boats-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .boats-table th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Localizar Barco Más Cercano a un Puerto</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+        <button onclick="location.href='map-view.html'">🗺️ Ver Mapa General</button>
+    </div>
+    
+    <div class="search-panel">
+        <h3>Seleccionar Puerto</h3>
+        
+        <label for="portSelector">Puerto: </label>
+        <select id="portSelector">
+            <option value="">Seleccionar puerto...</option>
+        </select>
+        
+        <button onclick="findNearestBoat()">🔍 Buscar Barco Más Cercano</button>
+        <button onclick="clearResults()">🗑️ Limpiar Resultados</button>
+    </div>
+    
+    <div id="map" style="display: none;"></div>
+    
+    <div id="resultPanel" style="display: none;"></div>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../config/map-config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/geo-utils.js"></script>
+    <script src="../assets/js/map.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/gps-service.js"></script>
+    <script src="../services/distance-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let currentLine = null;
+        let currentCircle = null;
+        
+        // Cargar puertos en el selector
+        function loadPorts() {
+            const selector = document.getElementById('portSelector');
+            
+            Constants.PORTS.forEach(port => {
+                const option = document.createElement('option');
+                option.value = port.id;
+                option.textContent = `${port.name} (${port.country})`;
+                selector.appendChild(option);
+            });
+        }
+        
+        // Buscar barco más cercano
+        function findNearestBoat() {
+            const portId = document.getElementById('portSelector').value;
+            
+            if (!portId) {
+                Notification.error('Por favor selecciona un puerto');
+                return;
+            }
+            
+            const result = DistanceService.findNearestBoatToPort(portId);
+            
+            if (!result.success) {
+                Notification.error(result.message);
+                return;
+            }
+            
+            displayResults(result);
+            showOnMap(result);
+            
+            Notification.success('Búsqueda completada');
+        }
+        
+        // Mostrar resultados
+        function displayResults(result) {
+            const panel = document.getElementById('resultPanel');
+            const port = result.port;
+            const nearest = result.nearestBoat;
+            
+            let html = '<div class="result-panel">';
+            html += '<h3>✅ Resultado de la Búsqueda</h3>';
+            
+            html += '<h4>Puerto Seleccionado:</h4>';
+            html += `<p><strong>${port.name}</strong> (${port.country})<br>`;
+            html += `Coordenadas: ${Formatters.formatCoordinates(port.lat, port.lng)}</p>`;
+            
+            html += '<h4>Barco Más Cercano:</h4>';
+            html += `<p><strong>${nearest.nombre}</strong> (${nearest.id})<br>`;
+            html += `Matrícula: ${nearest.matricula}<br>`;
+            html += `Bandera: ${nearest.bandera}<br>`;
+            html += `Estado: ${nearest.estado}<br>`;
+            html += `Velocidad: ${nearest.velocidad} nudos<br>`;
+            html += `Posición: ${Formatters.formatCoordinates(nearest.lat, nearest.lng)}<br>`;
+            html += `<strong>Distancia: ${Formatters.formatDistance(nearest.distance)}</strong><br>`;
+            html += `Rumbo hacia puerto: ${nearest.bearing.toFixed(0)}°<br>`;
+            html += `Tiempo estimado de llegada: ${Formatters.formatDuration(nearest.eta)}</p>`;
+            
+            html += '<h4>Todos los Barcos (ordenados por distancia):</h4>';
+            html += '<table class="boats-table">';
+            html += '<tr><th>Barco</th><th>Bandera</th><th>Distancia</th><th>Velocidad</th><th>ETA</th></tr>';
+            
+            result.allBoats.forEach(boat => {
+                html += '<tr>';
+                html += `<td>${boat.nombre}</td>`;
+                html += `<td>${boat.bandera}</td>`;
+                html += `<td>${Formatters.formatDistance(boat.distance)}</td>`;
+                html += `<td>${boat.velocidad} nudos</td>`;
+                html += `<td>${Formatters.formatDuration(boat.eta)}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</table>';
+            html += '</div>';
+            
+            panel.innerHTML = html;
+            panel.style.display = 'block';
+        }
+        
+        // Mostrar en el mapa
+        function showOnMap(result) {
+            const mapDiv = document.getElementById('map');
+            mapDiv.style.display = 'block';
+            
+            // Inicializar mapa si no existe
+            if (!MapManager.map) {
+                MapManager.init('map', result.port.lat, result.port.lng, 5);
+            }
+            
+            // Limpiar elementos anteriores
+            MapManager.clearMarkers();
+            if (currentLine) MapManager.map.removeLayer(currentLine);
+            if (currentCircle) MapManager.map.removeLayer(currentCircle);
+            
+            const port = result.port;
+            const nearest = result.nearestBoat;
+            
+            // Agregar marcador de puerto
+            MapManager.createPortMarker(port);
+            
+            // Agregar marcadores de todos los barcos
+            result.allBoats.forEach((boat, index) => {
+                const marker = MapManager.createBoatMarker(boat);
+                
+                // Resaltar el más cercano
+                if (index === 0) {
+                    marker.bindPopup(
+                        `<strong>🏆 BARCO MÁS CERCANO</strong><br>` +
+                        marker.getPopup().getContent()
+                    );
+                }
+            });
+            
+            // Dibujar línea entre puerto y barco más cercano
+            currentLine = MapManager.drawLine(
+                port.lat, port.lng,
+                nearest.lat, nearest.lng,
+                { color: '#28a745', weight: 3, dashArray: '10, 10' }
+            );
+            
+            // Dibujar círculo alrededor del puerto (radio = distancia al barco más cercano)
+            currentCircle = MapManager.drawCircle(
+                port.lat, port.lng,
+                nearest.distance,
+                { color: '#28a745', fillOpacity: 0.05 }
+            );
+            
+            // Ajustar vista
+            MapManager.fitToMarkers();
+        }
+        
+        // Limpiar resultados
+        function clearResults() {
+            document.getElementById('resultPanel').style.display = 'none';
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('portSelector').value = '';
+            
+            if (MapManager.map) {
+                MapManager.clearMarkers();
+                if (currentLine) MapManager.map.removeLayer(currentLine);
+                if (currentCircle) MapManager.map.removeLayer(currentCircle);
+            }
+            
+            Notification.info('Resultados limpiados');
+        }
+        
+        // Cargar puertos al inicio
+        loadPorts();
+    </script>
+</body>
+</html>

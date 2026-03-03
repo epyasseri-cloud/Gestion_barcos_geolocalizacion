@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Producto - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1 id="formTitle">Nuevo Producto</h1>
+    
+    <div>
+        <button onclick="location.href='products-list.html'">← Volver a Lista</button>
+    </div>
+    
+    <br>
+    
+    <form id="productForm">
+        <fieldset>
+            <legend>Información del Producto</legend>
+            
+            <label>Nombre: *</label><br>
+            <input type="text" id="nombre" name="nombre" required><br><br>
+            
+            <label>Categoría (Nomenclatura): *</label><br>
+            <select id="categoria" name="categoria" required>
+                <option value="">Seleccionar categoría...</option>
+                <option value="Primaria">Primaria</option>
+                <option value="Manufactura">Manufactura</option>
+            </select>
+            <small>(Primaria: producto base | Manufactura: producto procesado)</small><br><br>
+            
+            <label>Descripción:</label><br>
+            <textarea id="descripcion" name="descripcion" rows="3" style="width: 100%; max-width: 400px;"></textarea><br><br>
+            
+            <label>Unidad de Medida: *</label><br>
+            <select id="unidadMedida" name="unidadMedida" required>
+                <option value="">Seleccionar unidad...</option>
+                <option value="Kg">Kg</option>
+                <option value="Ton">Ton</option>
+                <option value="Lata">Lata</option>
+                <option value="Caja">Caja</option>
+                <option value="Paquete">Paquete</option>
+                <option value="Unidad">Unidad</option>
+                <option value="Litro">Litro</option>
+            </select><br><br>
+            
+            <label>Precio Unitario:</label><br>
+            <input type="number" id="precioUnitario" name="precioUnitario" step="0.01" min="0" value="0"><br><br>
+            
+            <label>Stock Inicial:</label><br>
+            <input type="number" id="stock" name="stock" min="0" value="0"><br><br>
+            
+            <label>Estado:</label><br>
+            <select id="estado" name="estado">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select><br><br>
+        </fieldset>
+        
+        <br>
+        
+        <button type="submit">💾 Guardar Producto</button>
+        <button type="button" onclick="location.href='products-list.html'">Cancelar</button>
+    </form>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/product-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de producto desde URL (si existe)
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const isEditMode = !!productId;
+        
+        // Cargar datos del producto si está en modo edición
+        function loadProductData() {
+            if (!isEditMode) return;
+            
+            const product = ProductService.getById(productId);
+            
+            if (!product) {
+                Notification.error('Producto no encontrado');
+                setTimeout(() => {
+                    window.location.href = 'products-list.html';
+                }, 2000);
+                return;
+            }
+            
+            // Cambiar título
+            document.getElementById('formTitle').textContent = `Editar Producto: ${product.nombre}`;
+            
+            // Rellenar formulario
+            document.getElementById('nombre').value = product.nombre;
+            document.getElementById('categoria').value = product.categoria;
+            document.getElementById('descripcion').value = product.descripcion || '';
+            document.getElementById('unidadMedida').value = product.unidadMedida;
+            document.getElementById('precioUnitario').value = product.precioUnitario || 0;
+            document.getElementById('stock').value = product.stock || 0;
+            document.getElementById('estado').value = product.estado;
+        }
+        
+        // Manejar envío del formulario
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nombre: document.getElementById('nombre').value.trim(),
+                categoria: document.getElementById('categoria').value,
+                descripcion: document.getElementById('descripcion').value.trim(),
+                unidadMedida: document.getElementById('unidadMedida').value,
+                precioUnitario: parseFloat(document.getElementById('precioUnitario').value) || 0,
+                stock: parseInt(document.getElementById('stock').value) || 0,
+                estado: document.getElementById('estado').value
+            };
+            
+            // Validaciones adicionales
+            if (!formData.nombre) {
+                Notification.error('El nombre es obligatorio');
+                return;
+            }
+            
+            if (!formData.categoria) {
+                Notification.error('La categoría es obligatoria');
+                return;
+            }
+            
+            if (!formData.unidadMedida) {
+                Notification.error('La unidad de medida es obligatoria');
+                return;
+            }
+            
+            let result;
+            
+            if (isEditMode) {
+                result = ProductService.update(productId, formData);
+            } else {
+                result = ProductService.create(formData);
+            }
+            
+            if (result.success) {
+                Notification.success(result.message);
+                setTimeout(() => {
+                    window.location.href = 'products-list.html';
+                }, 1500);
+            } else {
+                Notification.error(result.message);
+            }
+        });
+        
+        // Inicializar
+        loadProductData();
+    </script>
+</body>
+</html>

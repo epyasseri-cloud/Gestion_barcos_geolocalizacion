@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <h1>Registrarse</h1>
+    
+    <form id="registerForm">
+        <div>
+            <label for="nombre">Nombre:</label><br>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        
+        <div>
+            <label for="apellido">Apellido:</label><br>
+            <input type="text" id="apellido" name="apellido" required>
+        </div>
+        
+        <div>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div>
+            <label for="password">Contraseña:</label><br>
+            <input type="password" id="password" name="password" required minlength="6">
+        </div>
+        
+        <div>
+            <label for="confirmPassword">Confirmar Contraseña:</label><br>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        
+        <div>
+            <label for="role">Rol:</label><br>
+            <select id="role" name="role" required>
+                <option value="">Seleccionar rol</option>
+                <option value="admin">Admin System</option>
+                <option value="tripulacion">Tripulación</option>
+                <option value="supervisor">Supervisor de Carga</option>
+                <option value="gerente_operaciones">Gerente de Operaciones</option>
+                <option value="gerente_finanzas">Gerente de Finanzas</option>
+            </select>
+        </div>
+        
+        <br>
+        <button type="submit">Registrarse</button>
+    </form>
+    
+    <br>
+    <p>¿Ya tienes cuenta? <a href="login.html">Iniciar Sesión</a></p>
+    
+    <div id="message"></div>
+    
+    <script src="../js/validation.js"></script>
+    <script src="../js/session.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('message').innerHTML = '<p style="color: red;">Las contraseñas no coinciden</p>';
+                return;
+            }
+            
+            const result = Auth.register(nombre, apellido, email, password, role);
+            
+            if (result.success) {
+                document.getElementById('message').innerHTML = '<p style="color: green;">Registro exitoso. Redirigiendo...</p>';
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                document.getElementById('message').innerHTML = '<p style="color: red;">' + result.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

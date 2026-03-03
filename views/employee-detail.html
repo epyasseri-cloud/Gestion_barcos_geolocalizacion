@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Empleado - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Detalle del Empleado</h1>
+    
+    <div>
+        <button onclick="location.href='employees-list.html'">← Volver a Lista</button>
+        <button onclick="editEmployee()">✏️ Editar</button>
+        <button onclick="deleteEmployee()">🗑️ Eliminar</button>
+    </div>
+    
+    <br>
+    
+    <div id="employeeDetail">
+        <p>Cargando información del empleado...</p>
+    </div>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de empleado desde URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const employeeId = urlParams.get('id');
+        
+        if (!employeeId) {
+            Notification.error('ID de empleado no especificado');
+            setTimeout(() => {
+                window.location.href = 'employees-list.html';
+            }, 2000);
+        }
+        
+        // Cargar detalles del empleado
+        function loadEmployeeDetail() {
+            const employee = EmployeeService.getById(employeeId);
+            
+            if (!employee) {
+                document.getElementById('employeeDetail').innerHTML = 
+                    '<p style="color: red;">Empleado no encontrado</p>';
+                Notification.error('Empleado no encontrado');
+                return;
+            }
+            
+            // Obtener información del barco asignado
+            let boatInfo = 'Sin asignar';
+            if (employee.barcoAsignado) {
+                const boat = BoatService.getById(employee.barcoAsignado);
+                if (boat) {
+                    boatInfo = `<a href="boat-detail.html?id=${boat.id}">${boat.nombre} (${boat.id})</a>`;
+                } else {
+                    boatInfo = employee.barcoAsignado + ' (no encontrado)';
+                }
+            }
+            
+            const detailHTML = `
+                <fieldset>
+                    <legend>Información Personal</legend>
+                    <table border="0" cellpadding="5">
+                        <tr>
+                            <td><strong>ID:</strong></td>
+                            <td>${employee.id}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre Completo:</strong></td>
+                            <td>${employee.nombre} ${employee.apellido}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Documento:</strong></td>
+                            <td>${employee.documento}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td><a href="mailto:${employee.email}">${employee.email}</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Teléfono:</strong></td>
+                            <td>${employee.telefono || 'No especificado'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dirección:</strong></td>
+                            <td>${employee.direccion || 'No especificada'}</td>
+                        </tr>
+                    </table>
+                </fieldset>
+                
+                <br>
+                
+                <fieldset>
+                    <legend>Información Laboral</legend>
+                    <table border="0" cellpadding="5">
+                        <tr>
+                            <td><strong>Rol:</strong></td>
+                            <td>${employee.rol}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Barco Asignado:</strong></td>
+                            <td>${boatInfo}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha de Contratación:</strong></td>
+                            <td>${Formatters.formatDate(employee.fechaContratacion)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Salario:</strong></td>
+                            <td>${Formatters.formatCurrency(employee.salario)}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Estado:</strong></td>
+                            <td><strong>${employee.estado}</strong></td>
+                        </tr>
+                    </table>
+                </fieldset>
+                
+                ${employee.barcoAsignado ? `
+                    <br>
+                    <fieldset>
+                        <legend>Acciones de Asignación</legend>
+                        <button onclick="unassignFromBoat()">❌ Desasignar de Barco</button>
+                    </fieldset>
+                ` : `
+                    <br>
+                    <fieldset>
+                        <legend>Acciones de Asignación</legend>
+                        <label>Asignar a barco: </label>
+                        <select id="boatSelector">
+                            <option value="">Seleccionar barco...</option>
+                        </select>
+                        <button onclick="assignToBoat()">✅ Asignar</button>
+                    </fieldset>
+                `}
+            `;
+            
+            document.getElementById('employeeDetail').innerHTML = detailHTML;
+            
+            // Cargar selector de barcos si no está asignado
+            if (!employee.barcoAsignado) {
+                loadBoatsSelector();
+            }
+        }
+        
+        // Cargar selector de barcos
+        function loadBoatsSelector() {
+            const boats = BoatService.getAll();
+            const select = document.getElementById('boatSelector');
+            
+            if (!select) return;
+            
+            boats.forEach(boat => {
+                const option = document.createElement('option');
+                option.value = boat.id;
+                option.textContent = `${boat.nombre} (${boat.id})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Asignar a barco
+        function assignToBoat() {
+            const boatId = document.getElementById('boatSelector').value;
+            
+            if (!boatId) {
+                Notification.error('Por favor selecciona un barco');
+                return;
+            }
+            
+            const result = EmployeeService.assignToBoat(employeeId, boatId);
+            
+            if (result.success) {
+                Notification.success(result.message);
+                loadEmployeeDetail();
+            } else {
+                Notification.error(result.message);
+            }
+        }
+        
+        // Desasignar de barco
+        function unassignFromBoat() {
+            if (confirm('¿Estás seguro de desasignar al empleado de su barco actual?')) {
+                const result = EmployeeService.unassignFromBoat(employeeId);
+                
+                if (result.success) {
+                    Notification.success('Empleado desasignado del barco');
+                    loadEmployeeDetail();
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Editar empleado
+        function editEmployee() {
+            window.location.href = `employee-form.html?id=${employeeId}`;
+        }
+        
+        // Eliminar empleado
+        function deleteEmployee() {
+            const employee = EmployeeService.getById(employeeId);
+            
+            if (!employee) {
+                Notification.error('Empleado no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar al empleado ${employee.nombre} ${employee.apellido}?`)) {
+                const result = EmployeeService.delete(employeeId);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    setTimeout(() => {
+                        window.location.href = 'employees-list.html';
+                    }, 1500);
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Cargar detalles al inicio
+        loadEmployeeDetail();
+    </script>
+</body>
+</html>

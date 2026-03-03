@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa GPS - Sistema Geolocalización Barcos</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+        
+        .controls {
+            margin: 10px 0;
+        }
+        
+        .boat-list {
+            margin-top: 20px;
+        }
+        
+        .boat-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Mapa de Geolocalización GPS</h1>
+    
+    <div>
+        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+    </div>
+    
+    <br>
+    
+    <div class="controls">
+        <button onclick="loadBoats()"> Actualizar Posiciones</button>
+        <button onclick="centerMap()"> Centrar Mapa</button>
+        <button onclick="fitAllBoats()"> Ajustar a Todos</button>
+        <button onclick="togglePorts()"> Mostrar/Ocultar Puertos</button>
+        <button onclick="simulateMovement()"> Simular Movimiento</button>
+        
+        <label>
+            <input type="checkbox" id="autoUpdate" onchange="toggleAutoUpdate()"> Actualización Automática
+        </label>
+    </div>
+    
+    <div id="map"></div>
+    
+    <div class="boat-list">
+        <h3>Barcos en el Sistema (<span id="boatCount">0</span>)</h3>
+        <div id="boatsList"></div>
+    </div>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../config/map-config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/geo-utils.js"></script>
+    <script src="../utils/date-utils.js"></script>
+    <script src="../assets/js/map.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/gps-service.js"></script>
+    <script src="../services/distance-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let autoUpdateInterval = null;
+        let showPorts = false;
+        let portMarkers = [];
+        
+        // Inicializar mapa
+        MapManager.init('map', 0, 0, 3);
+        
+        // Cargar barcos en el mapa
+        function loadBoats(options = {}) {
+            const { silentIfEmpty = false } = options;
+
+            // Limpiar marcadores existentes
+            MapManager.clearMarkers();
+            
+            const boats = BoatService.getAllWithPosition();
+            
+            if (boats.length === 0) {
+                if (!silentIfEmpty) {
+                    Notification.warning('No hay barcos con posición GPS');
+                }
+                return false;
+            }
+            
+            boats.forEach(boat => {
+                MapManager.createBoatMarker(boat);
+            });
+            
+            updateBoatsList(boats);
+            document.getElementById('boatCount').textContent = boats.length;
+            
+            Notification.success(`${boats.length} barcos cargados en el mapa`);
+            return true;
+        }
+
+        // Carga inicial con reintento para evitar condición de carrera en inicialización
+        function loadBoatsWithRetry(attempt = 1) {
+            const maxAttempts = 3;
+            const loaded = loadBoats({ silentIfEmpty: attempt < maxAttempts });
+
+            if (!loaded && attempt < maxAttempts) {
+                setTimeout(() => loadBoatsWithRetry(attempt + 1), 500);
+            }
+        }
+        
+        // Actualizar lista de barcos
+        function updateBoatsList(boats) {
+            const listDiv = document.getElementById('boatsList');
+            
+            if (boats.length === 0) {
+                listDiv.innerHTML = '<p>No hay barcos disponibles</p>';
+                return;
+            }
+            
+            listDiv.innerHTML = boats.map(boat => `
+                <div class="boat-item">
+                    <strong>${boat.nombre}</strong> (${boat.id})<br>
+                    Estado: ${boat.estado} | Velocidad: ${boat.velocidad} nudos<br>
+                    Posición: ${Formatters.formatCoordinates(boat.lat, boat.lng)}<br>
+                    <button onclick="centerOnBoat('${boat.id}', ${boat.lat}, ${boat.lng})">Centrar en Mapa</button>
+                    <button onclick="showBoatDetails('${boat.id}')">Ver Detalles</button>
+                </div>
+            `).join('');
+        }
+        
+        // Centrar mapa
+        function centerMap() {
+            MapManager.map.setView([0, 0], 3);
+        }
+        
+        // Ajustar vista a todos los barcos
+        function fitAllBoats() {
+            MapManager.fitToMarkers();
+        }
+        
+        // Centrar en un barco específico
+        function centerOnBoat(boatId, lat, lng) {
+            MapManager.centerOn(lat, lng, 8);
+            
+            if (MapManager.markers[boatId]) {
+                MapManager.markers[boatId].openPopup();
+            }
+        }
+        
+        // Mostrar detalles del barco
+        function showBoatDetails(boatId) {
+            const boat = BoatService.getById(boatId);
+            if (!boat) {
+                Notification.error('Barco no encontrado');
+                return;
+            }
+            
+            const gpsPosition = GPSService.getLatestByBoat(boatId);
+            
+            let details = `=== ${boat.nombre} ===\n\n`;
+            details += `ID: ${boat.id}\n`;
+            details += `Matrícula: ${boat.matricula}\n`;
+            details += `Bandera: ${boat.bandera}\n`;
+            details += `Tipo: ${boat.tipo}\n`;
+            details += `Capacidad: ${boat.capacidadToneladas} Ton\n`;
+            details += `Estado: ${boat.estado}\n\n`;
+            
+            if (gpsPosition) {
+                details += `GPS:\n`;
+                details += `Posición: ${Formatters.formatCoordinates(gpsPosition.lat, gpsPosition.lng)}\n`;
+                details += `Velocidad: ${gpsPosition.velocidad} nudos\n`;
+                details += `Rumbo: ${gpsPosition.rumbo}°\n`;
+                details += `Última actualización: ${Formatters.formatRelativeDate(gpsPosition.timestamp)}`;
+            }
+            
+            alert(details);
+        }
+        
+        // Mostrar/ocultar puertos
+        function togglePorts() {
+            showPorts = !showPorts;
+            
+            if (showPorts) {
+                portMarkers = Constants.PORTS.map(port => {
+                    return MapManager.createPortMarker(port);
+                });
+                Notification.success('Puertos mostrados en el mapa');
+            } else {
+                portMarkers.forEach(marker => {
+                    MapManager.map.removeLayer(marker);
+                });
+                portMarkers = [];
+                Notification.info('Puertos ocultados');
+            }
+        }
+        
+        // Simular movimiento de barcos
+        function simulateMovement() {
+            const boats = BoatService.getAllWithPosition();
+            
+            boats.forEach(boat => {
+                GPSService.simulateMovement(boat.id, boat.velocidad);
+                
+                const newPos = GPSService.getLatestByBoat(boat.id);
+                if (newPos) {
+                    BoatService.updatePosition(boat.id, newPos.lat, newPos.lng, newPos.velocidad);
+                }
+            });
+            
+            loadBoats();
+            Notification.success('Posiciones simuladas actualizadas');
+        }
+        
+        // Activar/desactivar actualización automática
+        function toggleAutoUpdate() {
+            const checkbox = document.getElementById('autoUpdate');
+            
+            if (checkbox.checked) {
+                autoUpdateInterval = setInterval(() => {
+                    simulateMovement();
+                }, 5000);
+                Notification.success('Actualización automática activada (cada 5 seg)');
+            } else {
+                if (autoUpdateInterval) {
+                    clearInterval(autoUpdateInterval);
+                    autoUpdateInterval = null;
+                }
+                Notification.info('Actualización automática desactivada');
+            }
+        }
+        
+        // Cargar barcos al inicio (con reintento)
+        loadBoatsWithRetry();
+        
+        // Limpiar interval al salir
+        window.addEventListener('beforeunload', function() {
+            if (autoUpdateInterval) {
+                clearInterval(autoUpdateInterval);
+            }
+        });
+    </script>
+</body>
+</html>

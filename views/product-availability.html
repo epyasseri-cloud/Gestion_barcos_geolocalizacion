@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidad de Productos - Sistema de Barcos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .availability-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .availability-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .availability-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .availability-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .availability-table tr:hover {
+            background: #f8f9fa;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .category-primaria {
+            background: #3498db;
+            color: white;
+        }
+        .category-manufactura {
+            background: #9b59b6;
+            color: white;
+        }
+        .flag-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-export:hover {
+            background: #2c3e50;
+        }
+        .summary-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .summary-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .summary-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        .summary-item p {
+            margin: 0.25rem 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
+                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
+                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
+                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
+                <a href="../views/trips-list.html"><span><i class="fas fa-route"></i></span> Viajes</a>
+                <a href="../views/product-availability.html" class="active"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
+                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
+                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
+                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div>
+                    <h1><i class="fas fa-chart-bar"></i> Disponibilidad de Productos por Bandera</h1>
+                    <p>Consulta la disponibilidad de productos en barcos según su bandera/país</p>
+                </div>
+            </header>
+
+            <!-- Statistics -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalItems">0</div>
+                    <div class="stat-label">Items Disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProducts">0</div>
+                    <div class="stat-label">Productos Diferentes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalFlags">0</div>
+                    <div class="stat-label">Banderas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalBoats">0</div>
+                    <div class="stat-label">Barcos con Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$<span id="totalValue">0</span></div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <h3 style="margin-top: 0;"><i class="fas fa-filter"></i> Filtros de Búsqueda</h3>
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label>Buscar</label>
+                        <input type="text" id="searchInput" placeholder="Barco, producto..." class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Bandera/País</label>
+                        <select id="filterFlag" class="form-control">
+                            <option value="">Todas las banderas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Producto</label>
+                        <select id="filterProduct" class="form-control">
+                            <option value="">Todos los productos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="filterCategory" class="form-control">
+                            <option value="">Todas las categorías</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="Manufactura">Manufactura</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportJSON()"><i class="fas fa-file-code"></i> Exportar JSON</button>
+                    <button class="btn-export" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    <button class="btn-export" onclick="generateReport()"><i class="fas fa-file-alt"></i> Generar Reporte</button>
+                </div>
+            </div>
+
+            <!-- Summary by Flag -->
+            <div class="summary-section" id="summaryByFlag" style="display: none;">
+                <h3><i class="fas fa-flag"></i> Resumen por Bandera</h3>
+                <div class="summary-grid" id="flagSummaryContainer">
+                </div>
+            </div>
+
+            <!-- Availability Table -->
+            <div class="availability-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('barcoNombre')">Barco ↕</th>
+                            <th onclick="sortTable('bandera')">Bandera ↕</th>
+                            <th onclick="sortTable('productoNombre')">Producto ↕</th>
+                            <th onclick="sortTable('productoCategoria')">Categoría ↕</th>
+                            <th onclick="sortTable('cantidad')">Cantidad ↕</th>
+                            <th onclick="sortTable('unidad')">Unidad</th>
+                            <th onclick="sortTable('precioUnitario')">Precio Unit. ↕</th>
+                            <th onclick="sortTable('valorTotal')">Valor Total ↕</th>
+                            <th onclick="sortTable('estadoBarco')">Estado Barco</th>
+                        </tr>
+                    </thead>
+                    <tbody id="availabilityTableBody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 2rem;">
+                                Cargando disponibilidad...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/product-service.js"></script>
+    <script src="../services/inventory-service.js"></script>
+    <script src="../services/availability-service.js"></script>
+    <script>
+        let currentSort = { field: 'bandera', order: 'asc' };
+        let currentAvailability = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFilters();
+            loadAvailability();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', debounce(filterAvailability, 300));
+            document.getElementById('filterFlag').addEventListener('change', filterAvailability);
+            document.getElementById('filterProduct').addEventListener('change', filterAvailability);
+            document.getElementById('filterCategory').addEventListener('change', filterAvailability);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function loadFilters() {
+            // Cargar banderas
+            const flags = window.AvailabilityService.getAvailableFlags();
+            const flagSelect = document.getElementById('filterFlag');
+            flags.forEach(flag => {
+                const option = document.createElement('option');
+                option.value = flag;
+                option.textContent = flag;
+                flagSelect.appendChild(option);
+            });
+
+            // Cargar productos
+            const products = window.AvailabilityService.getAvailableProducts();
+            const productSelect = document.getElementById('filterProduct');
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.productoId;
+                option.textContent = `${product.productoNombre} (${product.cantidadTotal} total)`;
+                productSelect.appendChild(option);
+            });
+        }
+
+        function loadAvailability() {
+            currentAvailability = window.AvailabilityService.getAvailability();
+            displayAvailability(currentAvailability);
+            displayStats();
+        }
+
+        function displayAvailability(availability) {
+            const tbody = document.getElementById('availabilityTableBody');
+            
+            if (availability.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: #7f8c8d;">
+                            No se encontró disponibilidad con los filtros seleccionados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const sorted = window.AvailabilityService.sortBy(availability, currentSort.field, currentSort.order);
+
+            tbody.innerHTML = sorted.map(item => {
+                const categoryClass = `category-${item.productoCategoria.toLowerCase()}`;
+                
+                return `
+                    <tr>
+                        <td><strong>${item.barcoNombre}</strong><br><small>${item.barcoMatricula}</small></td>
+                        <td><span class="flag-badge">${item.bandera}</span></td>
+                        <td>${item.productoNombre}</td>
+                        <td><span class="category-badge ${categoryClass}">${item.productoCategoria}</span></td>
+                        <td><strong>${item.cantidad.toLocaleString()}</strong></td>
+                        <td>${item.unidad}</td>
+                        <td>$${item.precioUnitario.toFixed(2)}</td>
+                        <td><strong>$${item.valorTotal.toFixed(2)}</strong></td>
+                        <td>${item.estadoBarco}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function displayStats() {
+            const summary = window.AvailabilityService.getSummary();
+            
+            document.getElementById('totalItems').textContent = summary.totalItems;
+            document.getElementById('totalProducts').textContent = summary.totalProductos;
+            document.getElementById('totalFlags').textContent = summary.totalBanderas;
+            document.getElementById('totalBoats').textContent = summary.totalBarcos;
+            document.getElementById('totalValue').textContent = summary.valorTotal.toFixed(2);
+
+            // Mostrar resumen por bandera si hay filtro de bandera
+            const filterFlag = document.getElementById('filterFlag').value;
+            if (filterFlag) {
+                displayFlagSummary(filterFlag);
+            }
+        }
+
+        function displayFlagSummary(flag) {
+            const byFlag = window.AvailabilityService.getAvailabilityByFlag();
+            const flagData = byFlag[flag];
+
+            if (!flagData) return;
+
+            const container = document.getElementById('flagSummaryContainer');
+            const productos = Object.values(flagData.productos);
+
+            container.innerHTML = productos.map(product => `
+                <div class="summary-item">
+                    <h4>${product.productoNombre}</h4>
+                    <p><strong>Cantidad Total:</strong> ${product.cantidadTotal.toLocaleString()} ${product.unidad}</p>
+                    <p><strong>Barcos:</strong> ${product.barcos.length}</p>
+                    <p><strong>Categoría:</strong> ${product.productoCategoria}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('summaryByFlag').style.display = 'block';
+        }
+
+        function filterAvailability() {
+            const searchTerm = document.getElementById('searchInput').value;
+            const filterFlag = document.getElementById('filterFlag').value;
+            const filterProduct = document.getElementById('filterProduct').value;
+            const filterCategory = document.getElementById('filterCategory').value;
+
+            let filtered = window.AvailabilityService.search(searchTerm);
+
+            filtered = window.AvailabilityService.filter({
+                bandera: filterFlag || null,
+                productoId: filterProduct || null,
+                categoria: filterCategory || null
+            });
+
+            displayAvailability(filtered);
+            
+            // Actualizar estadísticas filtradas
+            const filteredSummary = {
+                totalItems: filtered.length,
+                totalProductos: new Set(filtered.map(item => item.productoId)).size,
+                totalBanderas: new Set(filtered.map(item => item.bandera)).size,
+                totalBarcos: new Set(filtered.map(item => item.barcoId)).size,
+                valorTotal: filtered.reduce((sum, item) => sum + item.valorTotal, 0)
+            };
+
+            document.getElementById('totalItems').textContent = filteredSummary.totalItems;
+            document.getElementById('totalProducts').textContent = filteredSummary.totalProductos;
+            document.getElementById('totalFlags').textContent = filteredSummary.totalBanderas;
+            document.getElementById('totalBoats').textContent = filteredSummary.totalBarcos;
+            document.getElementById('totalValue').textContent = filteredSummary.valorTotal.toFixed(2);
+
+            // Mostrar/ocultar resumen por bandera
+            if (filterFlag) {
+                displayFlagSummary(filterFlag);
+            } else {
+                document.getElementById('summaryByFlag').style.display = 'none';
+            }
+        }
+
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.order = 'asc';
+            }
+            filterAvailability();
+        }
+
+        function exportJSON() {
+            const json = window.AvailabilityService.exportJSON(currentAvailability);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `disponibilidad_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            const csv = window.AvailabilityService.exportCSV(currentAvailability);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `disponibilidad_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateReport() {
+            const filterFlag = document.getElementById('filterFlag').value;
+            const filterProduct = document.getElementById('filterProduct').value;
+
+            const report = window.AvailabilityService.generateReport({
+                bandera: filterFlag || null,
+                productoId: filterProduct || null
+            });
+
+            const json = JSON.stringify(report, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte_disponibilidad_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('✅ Reporte generado correctamente');
+        }
+    </script>
+</body>
+</html>

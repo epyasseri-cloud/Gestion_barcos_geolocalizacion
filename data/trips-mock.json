@@ -1,0 +1,105 @@
+[
+  {
+    "id": "TRIP0001",
+    "barcoId": "B001",
+    "puertoOrigen": "Puerto de Veracruz",
+    "puertoDestino": "Puerto de Tokio",
+    "fechaInicio": "2025-01-10T09:00:00Z",
+    "fechaFin": "2025-02-15T18:30:00Z",
+    "estado": "Finalizado",
+    "tripulacion": ["EMP001", "EMP002"],
+    "coordenadasRuta": [
+      {"lat": 19.2006, "lng": -96.1375, "timestamp": "2025-01-10T09:00:00Z"},
+      {"lat": 25.0000, "lng": -120.0000, "timestamp": "2025-01-20T12:00:00Z"},
+      {"lat": 30.0000, "lng": -140.0000, "timestamp": "2025-01-30T14:00:00Z"},
+      {"lat": 35.6167, "lng": 139.7667, "timestamp": "2025-02-15T18:30:00Z"}
+    ],
+    "observaciones": "Viaje transpacífico completado con éxito. Carga de contenedores de pescado refrigerado.",
+    "distanciaEstimada": 11200,
+    "cargaTransportada": ["PROD001"],
+    "createdAt": "2025-01-10T08:00:00Z",
+    "updatedAt": "2025-02-15T19:00:00Z"
+  },
+  {
+    "id": "TRIP0002",
+    "barcoId": "B002",
+    "puertoOrigen": "Puerto de Tokio",
+    "puertoDestino": "Puerto de Veracruz",
+    "fechaInicio": "2025-02-20T10:00:00Z",
+    "fechaFin": "2025-03-28T16:00:00Z",
+    "estado": "Finalizado",
+    "tripulacion": ["EMP003", "EMP004"],
+    "coordenadasRuta": [
+      {"lat": 35.6167, "lng": 139.7667, "timestamp": "2025-02-20T10:00:00Z"},
+      {"lat": 30.0000, "lng": 160.0000, "timestamp": "2025-03-02T12:00:00Z"},
+      {"lat": 25.0000, "lng": -150.0000, "timestamp": "2025-03-12T14:00:00Z"},
+      {"lat": 19.2006, "lng": -96.1375, "timestamp": "2025-03-28T16:00:00Z"}
+    ],
+    "observaciones": "Viaje de retorno completado. Condiciones climáticas favorables en el Pacífico.",
+    "distanciaEstimada": 11200,
+    "cargaTransportada": ["PROD001"],
+    "createdAt": "2025-02-20T09:00:00Z",
+    "updatedAt": "2025-03-28T17:00:00Z"
+  },
+  {
+    "id": "TRIP0003",
+    "barcoId": "B003",
+    "puertoOrigen": "Puerto de Vigo",
+    "puertoDestino": "Puerto de Lisboa",
+    "fechaInicio": "2026-02-01T08:00:00Z",
+    "fechaFin": "2026-02-05T16:30:00Z",
+    "estado": "Finalizado",
+    "tripulacion": ["EMP005", "EMP006"],
+    "coordenadasRuta": [
+      {"lat": 42.2406, "lng": -8.7207, "timestamp": "2026-02-01T08:00:00Z"},
+      {"lat": 41.5000, "lng": -9.0000, "timestamp": "2026-02-02T12:00:00Z"},
+      {"lat": 40.0000, "lng": -9.2000, "timestamp": "2026-02-03T14:00:00Z"},
+      {"lat": 38.7223, "lng": -9.1393, "timestamp": "2026-02-05T16:30:00Z"}
+    ],
+    "observaciones": "Viaje completado sin incidentes. Pesca abundante.",
+    "distanciaEstimada": 520,
+    "cargaTransportada": ["PROD002", "PROD003"],
+    "createdAt": "2026-02-01T07:45:00Z",
+    "updatedAt": "2026-02-05T16:35:00Z"
+  },
+  {
+    "id": "TRIP0004",
+    "barcoId": "B004",
+    "puertoOrigen": "Puerto de Cádiz",
+    "puertoDestino": "Puerto de Casablanca",
+    "fechaInicio": "2026-02-03T10:00:00Z",
+    "fechaFin": "2026-02-08T14:00:00Z",
+    "estado": "Finalizado",
+    "tripulacion": ["EMP007", "EMP008"],
+    "coordenadasRuta": [
+      {"lat": 36.5297, "lng": -6.2923, "timestamp": "2026-02-03T10:00:00Z"},
+      {"lat": 35.0000, "lng": -6.5000, "timestamp": "2026-02-04T15:00:00Z"},
+      {"lat": 33.5883, "lng": -7.6114, "timestamp": "2026-02-08T14:00:00Z"}
+    ],
+    "observaciones": "Condiciones climáticas favorables durante todo el viaje.",
+    "distanciaEstimada": 420,
+    "cargaTransportada": ["PROD004", "PROD005"],
+    "createdAt": "2026-02-03T09:30:00Z",
+    "updatedAt": "2026-02-08T14:10:00Z"
+  },
+  {
+    "id": "TRIP0005",
+    "barcoId": "B005",
+    "puertoOrigen": "Puerto de Barcelona",
+    "puertoDestino": "Puerto de Génova",
+    "fechaInicio": "2026-02-10T06:00:00Z",
+    "fechaFin": null,
+    "estado": "En curso",
+    "tripulacion": ["EMP006", "EMP001"],
+    "coordenadasRuta": [
+      {"lat": 41.3851, "lng": 2.1734, "timestamp": "2026-02-10T06:00:00Z"},
+      {"lat": 41.9000, "lng": 4.0000, "timestamp": "2026-02-11T10:00:00Z"},
+      {"lat": 42.5000, "lng": 7.0000, "timestamp": "2026-02-12T14:00:00Z"}
+    ],
+    "observaciones": "Viaje en curso. Mar en calma.",
+    "distanciaEstimada": 510,
+    "cargaTransportada": ["PROD006", "PROD007", "PROD008"],
+    "createdAt": "2026-02-10T05:30:00Z",
+    "updatedAt": "2026-02-12T14:05:00Z"
+  }
+]

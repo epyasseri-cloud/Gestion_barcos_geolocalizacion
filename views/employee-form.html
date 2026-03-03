@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Empleado - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1 id="formTitle">Nuevo Empleado</h1>
+    
+    <div>
+        <button onclick="location.href='employees-list.html'">← Volver a Lista</button>
+    </div>
+    
+    <br>
+    
+    <form id="employeeForm">
+        <fieldset>
+            <legend>Información Personal</legend>
+            
+            <label>Nombre: *</label><br>
+            <input type="text" id="nombre" name="nombre" required><br><br>
+            
+            <label>Apellido: *</label><br>
+            <input type="text" id="apellido" name="apellido" required><br><br>
+            
+            <label>Documento: *</label><br>
+            <input type="text" id="documento" name="documento" required><br><br>
+            
+            <label>Email: *</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+            
+            <label>Teléfono:</label><br>
+            <input type="tel" id="telefono" name="telefono"><br><br>
+            
+            <label>Dirección:</label><br>
+            <input type="text" id="direccion" name="direccion"><br><br>
+        </fieldset>
+        
+        <br>
+        
+        <fieldset>
+            <legend>Información Laboral</legend>
+            
+            <label>Rol: *</label><br>
+            <select id="rol" name="rol" required>
+                <option value="">Seleccionar rol...</option>
+                <option value="Capitán">Capitán</option>
+                <option value="Oficial">Oficial</option>
+                <option value="Navegante">Navegante</option>
+                <option value="Ingeniero">Ingeniero</option>
+                <option value="Marinero">Marinero</option>
+                <option value="Cocinero">Cocinero</option>
+                <option value="Mecánico">Mecánico</option>
+                <option value="Electricista">Electricista</option>
+            </select><br><br>
+            
+            <label>Barco Asignado:</label><br>
+            <select id="barcoAsignado" name="barcoAsignado">
+                <option value="">Sin asignar</option>
+            </select><br><br>
+            
+            <label>Fecha de Contratación: *</label><br>
+            <input type="date" id="fechaContratacion" name="fechaContratacion" required><br><br>
+            
+            <label>Salario:</label><br>
+            <input type="number" id="salario" name="salario" step="0.01" min="0"><br><br>
+            
+            <label>Estado:</label><br>
+            <select id="estado" name="estado">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </select><br><br>
+        </fieldset>
+        
+        <br>
+        
+        <button type="submit">💾 Guardar Empleado</button>
+        <button type="button" onclick="location.href='employees-list.html'">Cancelar</button>
+    </form>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de empleado desde URL (si existe)
+        const urlParams = new URLSearchParams(window.location.search);
+        const employeeId = urlParams.get('id');
+        const isEditMode = !!employeeId;
+        
+        // Cargar barcos en el selector
+        function loadBoatsSelector() {
+            const boats = BoatService.getAll();
+            const select = document.getElementById('barcoAsignado');
+            
+            boats.forEach(boat => {
+                const option = document.createElement('option');
+                option.value = boat.id;
+                option.textContent = `${boat.nombre} (${boat.id})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Cargar datos del empleado si está en modo edición
+        function loadEmployeeData() {
+            if (!isEditMode) return;
+            
+            const employee = EmployeeService.getById(employeeId);
+            
+            if (!employee) {
+                Notification.error('Empleado no encontrado');
+                setTimeout(() => {
+                    window.location.href = 'employees-list.html';
+                }, 2000);
+                return;
+            }
+            
+            // Cambiar título
+            document.getElementById('formTitle').textContent = `Editar Empleado: ${employee.nombre} ${employee.apellido}`;
+            
+            // Rellenar formulario
+            document.getElementById('nombre').value = employee.nombre;
+            document.getElementById('apellido').value = employee.apellido;
+            document.getElementById('documento').value = employee.documento;
+            document.getElementById('email').value = employee.email;
+            document.getElementById('telefono').value = employee.telefono || '';
+            document.getElementById('direccion').value = employee.direccion || '';
+            document.getElementById('rol').value = employee.rol;
+            document.getElementById('barcoAsignado').value = employee.barcoAsignado || '';
+            document.getElementById('fechaContratacion').value = employee.fechaContratacion;
+            document.getElementById('salario').value = employee.salario || 0;
+            document.getElementById('estado').value = employee.estado;
+        }
+        
+        // Establecer fecha actual por defecto
+        function setDefaultDate() {
+            if (!isEditMode) {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaContratacion').value = today;
+            }
+        }
+        
+        // Manejar envío del formulario
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nombre: document.getElementById('nombre').value.trim(),
+                apellido: document.getElementById('apellido').value.trim(),
+                documento: document.getElementById('documento').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefono: document.getElementById('telefono').value.trim(),
+                direccion: document.getElementById('direccion').value.trim(),
+                rol: document.getElementById('rol').value,
+                barcoAsignado: document.getElementById('barcoAsignado').value || null,
+                fechaContratacion: document.getElementById('fechaContratacion').value,
+                salario: parseFloat(document.getElementById('salario').value) || 0,
+                estado: document.getElementById('estado').value
+            };
+            
+            // Validaciones adicionales
+            if (!formData.nombre || !formData.apellido) {
+                Notification.error('Nombre y apellido son obligatorios');
+                return;
+            }
+            
+            if (!Validator.isValidEmail(formData.email)) {
+                Notification.error('Email inválido');
+                return;
+            }
+            
+            if (!formData.documento) {
+                Notification.error('Documento es obligatorio');
+                return;
+            }
+            
+            let result;
+            
+            if (isEditMode) {
+                result = EmployeeService.update(employeeId, formData);
+            } else {
+                result = EmployeeService.create(formData);
+            }
+            
+            if (result.success) {
+                Notification.success(result.message);
+                setTimeout(() => {
+                    window.location.href = 'employees-list.html';
+                }, 1500);
+            } else {
+                Notification.error(result.message);
+            }
+        });
+        
+        // Inicializar
+        loadBoatsSelector();
+        setDefaultDate();
+        loadEmployeeData();
+    </script>
+</body>
+</html>

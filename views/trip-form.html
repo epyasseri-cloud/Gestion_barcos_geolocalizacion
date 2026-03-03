@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Viaje - Sistema de Barcos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-full {
+            grid-column: 1 / -1;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        .required {
+            color: #e74c3c;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .alert-error {
+            background: #fee;
+            color: #c0392b;
+            border: 1px solid #e74c3c;
+        }
+        .alert-warning {
+            background: #fef6e6;
+            color: #d68910;
+            border: 1px solid #f39c12;
+        }
+        .crew-selector {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .crew-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .crew-item input {
+            margin-right: 0.5rem;
+        }
+        .boat-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e8f4f8;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .boat-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        .boat-info p {
+            margin: 0.25rem 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../views/dashboard.html"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
+                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
+                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
+                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
+                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
+                <a href="../views/trips-list.html" class="active"><span><i class="fas fa-route"></i></span> Viajes</a>
+                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
+                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
+                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
+                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div>
+                    <h1><i class="fas fa-plus-circle"></i> Nuevo Viaje</h1>
+                    <p>Registra un nuevo viaje para un barco</p>
+                </div>
+                <button class="btn-secondary" onclick="window.location.href='trips-list.html'">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+            </header>
+
+            <div class="form-container">
+                <div id="alertContainer"></div>
+
+                <form id="tripForm">
+                    <div class="form-grid">
+                        <!-- Selección de barco -->
+                        <div class="form-group form-full">
+                            <label for="barcoId">
+                                Barco <span class="required">*</span>
+                            </label>
+                            <select id="barcoId" class="form-control" required>
+                                <option value="">Seleccione un barco</option>
+                            </select>
+                        </div>
+
+                        <!-- Información del barco -->
+                        <div id="boatInfo" class="form-full" style="display: none;"></div>
+
+                        <!-- Puerto de origen -->
+                        <div class="form-group">
+                            <label for="puertoOrigen">
+                                Puerto de Origen <span class="required">*</span>
+                            </label>
+                            <input type="text" id="puertoOrigen" class="form-control" 
+                                   list="portsListOrigen" required>
+                            <datalist id="portsListOrigen"></datalist>
+                        </div>
+
+                        <!-- Puerto de destino -->
+                        <div class="form-group">
+                            <label for="puertoDestino">
+                                Puerto de Destino <span class="required">*</span>
+                            </label>
+                            <input type="text" id="puertoDestino" class="form-control" 
+                                   list="portsListDestino" required>
+                            <datalist id="portsListDestino"></datalist>
+                        </div>
+
+                        <!-- Fecha de inicio -->
+                        <div class="form-group">
+                            <label for="fechaInicio">
+                                Fecha de Inicio <span class="required">*</span>
+                            </label>
+                            <input type="datetime-local" id="fechaInicio" class="form-control" required>
+                        </div>
+
+                        <!-- Distancia estimada -->
+                        <div class="form-group">
+                            <label for="distanciaEstimada">
+                                Distancia Estimada (millas náuticas)
+                            </label>
+                            <input type="number" id="distanciaEstimada" class="form-control" 
+                                   min="0" step="1">
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="form-group form-full">
+                            <label for="observaciones">
+                                Observaciones
+                            </label>
+                            <textarea id="observaciones" class="form-control" 
+                                      rows="3" placeholder="Detalles adicionales del viaje..."></textarea>
+                        </div>
+
+                        <!-- Selección de tripulación -->
+                        <div class="form-group form-full">
+                            <label>
+                                Tripulación Asignada
+                            </label>
+                            <div id="crewSelector" class="crew-selector">
+                                <p style="text-align: center; color: #7f8c8d;">
+                                    Seleccione un barco para ver su tripulación
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Productos a transportar -->
+                        <div class="form-group form-full">
+                            <label>
+                                Carga a Transportar (IDs de productos, separados por comas)
+                            </label>
+                            <input type="text" id="cargaTransportada" class="form-control" 
+                                   placeholder="Ej: PROD001, PROD002, PROD003">
+                        </div>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='trips-list.html'">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Iniciar Viaje
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/trip-service.js"></script>
+    <script>
+        let selectedCrew = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBoats();
+            loadPorts();
+            setDefaultDateTime();
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            document.getElementById('barcoId').addEventListener('change', onBoatChange);
+            document.getElementById('tripForm').addEventListener('submit', handleSubmit);
+        }
+
+        // Cargar barcos disponibles
+        function loadBoats() {
+            try {
+                // Verificar que los servicios estén disponibles
+                if (!window.BoatService) {
+                    console.error('BoatService no está disponible');
+                    showAlert('Error: No se pudo cargar el servicio de barcos', 'error');
+                    return;
+                }
+
+                const boats = window.BoatService.getAll();
+                console.log('Barcos cargados:', boats.length);
+                
+                const select = document.getElementById('barcoId');
+
+                // Filtrar solo barcos que no estén en viaje (con validación)
+                const availableBoats = boats.filter(boat => {
+                    try {
+                        if (window.TripService && typeof window.TripService.getActiveTripByBoat === 'function') {
+                            const activeTrip = window.TripService.getActiveTripByBoat(boat.id);
+                            return !activeTrip;
+                        }
+                        // Si TripService no está disponible, mostrar todos los barcos
+                        return true;
+                    } catch (error) {
+                        console.warn('Error al verificar viaje activo para barco', boat.id, error);
+                        return true; // En caso de error, incluir el barco
+                    }
+                });
+
+                console.log('Barcos disponibles:', availableBoats.length);
+
+                if (boats.length === 0) {
+                    showAlert('No hay barcos registrados en el sistema.', 'warning');
+                    return;
+                }
+
+                if (availableBoats.length === 0) {
+                    showAlert('No hay barcos disponibles. Todos los barcos están en viaje activo.', 'warning');
+                }
+
+                availableBoats.forEach(boat => {
+                    const option = document.createElement('option');
+                    option.value = boat.id;
+                    option.textContent = `${boat.nombre} - ${boat.bandera} (${boat.tipo})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error al cargar barcos:', error);
+                showAlert('Error al cargar la lista de barcos: ' + error.message, 'error');
+            }
+        }
+
+        // Cargar puertos
+        async function loadPorts() {
+            try {
+                const response = await fetch('../data/ports.json');
+                const ports = await response.json();
+
+                const datalistOrigen = document.getElementById('portsListOrigen');
+                const datalistDestino = document.getElementById('portsListDestino');
+
+                ports.forEach(port => {
+                    const optionOrigen = document.createElement('option');
+                    optionOrigen.value = port.nombre;
+                    datalistOrigen.appendChild(optionOrigen);
+
+                    const optionDestino = document.createElement('option');
+                    optionDestino.value = port.nombre;
+                    datalistDestino.appendChild(optionDestino);
+                });
+            } catch (error) {
+                console.error('Error al cargar puertos:', error);
+            }
+        }
+
+        // Establecer fecha y hora actual por defecto
+        function setDefaultDateTime() {
+            const now = new Date();
+            const formattedDate = now.toISOString().slice(0, 16);
+            document.getElementById('fechaInicio').value = formattedDate;
+        }
+
+        // Cuando cambia la selección del barco
+        function onBoatChange() {
+            const barcoId = document.getElementById('barcoId').value;
+            
+            if (!barcoId) {
+                document.getElementById('boatInfo').style.display = 'none';
+                document.getElementById('crewSelector').innerHTML = `
+                    <p style="text-align: center; color: #7f8c8d;">
+                        Seleccione un barco para ver su tripulación
+                    </p>
+                `;
+                return;
+            }
+
+            // Mostrar información del barco
+            const boat = window.BoatService.getById(barcoId);
+            if (boat) {
+                const boatInfoDiv = document.getElementById('boatInfo');
+                boatInfoDiv.style.display = 'block';
+                boatInfoDiv.innerHTML = `
+                    <div class="boat-info">
+                        <h4><i class="fas fa-info-circle"></i> Información del Barco</h4>
+                        <p><strong>Nombre:</strong> ${boat.nombre}</p>
+                        <p><strong>Matrícula:</strong> ${boat.matricula}</p>
+                        <p><strong>Bandera:</strong> ${boat.bandera}</p>
+                        <p><strong>Tipo:</strong> ${boat.tipo}</p>
+                        <p><strong>Capacidad:</strong> ${boat.capacidadToneladas} toneladas</p>
+                        <p><strong>Estado:</strong> ${boat.estadoActual}</p>
+                    </div>
+                `;
+            }
+
+            // Cargar tripulación del barco
+            loadCrew(barcoId);
+        }
+
+        // Cargar tripulación del barco
+        function loadCrew(barcoId) {
+            const crew = window.EmployeeService.filterByBoat(barcoId);
+            const crewSelector = document.getElementById('crewSelector');
+
+            if (crew.length === 0) {
+                crewSelector.innerHTML = `
+                    <p style="text-align: center; color: #e74c3c;">
+                        Este barco no tiene tripulación asignada
+                    </p>
+                `;
+                selectedCrew = [];
+                return;
+            }
+
+            crewSelector.innerHTML = crew.map(emp => `
+                <div class="crew-item">
+                    <input type="checkbox" id="crew_${emp.id}" value="${emp.id}" checked>
+                    <label for="crew_${emp.id}">
+                        ${emp.nombre} ${emp.apellido} - ${emp.rol}
+                    </label>
+                </div>
+            `).join('');
+
+            // Por defecto, toda la tripulación está seleccionada
+            selectedCrew = crew.map(emp => emp.id);
+
+            // Escuchar cambios en checkboxes
+            crew.forEach(emp => {
+                document.getElementById(`crew_${emp.id}`).addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedCrew.push(emp.id);
+                    } else {
+                        selectedCrew = selectedCrew.filter(id => id !== emp.id);
+                    }
+                });
+            });
+        }
+
+        // Manejar envío del formulario
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            const barcoId = document.getElementById('barcoId').value;
+            const puertoOrigen = document.getElementById('puertoOrigen').value.trim();
+            const puertoDestino = document.getElementById('puertoDestino').value.trim();
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const distanciaEstimada = document.getElementById('distanciaEstimada').value;
+            const observaciones = document.getElementById('observaciones').value.trim();
+            const cargaTransportada = document.getElementById('cargaTransportada').value
+                .split(',')
+                .map(id => id.trim())
+                .filter(id => id);
+
+            // Validaciones
+            if (!barcoId || !puertoOrigen || !puertoDestino || !fechaInicio) {
+                showAlert('Por favor complete todos los campos requeridos', 'error');
+                return;
+            }
+
+            if (puertoOrigen === puertoDestino) {
+                showAlert('El puerto de origen y destino no pueden ser el mismo', 'error');
+                return;
+            }
+
+            // Crear viaje
+            const tripData = {
+                barcoId,
+                puertoOrigen,
+                puertoDestino,
+                fechaInicio: new Date(fechaInicio).toISOString(),
+                distanciaEstimada: distanciaEstimada ? parseFloat(distanciaEstimada) : null,
+                observaciones,
+                tripulacion: selectedCrew,
+                cargaTransportada
+            };
+
+            const result = window.TripService.create(tripData);
+
+            if (result.success) {
+                alert('✅ Viaje iniciado correctamente');
+                window.location.href = `trip-detail.html?id=${result.data.id}`;
+            } else {
+                showAlert(result.error, 'error');
+            }
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

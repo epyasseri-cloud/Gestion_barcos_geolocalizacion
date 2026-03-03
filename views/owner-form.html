@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Dueño - Sistema Geolocalización Barcos</title>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1 id="formTitle">Nuevo Dueño</h1>
+    
+    <div>
+        <button onclick="location.href='owners-list.html'">← Volver a la Lista</button>
+    </div>
+    
+    <br>
+    
+    <form id="ownerForm">
+        <input type="hidden" id="ownerId">
+        
+        <table>
+            <tr>
+                <td><label for="nombre">Nombre: *</label></td>
+                <td><input type="text" id="nombre" name="nombre" required></td>
+            </tr>
+            <tr>
+                <td><label for="apellido">Apellido: *</label></td>
+                <td><input type="text" id="apellido" name="apellido" required></td>
+            </tr>
+            <tr>
+                <td><label for="documento">Documento: *</label></td>
+                <td><input type="text" id="documento" name="documento" required></td>
+            </tr>
+            <tr>
+                <td><label for="email">Email: *</label></td>
+                <td><input type="email" id="email" name="email" required></td>
+            </tr>
+            <tr>
+                <td><label for="telefono">Teléfono:</label></td>
+                <td><input type="tel" id="telefono" name="telefono"></td>
+            </tr>
+            <tr>
+                <td><label for="direccion">Dirección:</label></td>
+                <td><textarea id="direccion" name="direccion" rows="3"></textarea></td>
+            </tr>
+            <tr>
+                <td><label for="pais">País:</label></td>
+                <td>
+                    <select id="pais" name="pais">
+                        <option value="">Seleccionar país</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        
+        <br>
+        <button type="submit">Guardar</button>
+        <button type="reset">Limpiar</button>
+        <button type="button" onclick="location.href='owners-list.html'">Cancelar</button>
+    </form>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/constants.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/owner-service.js"></script>
+    
+    <script>
+        // Verificar autenticación y permisos
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        if (!Auth.checkPermission(['admin'])) {
+            Notification.error('No tienes permisos para acceder a esta página');
+            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        let isEditMode = false;
+        let currentOwnerId = null;
+        
+        // Cargar países en el select
+        function loadCountries() {
+            const select = document.getElementById('pais');
+            Constants.COUNTRIES.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                select.appendChild(option);
+            });
+        }
+        
+        // Verificar si es modo edición
+        function checkEditMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ownerId = urlParams.get('id');
+            
+            if (ownerId) {
+                isEditMode = true;
+                currentOwnerId = ownerId;
+                document.getElementById('formTitle').textContent = 'Editar Dueño';
+                loadOwnerData(ownerId);
+            }
+        }
+        
+        // Cargar datos del dueño para editar
+        function loadOwnerData(id) {
+            const owner = OwnerService.getById(id);
+            
+            if (!owner) {
+                Notification.error('Dueño no encontrado');
+                setTimeout(() => location.href = 'owners-list.html', 2000);
+                return;
+            }
+            
+            document.getElementById('ownerId').value = owner.id;
+            document.getElementById('nombre').value = owner.nombre;
+            document.getElementById('apellido').value = owner.apellido;
+            document.getElementById('documento').value = owner.documento;
+            document.getElementById('email').value = owner.email;
+            document.getElementById('telefono').value = owner.telefono || '';
+            document.getElementById('direccion').value = owner.direccion || '';
+            document.getElementById('pais').value = owner.pais || '';
+        }
+        
+        // Manejar envío del formulario
+        document.getElementById('ownerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nombre: document.getElementById('nombre').value.trim(),
+                apellido: document.getElementById('apellido').value.trim(),
+                documento: document.getElementById('documento').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefono: document.getElementById('telefono').value.trim(),
+                direccion: document.getElementById('direccion').value.trim(),
+                pais: document.getElementById('pais').value
+            };
+            
+            let result;
+            
+            if (isEditMode) {
+                result = OwnerService.update(currentOwnerId, formData);
+            } else {
+                result = OwnerService.create(formData);
+            }
+            
+            if (result.success) {
+                Notification.success(result.message);
+                setTimeout(() => location.href = 'owners-list.html', 1500);
+            } else {
+                Notification.error(result.message);
+            }
+        });
+        
+        // Inicializar
+        loadCountries();
+        checkEditMode();
+    </script>
+</body>
+</html>

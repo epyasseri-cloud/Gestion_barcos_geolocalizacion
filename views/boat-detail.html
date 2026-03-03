@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Barco - Sistema Geolocalización Barcos</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        #miniMap {
+            height: 300px;
+            width: 100%;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <h1>Detalle del Barco</h1>
+    
+    <div>
+        <button onclick="location.href='boats-list.html'">← Volver a Lista</button>
+        <button onclick="editBoat()">✏️ Editar</button>
+        <button onclick="deleteBoat()">🗑️ Eliminar</button>
+        <button onclick="viewOnMap()">🗺️ Ver en Mapa Principal</button>
+    </div>
+    
+    <br>
+    
+    <div id="boatDetail">
+        <p>Cargando información del barco...</p>
+    </div>
+    
+    <div id="notificationContainer"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/map-config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../assets/js/map.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/owner-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/gps-service.js"></script>
+    
+    <script>
+        // Verificar autenticación
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+        
+        // Cargar componentes
+        Navbar.render('navbar');
+        
+        // Obtener ID de barco desde URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const boatId = urlParams.get('id');
+        
+        if (!boatId) {
+            Notification.error('ID de barco no especificado');
+            setTimeout(() => {
+                window.location.href = 'boats-list.html';
+            }, 2000);
+        }
+        
+        // Cargar detalles del barco
+        function loadBoatDetail() {
+            const boat = BoatService.getById(boatId);
+            
+            if (!boat) {
+                document.getElementById('boatDetail').innerHTML = 
+                    '<p style="color: red;">Barco no encontrado</p>';
+                Notification.error('Barco no encontrado');
+                return;
+            }
+            
+            // Obtener información del dueño
+            let ownerInfo = 'Sin dueño asignado';
+            if (boat.dueñoId) {
+                const owner = OwnerService.getById(boat.dueñoId);
+                if (owner) {
+                    ownerInfo = `<a href="owner-detail.html?id=${owner.id}">${owner.nombre} ${owner.apellido}</a>`;
+                }
+            }
+            
+            // Obtener tripulación asignada
+            const crew = EmployeeService.filterByBoat(boatId);
+            
+            // Obtener última posición GPS
+            const lastGPS = GPSService.getLatestByBoat(boatId);
+            
+            const detailHTML = `
+                <fieldset>
+                    <legend>Información General</legend>
+                    <table border="0" cellpadding="5">
+                        <tr>
+                            <td><strong>ID:</strong></td>
+                            <td>${boat.id}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre:</strong></td>
+                            <td>${boat.nombre}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matrícula:</strong></td>
+                            <td>${boat.matricula}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bandera/País:</strong></td>
+                            <td>${boat.bandera}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tipo:</strong></td>
+                            <td>${boat.tipo}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Capacidad:</strong></td>
+                            <td>${boat.capacidadToneladas} Toneladas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Año Fabricación:</strong></td>
+                            <td>${boat.anoFabricacion || 'No especificado'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dueño:</strong></td>
+                            <td>${ownerInfo}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Estado:</strong></td>
+                            <td><strong>${boat.estado}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha Registro:</strong></td>
+                            <td>${Formatters.formatDate(boat.fechaRegistro)}</td>
+                        </tr>
+                    </table>
+                </fieldset>
+                
+                <br>
+                
+                <fieldset>
+                    <legend>Posición GPS Actual</legend>
+                    ${lastGPS ? `
+                        <table border="0" cellpadding="5">
+                            <tr>
+                                <td><strong>Coordenadas:</strong></td>
+                                <td>${Formatters.formatCoordinates(lastGPS.lat, lastGPS.lng)}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Velocidad:</strong></td>
+                                <td>${lastGPS.velocidad} nudos</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rumbo:</strong></td>
+                                <td>${lastGPS.rumbo}°</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Última Actualización:</strong></td>
+                                <td>${Formatters.formatRelativeDate(lastGPS.timestamp)}</td>
+                            </tr>
+                        </table>
+                        <div id="miniMap"></div>
+                    ` : `
+                        <p>No hay datos de GPS disponibles</p>
+                    `}
+                </fieldset>
+                
+                <br>
+                
+                <fieldset>
+                    <legend>Tripulación Asignada (${crew.length})</legend>
+                    ${crew.length > 0 ? `
+                        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>Email</th>
+                            </tr>
+                            ${crew.map(emp => `
+                                <tr>
+                                    <td>${emp.id}</td>
+                                    <td><a href="employee-detail.html?id=${emp.id}">${emp.nombre} ${emp.apellido}</a></td>
+                                    <td>${emp.rol}</td>
+                                    <td>${emp.email}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    ` : '<p>No hay tripulación asignada a este barco</p>'}
+                </fieldset>
+            `;
+            
+            document.getElementById('boatDetail').innerHTML = detailHTML;
+            
+            // Inicializar mapa si hay posición GPS
+            if (lastGPS) {
+                initMiniMap(lastGPS.lat, lastGPS.lng, boat);
+            }
+        }
+        
+        // Inicializar mini mapa
+        function initMiniMap(lat, lng, boat) {
+            setTimeout(() => {
+                MapManager.init('miniMap', lat, lng, 6);
+                MapManager.createBoatMarker(boat);
+            }, 100);
+        }
+        
+        // Editar barco
+        function editBoat() {
+            window.location.href = `boat-form.html?id=${boatId}`;
+        }
+        
+        // Eliminar barco
+        function deleteBoat() {
+            const boat = BoatService.getById(boatId);
+            
+            if (!boat) {
+                Notification.error('Barco no encontrado');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar el barco "${boat.nombre}"?`)) {
+                const result = BoatService.delete(boatId);
+                
+                if (result.success) {
+                    Notification.success(result.message);
+                    setTimeout(() => {
+                        window.location.href = 'boats-list.html';
+                    }, 1500);
+                } else {
+                    Notification.error(result.message);
+                }
+            }
+        }
+        
+        // Ver en mapa principal
+        function viewOnMap() {
+            window.location.href = `map-view.html`;
+        }
+        
+        // Cargar detalles al inicio
+        loadBoatDetail();
+    </script>
+</body>
+</html>
