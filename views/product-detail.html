@@ -30,9 +30,7 @@
             window.location.href = '../auth/views/login.html';
         }
         
-        // Cargar componentes
-        Navbar.render('navbar');
-        
+
         // Obtener ID de producto desde URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');

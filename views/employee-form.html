@@ -91,9 +91,7 @@
             window.location.href = '../auth/views/login.html';
         }
         
-        // Cargar componentes
-        Navbar.render('navbar');
-        
+
         // Obtener ID de empleado desde URL (si existe)
         const urlParams = new URLSearchParams(window.location.search);
         const employeeId = urlParams.get('id');
