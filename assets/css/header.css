@@ -1,0 +1,206 @@
+/* Header y Navbar - Diseño Sencillo Azul Océano */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Header Principal */
+.app-header {
+    background: linear-gradient(135deg, #0a5f7f 0%, #1a7fa0 100%);
+    color: #ffffff;
+    padding: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.app-header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.app-logo:hover {
+    color: #a0d8ff;
+    transition: color 0.3s ease;
+}
+
+/* Barra de Navegación */
+.app-navbar {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+
+.app-navbar li {
+    position: relative;
+}
+
+.app-navbar a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.app-navbar a:hover,
+.app-navbar a.active {
+    color: #a0d8ff;
+    border-bottom-color: #a0d8ff;
+}
+
+/* Menú Usuario */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    text-align: right;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #a0d8ff;
+}
+
+.user-role {
+    font-size: 0.8rem;
+    color: #c0e8ff;
+    opacity: 0.9;
+}
+
+.logout-btn {
+    background-color: #0d7fa8;
+    color: #ffffff;
+    border: 1px solid #a0d8ff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.logout-btn:hover {
+    background-color: #a0d8ff;
+    color: #0a5f7f;
+    border-color: #a0d8ff;
+}
+
+/* Toggle Responsive */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Breadcrumb */
+.app-breadcrumb {
+    background-color: #f5f9fb;
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.app-breadcrumb a {
+    color: #0a5f7f;
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+.app-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    color: #999;
+    margin: 0 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-navbar {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        background-color: #083d52;
+        padding: 1rem 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-navbar.active {
+        display: flex;
+    }
+
+    .app-navbar li {
+        width: 100%;
+    }
+
+    .app-navbar a {
+        padding: 0.75rem 2rem;
+        border-bottom: none;
+        border-left: 3px solid transparent;
+    }
+
+    .app-navbar a:hover,
+    .app-navbar a.active {
+        border-left-color: #a0d8ff;
+        border-bottom: none;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .user-menu {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .app-header-container {
+        flex-wrap: wrap;
+    }
+
+    .app-breadcrumb {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+}

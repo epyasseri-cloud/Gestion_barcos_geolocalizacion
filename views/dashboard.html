@@ -6,6 +6,7 @@
     <title>Dashboard - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/header.css">
     <style>
         .stats-grid {
             display: grid;
@@ -70,7 +71,7 @@
             background: linear-gradient(135deg, #000000 0%, #000000 100%);
             color: white;
             padding: 2rem;
-            border-radius: 8px;
+            
             margin-bottom: 2rem;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
@@ -80,29 +81,9 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="../views/dashboard.html" class="active"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
-                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
-                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
-                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
-                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
-                <a href="../views/trips-list.html"><span><i class="fas fa-route"></i></span> Viajes</a>
-                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
-                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
-                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
-                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Welcome Section -->
+    <div id="app-header-container"></div>
+    <main class="main-content">
+        <!-- Welcome Section -->
             <div class="welcome-card">
                 <h2>¡Bienvenido al Sistema de Geolocalización de Barcos!</h2>
                 <div id="welcomeMessage"></div>
@@ -166,22 +147,37 @@
         </main>
     </div>
 
-    <div id="notificationContainer"></div>
+    <div id="notificationContainer"></div>    <script src="../assets/js/header.js"></script>
+
     
-    <script src="../auth/js/validation.js"></script>
-    <script src="../auth/js/session.js"></script>
-    <script src="../auth/js/auth.js"></script>
-    <script src="../components/notification.js"></script>
-    <script src="../config/config.js"></script>
-    <script src="../config/constants.js"></script>
-    <script src="../utils/helpers.js"></script>
-    <script src="../services/owner-service.js"></script>
-    <script src="../services/boat-service.js"></script>
-    <script src="../services/employee-service.js"></script>
-    <script src="../services/product-service.js"></script>
-    <script src="../services/trip-service.js"></script>
-    <script src="../services/warehouse-service.js"></script>
-    <script src="../services/inventory-service.js"></script>
+    <script src="../auth/js/validation.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../auth/js/session.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../auth/js/auth.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../components/notification.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../config/config.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../config/constants.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../utils/helpers.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/owner-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/boat-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/employee-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/product-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/trip-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/warehouse-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/inventory-service.js"></script>    <script src="../assets/js/header.js"></script>
+
     <script>
         // Verificar si hay sesión activa
         if (!Session.isActive()) {
@@ -335,3 +331,5 @@
     </script>
 </body>
 </html>
+
+

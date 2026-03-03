@@ -124,28 +124,8 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-anchor"></i> Sistema de Barcos</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="../views/dashboard.html"><span><i class="fas fa-chart-line"></i></span> Dashboard</a>
-                <a href="../views/owners-list.html"><span><i class="fas fa-user-tie"></i></span> Dueños</a>
-                <a href="../views/boats-list.html"><span><i class="fas fa-ship"></i></span> Barcos</a>
-                <a href="../views/employees-list.html"><span><i class="fas fa-users"></i></span> Empleados</a>
-                <a href="../views/products-list.html"><span><i class="fas fa-boxes"></i></span> Productos</a>
-                <a href="../views/trips-list.html" class="active"><span><i class="fas fa-route"></i></span> Viajes</a>
-                <a href="../views/product-availability.html"><span><i class="fas fa-chart-bar"></i></span> Disponibilidad</a>
-                <a href="../views/trip-statistics.html"><span><i class="fas fa-chart-pie"></i></span> Estadísticas</a>
-                <a href="../views/map-view.html"><span><i class="fas fa-map-marked-alt"></i></span> Mapa GPS</a>
-                <a href="../auth/views/login.html"><span><i class="fas fa-sign-out-alt"></i></span> Salir</a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
+    <div id="app-header-container"></div>
+    <main class="main-content">
             <header class="content-header">
                 <div>
                     <h1><i class="fas fa-plus-circle"></i> Nuevo Viaje</h1>
@@ -253,12 +233,17 @@
                 </form>
             </div>
         </main>
-    </div>
+    </div>    <script src="../assets/js/header.js"></script>
 
-    <script src="../utils/helpers.js"></script>
-    <script src="../services/boat-service.js"></script>
-    <script src="../services/employee-service.js"></script>
-    <script src="../services/trip-service.js"></script>
+
+    <script src="../utils/helpers.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/boat-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/employee-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/trip-service.js"></script>    <script src="../assets/js/header.js"></script>
+
     <script>
         let selectedCrew = [];
 
@@ -498,3 +483,6 @@
     </script>
 </body>
 </html>
+
+
+

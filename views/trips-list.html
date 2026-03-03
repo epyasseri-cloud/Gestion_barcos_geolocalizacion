@@ -134,28 +134,8 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2> Sistema de Barcos</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="../views/dashboard.html"><span></span> Dashboard</a>
-                <a href="../views/owners-list.html"><span></span> Dueños</a>
-                <a href="../views/boats-list.html"><span></span> Barcos</a>
-                <a href="../views/employees-list.html"><span></span> Empleados</a>
-                <a href="../views/products-list.html"><span></span> Productos</a>
-                <a href="../views/trips-list.html" class="active"><span></span> Viajes</a>
-                <a href="../views/warehouse-movements.html"><span></span> Bodega</a>
-                <a href="../views/map-view.html"><span></span> Mapa GPS</a>
-                <a href="../views/nearest-boat-finder.html"><span></span> Barco Cercano</a>
-                <a href="../auth/views/login.html"><span></span> Salir</a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
+    <div id="app-header-container"></div>
+    <main class="main-content">
             <header class="content-header">
                 <div>
                     <h1> Gestión de Viajes</h1>
@@ -248,11 +228,15 @@
                 </table>
             </div>
         </main>
-    </div>
+    </div>    <script src="../assets/js/header.js"></script>
 
-    <script src="../utils/helpers.js"></script>
-    <script src="../services/boat-service.js"></script>
-    <script src="../services/trip-service.js"></script>
+
+    <script src="../utils/helpers.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/boat-service.js"></script>    <script src="../assets/js/header.js"></script>
+
+    <script src="../services/trip-service.js"></script>    <script src="../assets/js/header.js"></script>
+
     <script>
         let currentSort = { field: 'fechaInicio', order: 'desc' };
         let currentTrips = [];
@@ -518,3 +502,6 @@
     </script>
 </body>
 </html>
+
+
+
