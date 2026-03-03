@@ -31,9 +31,6 @@
     </style>
 </head>
 <body>
-    <script src="../assets/js/header.js"></script>
-    <div id="navbar"></div>
-    
     <h1>Mapa de Geolocalización GPS</h1>
     
     <div>
@@ -61,7 +58,25 @@
         <div id="boatsList"></div>
     </div>
     
-    <div id="notificationContainer"></div>    <script>
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../config/map-config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../utils/date-utils.js"></script>
+    <script src="../utils/geo-utils.js"></script>
+    <script src="../services/gps-service.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../assets/js/map.js"></script>
+    
+    <script>
         // Verificar autenticación
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';

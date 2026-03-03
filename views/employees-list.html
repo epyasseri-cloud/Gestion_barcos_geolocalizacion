@@ -18,7 +18,6 @@
     </style>
 </head>
 <body>
-    <script src="../assets/js/header.js"></script>
     <div id="app-header-container"></div>
     <div class="container">
     
@@ -89,7 +88,21 @@
         </tbody>
     </table>
     
-    <div id="notificationContainer"></div>    <script>
+    <div id="notificationContainer"></div>
+    
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/navbar.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    
+    <script>
         // Verificar autenticación
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';
