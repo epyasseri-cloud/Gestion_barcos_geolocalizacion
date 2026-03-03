@@ -18,6 +18,7 @@
     </style>
 </head>
 <body>
+    <script src="../assets/js/header.js"></script>
     <div id="app-header-container"></div>
     <div class="container">
     
@@ -88,10 +89,7 @@
         </tbody>
     </table>
     
-    <div id="notificationContainer"></div>    <script src="../assets/js/header.js"></script>
-
-    
-    <script>
+    <div id="notificationContainer"></div>    <script>
         // Verificar autenticación
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';
@@ -314,5 +312,6 @@
     </script>
 </body>
 </html>
+
 
 

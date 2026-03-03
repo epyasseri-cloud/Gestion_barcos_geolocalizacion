@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Dueño - Sistema Geolocalización Barcos</title>    <link rel="stylesheet" href="../assets/css/header.css"></head>
 <body>
+    <script src="../assets/js/header.js"></script>
     <div id="navbar"></div>
     
     <h1>Detalle del Dueño</h1>
@@ -26,10 +27,7 @@
     <h2>Barcos del Dueño</h2>
     <p><em>Funcionalidad disponible cuando se implemente el módulo de barcos</em></p>
     
-    <div id="notificationContainer"></div>    <script src="../assets/js/header.js"></script>
-
-    
-    <script>
+    <div id="notificationContainer"></div>    <script>
         // Verificar autenticación
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';
@@ -139,5 +137,6 @@
     </script>
 </body>
 </html>
+
 
 
