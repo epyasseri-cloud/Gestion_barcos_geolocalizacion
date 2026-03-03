@@ -30,7 +30,7 @@ const AppHeader = {
             <header class="app-header">
                 <div class="app-header-container">
                     <a href="dashboard.html" class="app-logo">
-                        <span>⚓</span>
+                        <span></span>
                         <span>GeoBarcos</span>
                     </a>
                     
