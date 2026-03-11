@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localizar Barco Cercano - Sistema GeolocalizaciÃ³n Barcos</title>
+    <title>Localizar Barco Cercano - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -98,12 +98,12 @@
 
         <!-- Cabecera -->
         <div class="page-header">
-            <button class="btn btn-secondary btn-sm" onclick="location.href='dashboard.html'">â† Dashboard</button>
+            <button class="btn btn-secondary btn-sm" onclick="location.href='dashboard.html'">&larr; Dashboard</button>
             <button class="btn btn-secondary btn-sm" onclick="location.href='map-view.html'">Mapa general</button>
-            <h2 class="page-title">Localizar Barco mÃ¡s Cercano a un Puerto</h2>
+            <h2 class="page-title">Localizar Barco más Cercano a un Puerto</h2>
         </div>
 
-        <!-- Panel de selecciÃ³n -->
+        <!-- Panel de selección -->
         <div class="search-panel">
             <div class="search-row">
                 <!-- Selector de puerto de la lista -->
@@ -117,10 +117,10 @@
                 <!-- Separador visual -->
                 <div class="form-group" style="justify-content:flex-end;">
                     <label>&nbsp;</label>
-                    <span style="font-size:13px;color:#6c757d;padding:7px 4px;">â€” o bien â€”</span>
+                    <span style="font-size:13px;color:#6c757d;padding:7px 4px;">&mdash; o bien &mdash;</span>
                 </div>
 
-                <!-- BotÃ³n de clic en mapa -->
+                <!-- Botón de clic en mapa -->
                 <div class="form-group">
                     <label>Seleccionar en el mapa</label>
                     <button id="pickOnMapBtn" class="btn btn-outline-primary" onclick="toggleMapPicking()">
@@ -134,12 +134,12 @@
                     <input type="text" id="customPortName" placeholder="Puerto personalizado..." maxlength="60" />
                 </div>
 
-                <!-- Botones de acciÃ³n -->
+                <!-- Botones de acción -->
                 <div class="form-group" style="margin-left:auto;">
                     <label>&nbsp;</label>
                     <div style="display:flex;gap:8px;">
                         <button class="btn btn-success" id="searchBtn" onclick="findNearestBoat()">
-                            Buscar barco mÃ¡s cercano
+                            Buscar barco más cercano
                         </button>
                         <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
                     </div>
@@ -155,7 +155,7 @@
 
         <!-- Mapa Leaflet -->
         <div id="map"></div>
-        <div id="mapHint">Seleccione un puerto y pulse "Buscar barco mÃ¡s cercano" para ver la ruta marÃ­tima.</div>
+        <div id="mapHint">Seleccione un puerto y pulse "Buscar barco más cercano" para ver la ruta marítima.</div>
 
         <!-- Panel de resultados -->
         <div id="resultPanel">
@@ -167,14 +167,14 @@
                     <div id="portDetails"></div>
                 </div>
                 <div class="info-card nearest-card">
-                    <h4>Barco mÃ¡s cercano</h4>
+                    <h4>Barco más cercano</h4>
                     <div id="boatDetails"></div>
                 </div>
             </div>
 
             <!-- Tabla de todos los barcos -->
             <div class="info-card">
-                <h4>ClasificaciÃ³n completa por distancia marÃ­tima</h4>
+                <h4>Clasificación completa por distancia marítima</h4>
                 <table class="boats-table">
                     <thead>
                         <tr>
@@ -197,7 +197,7 @@
 
     <div id="notificationContainer"></div>
 
-    <!-- Scripts (orden idÃ©ntico al resto de la aplicaciÃ³n) -->
+    <!-- Scripts (orden idéntico al resto de la aplicación) -->
     <script src="../auth/js/validation.js"></script>
     <script src="../auth/js/session.js"></script>
     <script src="../auth/js/auth.js"></script>
@@ -217,33 +217,33 @@
     <script src="../assets/js/map.js"></script>
 
     <script>
-        // â”€â”€ AutenticaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Autenticación -----------------------------------------------------
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';
         }
 
-        // â”€â”€ Estado de la pÃ¡gina â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Estado de la página -----------------------------------------------
         let isPickingPort = false;  // modo "clic en mapa activo"
         let customPort    = null;   // { lat, lng, name, country }
-        let routeLayer    = null;   // polilÃ­nea de la ruta marÃ­tima actual
+        let routeLayer    = null;   // polilinea de la ruta maritima actual
         let extraLayers   = [];     // capas adicionales (marcador de puerto personalizado)
 
-        // â”€â”€ Inicializar mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Inicializar mapa --------------------------------------------------
         MapManager.init('map', 20, 0, 2);
         MapManager.map.on('click', onMapClick);
 
-        // â”€â”€ Cargar puertos en el selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Cargar puertos en el selector ------------------------------------
         (function loadPorts() {
             const selector = document.getElementById('portSelector');
-            Constants.PORTS.forEach(port => {
+            Constants.PORTS.forEach(function(port) {
                 const opt = document.createElement('option');
-                opt.value        = port.id;
-                opt.textContent  = port.name + ' (' + port.country + ')';
+                opt.value       = port.id;
+                opt.textContent = port.name + ' (' + port.country + ')';
                 selector.appendChild(opt);
             });
         })();
 
-        // â”€â”€ Cambio en el selector de puerto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Cambio en el selector de puerto ----------------------------------
         function onPortSelectorChange() {
             const val = document.getElementById('portSelector').value;
             if (!val) {
@@ -258,9 +258,9 @@
             document.getElementById('customPortNameGroup').style.display = 'none';
             removeExtraLayers();
 
-            const port = Constants.PORTS.find(p => p.id === val);
+            const port = Constants.PORTS.find(function(p) { return p.id === val; });
             if (port) {
-                setStatus('info', 'Puerto: <strong>' + port.name + '</strong> â€” ' +
+                setStatus('info', 'Puerto: <strong>' + port.name + '</strong> &mdash; ' +
                     Formatters.formatCoordinates(port.lat, port.lng));
                 document.getElementById('selectedPortInfo').textContent =
                     'Coordenadas: ' + Formatters.formatCoordinates(port.lat, port.lng);
@@ -268,14 +268,14 @@
             }
         }
 
-        // â”€â”€ Activar / desactivar modo selecciÃ³n en el mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Activar / desactivar modo selección en el mapa -------------------
         function toggleMapPicking() {
             isPickingPort = !isPickingPort;
             updatePickState();
             if (isPickingPort) {
                 document.getElementById('portSelector').value = '';
                 customPort = null;
-                setStatus('info', 'Haga clic en el mapa para fijar la ubicaciÃ³n del puerto.');
+                setStatus('info', 'Haga clic en el mapa para fijar la ubicación del puerto.');
                 document.getElementById('selectedPortInfo').textContent = 'Esperando clic en el mapa...';
             } else {
                 if (!customPort) clearStatus();
@@ -287,7 +287,7 @@
             const mapDiv = document.getElementById('map');
             if (isPickingPort) {
                 btn.classList.add('active');
-                btn.textContent = 'Cancelar selecciÃ³n';
+                btn.textContent = 'Cancelar selección';
                 mapDiv.classList.add('picking-port');
             } else {
                 btn.classList.remove('active');
@@ -296,7 +296,7 @@
             }
         }
 
-        // â”€â”€ Clic en el mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Clic en el mapa --------------------------------------------------
         function onMapClick(e) {
             if (!isPickingPort) return;
 
@@ -316,7 +316,7 @@
             // Marcador temporal en el mapa
             removeExtraLayers();
             const icon = L.divIcon({
-                html: '<div style="font-size:26px;text-shadow:0 0 4px white;">âš“</div>',
+                html: '<div style="font-size:26px;text-shadow:0 0 4px white;">&#9875;</div>',
                 className: '',
                 iconSize: [30, 30],
                 iconAnchor: [15, 15]
@@ -329,19 +329,19 @@
             extraLayers.push(m);
 
             setStatus('success',
-                'Puerto personalizado fijado: <strong>' + name + '</strong> â€” ' +
+                'Puerto personalizado fijado: <strong>' + name + '</strong> &mdash; ' +
                 Formatters.formatCoordinates(lat, lng));
             document.getElementById('selectedPortInfo').textContent =
-                name + ' â€” Coordenadas: ' + Formatters.formatCoordinates(lat, lng);
+                name + ' - Coordenadas: ' + Formatters.formatCoordinates(lat, lng);
         }
 
-        // â”€â”€ Buscar barco mÃ¡s cercano â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Buscar barco más cercano ------------------------------------------
         function findNearestBoat() {
-            // Determinar cuÃ¡l es el puerto de referencia
+            // Determinar cuál es el puerto de referencia
             const selectorVal = document.getElementById('portSelector').value;
             let port = null;
             if (selectorVal) {
-                port = Constants.PORTS.find(p => p.id === selectorVal);
+                port = Constants.PORTS.find(function(p) { return p.id === selectorVal; });
             } else if (customPort) {
                 port = customPort;
             }
@@ -352,10 +352,10 @@
             }
 
             // Mostrar indicador de carga
-            setStatus('loading', '<span class="spinner"></span> Calculando ruta marÃ­tima...');
+            setStatus('loading', '<span class="spinner"></span> Calculando ruta maritima...');
             document.getElementById('searchBtn').disabled = true;
 
-            // PequeÃ±o retraso para que el spinner sea visible antes del cÃ¡lculo
+            // Pequeño retraso para que el spinner sea visible antes del cálculo
             setTimeout(function () {
                 try {
                     const result = DistanceService.findNearestBoatToPort(port);
@@ -371,12 +371,12 @@
 
                     const nearest = result.nearestBoat;
                     setStatus('success',
-                        'Barco mÃ¡s cercano: <strong>' + nearest.nombre + '</strong> â€” ' +
+                        'Barco más cercano: <strong>' + nearest.nombre + '</strong> &mdash; ' +
                         nearest.distance.toFixed(1) + ' km' +
                         ' (' + nearest.distanceNm.toFixed(1) + ' nm)' +
-                        ' Â· ETA: ' + Formatters.formatDuration(nearest.eta)
+                        ' &middot; ETA: ' + Formatters.formatDuration(nearest.eta)
                     );
-                    Notification.success('BÃºsqueda completada');
+                    Notification.success('Búsqueda completada');
 
                 } catch (err) {
                     setStatus('error', 'Error al calcular la ruta: ' + err.message);
@@ -386,35 +386,35 @@
             }, 220);
         }
 
-        // â”€â”€ Renderizar panel de resultados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Renderizar panel de resultados ------------------------------------
         function displayResults(result) {
             const port    = result.port;
             const nearest = result.nearestBoat;
 
             // Tarjeta del puerto
             document.getElementById('portDetails').innerHTML =
-                row('Nombre',    '<strong>' + port.name + '</strong>') +
-                row('PaÃ­s',      port.country || 'â€”') +
+                row('Nombre',   '<strong>' + port.name + '</strong>') +
+                row('País',      port.country || '—') +
                 row('Latitud',   port.lat.toFixed(5)) +
                 row('Longitud',  port.lng.toFixed(5));
 
-            // Tarjeta del barco mÃ¡s cercano
+            // Tarjeta del barco más cercano
             document.getElementById('boatDetails').innerHTML =
                 row('Nombre',         '<strong>' + nearest.nombre + '</strong>') +
-                row('ID / MatrÃ­cula', nearest.id + ' / ' + (nearest.matricula || 'â€”')) +
-                row('Bandera',        nearest.bandera  || 'â€”') +
-                row('Estado',         nearest.estado   || 'â€”') +
+                row('ID / Matrícula', nearest.id + ' / ' + (nearest.matricula || '—')) +
+                row('Bandera',        nearest.bandera  || '—') +
+                row('Estado',         nearest.estado   || '—') +
                 row('Velocidad',      nearest.velocidad + ' nudos') +
-                row('PosiciÃ³n GPS',   Formatters.formatCoordinates(nearest.lat, nearest.lng)) +
+                row('Posición GPS',   Formatters.formatCoordinates(nearest.lat, nearest.lng)) +
                 row('Distancia',
                     '<span class="distance-highlight">' +
                     nearest.distance.toFixed(1) + ' km' +
                     ' / ' + nearest.distanceNm.toFixed(1) + ' nm' +
                     '</span>') +
-                row('Rumbo al puerto', nearest.bearing.toFixed(0) + 'Â°') +
+                row('Rumbo al puerto', nearest.bearing.toFixed(0) + '&deg;') +
                 row('ETA estimado',    Formatters.formatDuration(nearest.eta));
 
-            // Tabla de clasificaciÃ³n
+            // Tabla de clasificación
             const tbody = document.getElementById('boatsTableBody');
             tbody.innerHTML = '';
             result.allBoats.forEach(function (boat, idx) {
@@ -424,10 +424,10 @@
                 if (idx === 0) tr.classList.add('nearest-row');
                 tr.innerHTML =
                     '<td><span class="rank-badge ' + badgeClass + '">' + rank + '</span></td>' +
-                    '<td>' + boat.nombre + (idx === 0 ? ' â˜…' : '') + '</td>' +
-                    '<td>' + (boat.bandera || 'â€”') + '</td>' +
-                    '<td>' + (boat.estado  || 'â€”') + '</td>' +
-                    '<td>' + boat.distance.toFixed(1)  + ' km</td>' +
+                    '<td>' + boat.nombre + (idx === 0 ? ' &#9733;' : '') + '</td>' +
+                    '<td>' + (boat.bandera || '—') + '</td>' +
+                    '<td>' + (boat.estado  || '—') + '</td>' +
+                    '<td>' + boat.distance.toFixed(1)   + ' km</td>' +
                     '<td>' + boat.distanceNm.toFixed(1) + ' nm</td>' +
                     '<td>' + boat.velocidad + ' kn</td>' +
                     '<td>' + Formatters.formatDuration(boat.eta) + '</td>';
@@ -445,7 +445,7 @@
                 '</div>';
         }
 
-        // â”€â”€ Mostrar ruta en el mapa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Mostrar ruta en el mapa -------------------------------------------
         function showOnMap(result) {
             // Limpiar capas anteriores
             if (routeLayer) { MapManager.map.removeLayer(routeLayer); routeLayer = null; }
@@ -462,9 +462,9 @@
             result.allBoats.forEach(function (boat, idx) {
                 const marker = MapManager.createBoatMarker(boat);
                 if (marker && idx === 0) {
-                    // Popup especial para el mÃ¡s cercano
+                    // Popup especial para el más cercano
                     marker.bindPopup(
-                        '<strong>â­ BARCO MÃS CERCANO</strong><br>' +
+                        '<strong>&#11088; BARCO MÁS CERCANO</strong><br>' +
                         '<strong>' + boat.nombre + '</strong><br>' +
                         'Distancia: ' + boat.distance.toFixed(1) + ' km' +
                         ' (' + boat.distanceNm.toFixed(1) + ' nm)<br>' +
@@ -473,15 +473,15 @@
                 }
             });
 
-            // Calcular waypoints del cÃ­rculo mÃ¡ximo (ruta marÃ­tima aproximada)
-            // 40 puntos garantizan una curva suave en la proyecciÃ³n Mercator
+            // Calcular waypoints del círculo máximo (ruta marítima aproximada).
+            // 40 puntos garantizan una curva suave en la proyección Mercator.
             const waypoints = GeoUtils.interpolateGreatCircle(
                 port.lat, port.lng,
                 nearest.lat, nearest.lng,
                 40
             );
 
-            // Dibujar la polilÃ­nea de ruta
+            // Dibujar la polilínea de ruta
             routeLayer = MapManager.drawPolyline(waypoints, {
                 color:     '#198754',
                 weight:    3,
@@ -493,13 +493,13 @@
             MapManager.fitToPoints(waypoints);
         }
 
-        // â”€â”€ Limpiar todo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Limpiar todo -----------------------------------------------------
         function clearSearch() {
             if (routeLayer) { MapManager.map.removeLayer(routeLayer); routeLayer = null; }
             MapManager.clearMarkers();
             removeExtraLayers();
 
-            document.getElementById('portSelector').value   = '';
+            document.getElementById('portSelector').value        = '';
             document.getElementById('resultPanel').style.display = 'none';
             document.getElementById('customPortNameGroup').style.display = 'none';
             document.getElementById('selectedPortInfo').textContent = '';
@@ -511,11 +511,11 @@
             Notification.info('Resultados limpiados');
         }
 
-        // â”€â”€ Helpers de UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // -- Helpers de estado y capas ----------------------------------------
         function setStatus(type, html) {
             const bar = document.getElementById('statusBar');
-            bar.className   = type;
-            bar.innerHTML   = html;
+            bar.className     = type;
+            bar.innerHTML     = html;
             bar.style.display = 'block';
         }
 
@@ -524,7 +524,7 @@
         }
 
         function removeExtraLayers() {
-            extraLayers.forEach(l => MapManager.map.removeLayer(l));
+            extraLayers.forEach(function(l) { MapManager.map.removeLayer(l); });
             extraLayers = [];
         }
     </script>
