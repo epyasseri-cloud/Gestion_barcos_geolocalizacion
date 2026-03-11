@@ -1,15 +1,18 @@
 // Servicio de GPS
 const GPSService = {
     STORAGE_KEY: 'boat_system_gps_positions',
-    
+    MOCK_VERSION_KEY: 'boat_system_gps_version',
+    MOCK_VERSION: '3',   // Incrementar para forzar reset de coordenadas en todos los clientes
+
     // Inicializar datos mock
     initMockData: function() {
         const mockPositions = [
             {
                 id: 'GPS001',
                 barcoId: 'B001',
-                lat: 39.5,
-                lng: -12.0,
+                // Atlántico Norte central - lejos de cualquier costa
+                lat: 35.0,
+                lng: -30.0,
                 velocidad: 15,
                 rumbo: 180,
                 timestamp: new Date().toISOString()
@@ -17,8 +20,9 @@ const GPSService = {
             {
                 id: 'GPS002',
                 barcoId: 'B002',
-                lat: 28.0,
-                lng: -130.0,
+                // Pacífico Norte central - lejos de cualquier costa
+                lat: 32.0,
+                lng: -148.0,
                 velocidad: 12,
                 rumbo: 90,
                 timestamp: new Date().toISOString()
@@ -26,8 +30,9 @@ const GPSService = {
             {
                 id: 'GPS003',
                 barcoId: 'B003',
-                lat: 37.5,
-                lng: 11.5,
+                // Mediterráneo occidental - entre Baleares y Argelia
+                lat: 38.0,
+                lng: 5.5,
                 velocidad: 8,
                 rumbo: 270,
                 timestamp: new Date().toISOString()
@@ -35,8 +40,9 @@ const GPSService = {
             {
                 id: 'GPS004',
                 barcoId: 'B004',
-                lat: -35.0,
-                lng: -50.0,
+                // Pacífico Sur - lejos al oeste de Chile
+                lat: -38.0,
+                lng: -90.0,
                 velocidad: 18,
                 rumbo: 45,
                 timestamp: new Date().toISOString()
@@ -44,8 +50,9 @@ const GPSService = {
             {
                 id: 'GPS005',
                 barcoId: 'B005',
-                lat: -24.0,
-                lng: -40.0,
+                // Atlántico Sur central - lejos de la costa
+                lat: -28.0,
+                lng: -28.0,
                 velocidad: 10,
                 rumbo: 135,
                 timestamp: new Date().toISOString()
@@ -53,8 +60,9 @@ const GPSService = {
             {
                 id: 'GPS006',
                 barcoId: 'B006',
-                lat: -42.0,
-                lng: -58.0,
+                // Atlántico Sur - zona austral, lejos de Argentina
+                lat: -46.0,
+                lng: -40.0,
                 velocidad: 14,
                 rumbo: 220,
                 timestamp: new Date().toISOString()
@@ -62,21 +70,25 @@ const GPSService = {
             {
                 id: 'GPS007',
                 barcoId: 'B007',
-                lat: -30.0,
-                lng: -44.0,
+                // Atlántico Sur - lejos de la costa de Brasil
+                lat: -33.0,
+                lng: -20.0,
                 velocidad: 11,
                 rumbo: 60,
                 timestamp: new Date().toISOString()
             }
         ];
 
-        const existing = this.getAll();
-        if (existing.length === 0) {
+        const storedVersion = localStorage.getItem(this.MOCK_VERSION_KEY);
+        if (storedVersion !== this.MOCK_VERSION) {
+            // Versión nueva: reinicializar todas las posiciones con coordenadas oceánicas correctas
             this.saveAll(mockPositions);
+            localStorage.setItem(this.MOCK_VERSION_KEY, this.MOCK_VERSION);
         } else {
-            // Añadir entradas que falten sin sobrescribir las existentes
-            const existingIds = new Set(existing.map(function(p) { return p.barcoId; }));
+            // Versión vigente: solo añadir barcos que aún no tengan entrada
+            const existing = this.getAll();
             var changed = false;
+            const existingIds = new Set(existing.map(function(p) { return p.barcoId; }));
             mockPositions.forEach(function(mock) {
                 if (!existingIds.has(mock.barcoId)) {
                     existing.push(mock);

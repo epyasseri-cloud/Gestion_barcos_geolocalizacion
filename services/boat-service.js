@@ -11,13 +11,13 @@ const BoatService = {
     // Coordenadas por defecto para asegurar visualización en mapa
     // Posiciones oceánicas sincronizadas con gps-service.js
     DEFAULT_POSITIONS: {
-        B001: { lat: 39.5,  lng: -12.0,  velocidad: 15, estado: 'En Viaje' },
-        B002: { lat: 28.0,  lng: -130.0, velocidad: 12, estado: 'Activo' },
-        B003: { lat: 37.5,  lng: 11.5,   velocidad: 8,  estado: 'En Mantenimiento' },
-        B004: { lat: -35.0, lng: -50.0,  velocidad: 18, estado: 'En Viaje' },
-        B005: { lat: -24.0, lng: -40.0,  velocidad: 10, estado: 'Activo' },
-        B006: { lat: -42.0, lng: -58.0,  velocidad: 14, estado: 'En Viaje' },
-        B007: { lat: -30.0, lng: -44.0,  velocidad: 11, estado: 'Activo' }
+        B001: { lat:  35.0, lng:  -30.0, velocidad: 15, estado: 'En Viaje' },        // Atlántico Norte central
+        B002: { lat:  32.0, lng: -148.0, velocidad: 12, estado: 'Activo' },           // Pacífico Norte central
+        B003: { lat:  38.0, lng:    5.5, velocidad:  8, estado: 'En Mantenimiento' }, // Mediterráneo occidental
+        B004: { lat: -38.0, lng:  -90.0, velocidad: 18, estado: 'En Viaje' },         // Pacífico Sur
+        B005: { lat: -28.0, lng:  -28.0, velocidad: 10, estado: 'Activo' },           // Atlántico Sur central
+        B006: { lat: -46.0, lng:  -40.0, velocidad: 14, estado: 'En Viaje' },         // Atlántico Sur austral
+        B007: { lat: -33.0, lng:  -20.0, velocidad: 11, estado: 'Activo' }            // Atlántico Sur
     },
 
     hasValidPosition: function(boat) {
