@@ -369,11 +369,28 @@ const BoatService = {
     
     // Obtener barcos con posición (para el mapa)
     getAllWithPosition: function() {
-        return this.getAll().filter(boat => {
-            const lat = Number(boat.lat);
-            const lng = Number(boat.lng);
-            return Number.isFinite(lat) && Number.isFinite(lng);
-        });
+        return this.getAll()
+            .map(boat => {
+                const latestGps = (typeof GPSService !== 'undefined' && GPSService.getLatestByBoat)
+                    ? GPSService.getLatestByBoat(boat.id)
+                    : null;
+
+                if (!latestGps) return boat;
+
+                return {
+                    ...boat,
+                    lat: Number(latestGps.lat),
+                    lng: Number(latestGps.lng),
+                    velocidad: Number.isFinite(Number(latestGps.velocidad))
+                        ? Number(latestGps.velocidad)
+                        : (Number.isFinite(Number(boat.velocidad)) ? Number(boat.velocidad) : 0)
+                };
+            })
+            .filter(boat => {
+                const lat = Number(boat.lat);
+                const lng = Number(boat.lng);
+                return Number.isFinite(lat) && Number.isFinite(lng);
+            });
     },
     
     // Ordenar barcos
