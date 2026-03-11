@@ -10,8 +10,8 @@ const GPSService = {
                 {
                     id: 'GPS001',
                     barcoId: 'B001',
-                    lat: 40.4168,
-                    lng: -3.7038,
+                    lat: 39.5,
+                    lng: -12.0,
                     velocidad: 15,
                     rumbo: 180,
                     timestamp: new Date().toISOString()
@@ -19,8 +19,8 @@ const GPSService = {
                 {
                     id: 'GPS002',
                     barcoId: 'B002',
-                    lat: 19.4326,
-                    lng: -99.1332,
+                    lat: 28.0,
+                    lng: -130.0,
                     velocidad: 12,
                     rumbo: 90,
                     timestamp: new Date().toISOString()
@@ -28,26 +28,26 @@ const GPSService = {
                 {
                     id: 'GPS003',
                     barcoId: 'B003',
-                    lat: 41.9028,
-                    lng: 12.4964,
+                    lat: 37.5,
+                    lng: 11.5,
                     velocidad: 8,
                     rumbo: 270,
                     timestamp: new Date().toISOString()
                 },
                 {
                     id: 'GPS004',
-                    barcoId: 'B001',
-                    lat: -34.6037,
-                    lng: -58.3816,
+                    barcoId: 'B004',
+                    lat: -35.0,
+                    lng: -50.0,
                     velocidad: 18,
                     rumbo: 45,
                     timestamp: new Date().toISOString()
                 },
                 {
                     id: 'GPS005',
-                    barcoId: 'B002',
-                    lat: -23.5505,
-                    lng: -46.6333,
+                    barcoId: 'B005',
+                    lat: -24.0,
+                    lng: -40.0,
                     velocidad: 10,
                     rumbo: 135,
                     timestamp: new Date().toISOString()
