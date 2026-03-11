@@ -155,7 +155,7 @@
 
         <!-- Mapa Leaflet -->
         <div id="map"></div>
-        <div id="mapHint">Seleccione un puerto y pulse "Buscar barco más cercano" para ver la ruta marítima.</div>
+        <div id="mapHint">Seleccione un puerto y pulse "Buscar barco más cercano" para ver la ruta marítima (evita tierra firme vía pasos oceánicos).</div>
 
         <!-- Panel de resultados -->
         <div id="resultPanel">
@@ -214,6 +214,7 @@
     <script src="../services/gps-service.js"></script>
     <script src="../services/boat-service.js"></script>
     <script src="../services/distance-service.js"></script>
+    <script src="../services/maritime-router.js"></script>
     <script src="../assets/js/map.js"></script>
 
     <script>
@@ -473,12 +474,12 @@
                 }
             });
 
-            // Calcular waypoints del círculo máximo (ruta marítima aproximada).
-            // 40 puntos garantizan una curva suave en la proyección Mercator.
-            const waypoints = GeoUtils.interpolateGreatCircle(
+            // Calcular la ruta marítima evitando tierra firme.
+            // MaritimeRouter enruta por pasos oceánicos conocidos (Cabo de Hornos,
+            // Canal de Panamá, Gibraltar, etc.) según las regiones de origen y destino.
+            const waypoints = MaritimeRouter.computeRoute(
                 port.lat, port.lng,
-                nearest.lat, nearest.lng,
-                40
+                nearest.lat, nearest.lng
             );
 
             // Dibujar la polilínea de ruta
