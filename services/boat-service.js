@@ -15,7 +15,9 @@ const BoatService = {
         B002: { lat: 28.0,  lng: -130.0, velocidad: 12, estado: 'Activo' },
         B003: { lat: 37.5,  lng: 11.5,   velocidad: 8,  estado: 'En Mantenimiento' },
         B004: { lat: -35.0, lng: -50.0,  velocidad: 18, estado: 'En Viaje' },
-        B005: { lat: -24.0, lng: -40.0,  velocidad: 10, estado: 'Activo' }
+        B005: { lat: -24.0, lng: -40.0,  velocidad: 10, estado: 'Activo' },
+        B006: { lat: -42.0, lng: -58.0,  velocidad: 14, estado: 'En Viaje' },
+        B007: { lat: -30.0, lng: -44.0,  velocidad: 11, estado: 'Activo' }
     },
 
     hasValidPosition: function(boat) {
