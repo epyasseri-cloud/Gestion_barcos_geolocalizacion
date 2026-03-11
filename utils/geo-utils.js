@@ -172,5 +172,51 @@ const GeoUtils = {
             southWest: { lat: minLat, lng: minLng },
             northEast: { lat: maxLat, lng: maxLng }
         };
+    },
+
+    // Interpolar puntos a lo largo de un círculo máximo (gran círculo)
+    // Devuelve un array de numPoints+1 puntos {lat, lng} desde (lat1,lng1) hasta (lat2,lng2)
+    interpolateGreatCircle: function(lat1, lng1, lat2, lng2, numPoints) {
+        numPoints = numPoints || 20;
+        const points = [];
+        const lat1r = this.toRadians(lat1);
+        const lng1r = this.toRadians(lng1);
+        const lat2r = this.toRadians(lat2);
+        const lng2r = this.toRadians(lng2);
+
+        // Distancia angular total entre los dos puntos
+        const d = 2 * Math.asin(Math.sqrt(
+            Math.pow(Math.sin((lat2r - lat1r) / 2), 2) +
+            Math.cos(lat1r) * Math.cos(lat2r) *
+            Math.pow(Math.sin((lng2r - lng1r) / 2), 2)
+        ));
+
+        for (let i = 0; i <= numPoints; i++) {
+            const f = i / numPoints;
+            if (d < 1e-10) {
+                // Misma ubicación
+                points.push({ lat: lat1, lng: lng1 });
+                continue;
+            }
+            const A = Math.sin((1 - f) * d) / Math.sin(d);
+            const B = Math.sin(f * d) / Math.sin(d);
+            const x = A * Math.cos(lat1r) * Math.cos(lng1r) + B * Math.cos(lat2r) * Math.cos(lng2r);
+            const y = A * Math.cos(lat1r) * Math.sin(lng1r) + B * Math.cos(lat2r) * Math.sin(lng2r);
+            const z = A * Math.sin(lat1r) + B * Math.sin(lat2r);
+            const lat = this.toDegrees(Math.atan2(z, Math.sqrt(x * x + y * y)));
+            const lng = this.toDegrees(Math.atan2(y, x));
+            points.push({ lat: lat, lng: lng });
+        }
+        return points;
+    },
+
+    // Convertir kilómetros a millas náuticas
+    kmToNauticalMiles: function(km) {
+        return km / 1.852;
+    },
+
+    // Convertir millas náuticas a kilómetros
+    nauticalMilesToKm: function(nm) {
+        return nm * 1.852;
     }
 };

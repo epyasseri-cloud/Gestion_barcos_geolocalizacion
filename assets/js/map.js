@@ -145,5 +145,34 @@ const MapManager = {
         circle.addTo(this.map);
         
         return circle;
+    },
+
+    // Dibujar polilínea con múltiples waypoints (p.ej., ruta de círculo máximo)
+    // waypoints: array de { lat, lng }
+    drawPolyline: function(waypoints, options = {}) {
+        const defaultOptions = {
+            color: '#0d6efd',
+            weight: 3,
+            opacity: 0.85,
+            dashArray: '10, 6'
+        };
+        const lineOptions = { ...defaultOptions, ...options };
+        const latLngs = waypoints.map(p => [p.lat, p.lng]);
+        const polyline = L.polyline(latLngs, lineOptions);
+        polyline.addTo(this.map);
+        return polyline;
+    },
+
+    // Ajustar la vista del mapa para incluir un conjunto de puntos adicionales
+    // junto con los marcadores ya registrados en this.markers
+    fitToPoints: function(extraPoints = []) {
+        const latLngs = extraPoints.map(p => [p.lat, p.lng]);
+        const markerLatLngs = Object.values(this.markers)
+            .filter(m => m.getLatLng)
+            .map(m => [m.getLatLng().lat, m.getLatLng().lng]);
+        const allLatLngs = [...latLngs, ...markerLatLngs];
+        if (allLatLngs.length === 0) return;
+        const bounds = L.latLngBounds(allLatLngs);
+        this.map.fitBounds(bounds.pad(0.15));
     }
 };

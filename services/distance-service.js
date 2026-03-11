@@ -1,8 +1,17 @@
 // Servicio de cálculo de distancias
 const DistanceService = {
-    // Encontrar el barco más cercano a un puerto
-    findNearestBoatToPort: function(portId) {
-        const port = Constants.PORTS.find(p => p.id === portId);
+    // Encontrar el barco más cercano a un puerto.
+    // portOrId puede ser:
+    //   - string: id de un puerto en Constants.PORTS
+    //   - object: { lat, lng, name, country } (p.ej. puerto definido con clic en mapa)
+    findNearestBoatToPort: function(portOrId) {
+        let port;
+        if (typeof portOrId === 'string') {
+            port = Constants.PORTS.find(p => p.id === portOrId);
+        } else if (portOrId && typeof portOrId === 'object') {
+            port = portOrId;
+        }
+
         if (!port) {
             return { success: false, message: 'Puerto no encontrado' };
         }
@@ -14,12 +23,14 @@ const DistanceService = {
         
         const boatsWithDistance = boats.map(boat => {
             const distance = GeoUtils.calculateDistance(port.lat, port.lng, boat.lat, boat.lng);
+            const distanceNm = GeoUtils.kmToNauticalMiles(distance);
             const bearing = GeoUtils.calculateBearing(boat.lat, boat.lng, port.lat, port.lng);
             const eta = GeoUtils.calculateETA(distance, boat.velocidad);
             
             return {
                 ...boat,
                 distance: distance,
+                distanceNm: distanceNm,
                 bearing: bearing,
                 eta: eta
             };
@@ -96,6 +107,7 @@ const DistanceService = {
         }
         
         const distance = GeoUtils.calculateDistance(boat.lat, boat.lng, port.lat, port.lng);
+        const distanceNm = GeoUtils.kmToNauticalMiles(distance);
         const bearing = GeoUtils.calculateBearing(boat.lat, boat.lng, port.lat, port.lng);
         const eta = GeoUtils.calculateETA(distance, boat.velocidad);
         
@@ -104,6 +116,7 @@ const DistanceService = {
             boat: boat,
             port: port,
             distance: distance,
+            distanceNm: distanceNm,
             bearing: bearing,
             eta: eta
         };
@@ -123,12 +136,14 @@ const DistanceService = {
         
         const portsWithDistance = Constants.PORTS.map(port => {
             const distance = GeoUtils.calculateDistance(boat.lat, boat.lng, port.lat, port.lng);
+            const distanceNm = GeoUtils.kmToNauticalMiles(distance);
             const bearing = GeoUtils.calculateBearing(boat.lat, boat.lng, port.lat, port.lng);
             const eta = GeoUtils.calculateETA(distance, boat.velocidad);
             
             return {
                 ...port,
                 distance: distance,
+                distanceNm: distanceNm,
                 bearing: bearing,
                 eta: eta
             };
@@ -139,6 +154,13 @@ const DistanceService = {
             boat: boat,
             ports: portsWithDistance
         };
+    },
+
+    // Obtener waypoints de la ruta marítima aproximada entre dos puntos.
+    // Usa interpolación de círculo máximo con numPoints puntos intermedios.
+    // Para una ruta más precisa se debería integrar un servicio de routing marítimo (e.g. OSRM maritime).
+    getMaritimeRouteWaypoints: function(lat1, lng1, lat2, lng2, numPoints) {
+        return GeoUtils.interpolateGreatCircle(lat1, lng1, lat2, lng2, numPoints || 40);
     }
 };
 
