@@ -26,6 +26,16 @@ const MaritimeRouter = {
         { lat:  9.3, lng: -79.9 }    // Salida Atlántico/Caribe (Colón)
     ],
 
+    // Canal de Panamá + Caribe + Golfo de México.
+    // Útil para puertos del Golfo como Veracruz, evitando cruzar Centroamérica/México.
+    WP_PANAMA_GULF: [
+        { lat:  8.0, lng: -79.5 },   // Entrada Pacífico
+        { lat:  9.3, lng: -79.9 },   // Salida Caribe
+        { lat: 15.5, lng: -81.5 },   // Caribe occidental
+        { lat: 21.8, lng: -86.8 },   // Canal de Yucatán
+        { lat: 22.8, lng: -92.5 }    // Golfo central occidental
+    ],
+
     // Gibraltar: punto único
     WP_GIBRALTAR: [
         { lat: 35.9, lng: -5.6 }
@@ -93,17 +103,29 @@ const MaritimeRouter = {
             return null;
         }
 
+        function isGulfPoint(lat, lng) {
+            return lat >= 15 && lng <= -90;
+        }
+
         var w;
 
         // ── Pacífico ↔ Atlántico (alrededor de América del Sur) ──────────────
         w = cn('PAC_S', 'ATL_S', self.WP_CAPE_HORN);  if (w) return w;
         w = cn('PAC_N', 'ATL_S', self.WP_CAPE_HORN);  if (w) return w;
-        w = cn('PAC_N', 'ATL_N', self.WP_PANAMA);     if (w) return w;
+        if ((r1 === 'PAC_N' && r2 === 'ATL_N') || (r1 === 'ATL_N' && r2 === 'PAC_N')) {
+            var panamaRoute = (isGulfPoint(lat1, lng1) || isGulfPoint(lat2, lng2))
+                ? self.WP_PANAMA_GULF
+                : self.WP_PANAMA;
+            return r1 === 'PAC_N' ? panamaRoute.slice() : panamaRoute.slice().reverse();
+        }
 
         // PAC_S ↔ ATL_N: Panamá si alguno está al norte de 5°, sino Cabo de Hornos
         if ((r1 === 'PAC_S' && r2 === 'ATL_N') || (r1 === 'ATL_N' && r2 === 'PAC_S')) {
-            var passWps = Math.max(lat1, lat2) > 5
-                ? self.WP_PANAMA
+            var usePanama = Math.max(lat1, lat2) > 5;
+            var passWps = usePanama
+                ? ((isGulfPoint(lat1, lng1) || isGulfPoint(lat2, lng2))
+                    ? self.WP_PANAMA_GULF
+                    : self.WP_PANAMA)
                 : self.WP_CAPE_HORN;
             return r1 === 'PAC_S' ? passWps.slice() : passWps.slice().reverse();
         }
