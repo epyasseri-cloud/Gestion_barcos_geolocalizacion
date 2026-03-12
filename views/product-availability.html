@@ -261,10 +261,19 @@
         let currentAvailability = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadFilters();
-            loadAvailability();
+            loadDataWithRetry();
             setupEventListeners();
         });
+
+        function loadDataWithRetry(attempt = 1) {
+            loadFilters();
+            loadAvailability();
+
+            // ProductService inicializa por fetch; reintentar unos segundos evita vista vacía al primer render
+            if (currentAvailability.length === 0 && attempt < 6) {
+                setTimeout(() => loadDataWithRetry(attempt + 1), 500);
+            }
+        }
 
         function setupEventListeners() {
             document.getElementById('searchInput').addEventListener('input', debounce(filterAvailability, 300));
@@ -289,6 +298,7 @@
             // Cargar banderas
             const flags = window.AvailabilityService.getAvailableFlags();
             const flagSelect = document.getElementById('filterFlag');
+            flagSelect.innerHTML = '<option value="">Todas las banderas</option>';
             flags.forEach(flag => {
                 const option = document.createElement('option');
                 option.value = flag;
@@ -299,6 +309,7 @@
             // Cargar productos
             const products = window.AvailabilityService.getAvailableProducts();
             const productSelect = document.getElementById('filterProduct');
+            productSelect.innerHTML = '<option value="">Todos los productos</option>';
             products.forEach(product => {
                 const option = document.createElement('option');
                 option.value = product.productoId;

@@ -8,6 +8,7 @@ class InventoryService {
     constructor() {
         this.storageKey = 'boat_system_inventory';
         this.initializeStorage();
+        this.seedInitialData();
     }
 
     /**
@@ -17,6 +18,30 @@ class InventoryService {
         if (!localStorage.getItem(this.storageKey)) {
             localStorage.setItem(this.storageKey, JSON.stringify([]));
         }
+    }
+
+    /**
+     * Si no existe inventario, siembra datos mock para visualizaciones iniciales.
+     * No sobreescribe datos ya existentes del usuario.
+     */
+    seedInitialData() {
+        const existing = this.getAll();
+        if (existing.length > 0) return;
+
+        const now = new Date().toISOString();
+        const mockInventory = [
+            { barcoId: 'B001', productoId: 'PROD001', cantidad: 120, unidad: 'Unidades', ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B001', productoId: 'PROD002', cantidad: 850, unidad: 'Kg',       ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B002', productoId: 'PROD001', cantidad: 95,  unidad: 'Unidades', ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B002', productoId: 'PROD004', cantidad: 420, unidad: 'Kg',       ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B003', productoId: 'PROD003', cantidad: 610, unidad: 'Kg',       ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B004', productoId: 'PROD005', cantidad: 730, unidad: 'Kg',       ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B005', productoId: 'PROD006', cantidad: 540, unidad: 'Kg',       ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B006', productoId: 'PROD007', cantidad: 160, unidad: 'Paquete',  ultimaActualizacion: now, createdAt: now, updatedAt: now },
+            { barcoId: 'B007', productoId: 'PROD008', cantidad: 75,  unidad: 'Caja',     ultimaActualizacion: now, createdAt: now, updatedAt: now }
+        ];
+
+        localStorage.setItem(this.storageKey, JSON.stringify(mockInventory));
     }
 
     /**
