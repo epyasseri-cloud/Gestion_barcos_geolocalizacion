@@ -20,15 +20,25 @@ const MaritimeRouter = {
         { lat: -57.5, lng: -58.5 }   // Paso Drake (Atlántico)
     ],
 
-    // Canal de Panamá: ordenado Pacífico → Atlántico/Caribe
+    // Corredor del Pacífico oriental hacia el Canal de Panamá,
+    // manteniéndose mar adentro frente a Baja California, México y Centroamérica.
+    // Ordenado Pacífico abierto → Atlántico/Caribe.
     WP_PANAMA: [
-        { lat:  8.0, lng: -79.5 },   // Entrada Pacífico (Ciudad de Panamá)
+        { lat: 27.0, lng: -128.0 },  // Pacífico nororiental, oeste de Baja California
+        { lat: 21.5, lng: -114.0 },  // Pacífico frente a Baja California Sur
+        { lat: 15.0, lng: -103.0 },  // Pacífico mexicano, mar adentro
+        { lat: 10.5, lng: -90.0 },   // Pacífico de Centroamérica, mar adentro
+        { lat:  8.0, lng: -79.5 },   // Entrada Pacífico (Panamá)
         { lat:  9.3, lng: -79.9 }    // Salida Atlántico/Caribe (Colón)
     ],
 
     // Canal de Panamá + Caribe + Golfo de México.
     // Útil para puertos del Golfo como Veracruz, evitando cruzar Centroamérica/México.
     WP_PANAMA_GULF: [
+        { lat: 27.0, lng: -128.0 },  // Pacífico nororiental, oeste de Baja California
+        { lat: 21.5, lng: -114.0 },  // Pacífico frente a Baja California Sur
+        { lat: 15.0, lng: -103.0 },  // Pacífico mexicano, mar adentro
+        { lat: 10.5, lng: -90.0 },   // Pacífico de Centroamérica, mar adentro
         { lat:  8.0, lng: -79.5 },   // Entrada Pacífico
         { lat:  9.3, lng: -79.9 },   // Salida Caribe
         { lat: 15.5, lng: -81.5 },   // Caribe occidental
