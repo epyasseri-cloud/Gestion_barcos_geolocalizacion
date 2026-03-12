@@ -19,6 +19,7 @@ const MaritimeRouter = {
         PANAMA_PAC:      { lat: 8.0,   lng: -79.5 },
         PANAMA_CAR:      { lat: 9.3,   lng: -79.9 },
         CARIBBEAN_W:     { lat: 15.5,  lng: -81.5 },
+        CARTAGENA_OFF:   { lat: 10.9,  lng: -76.2 },
         YUCATAN:         { lat: 21.8,  lng: -86.8 },
         GULF_CENTRAL:    { lat: 22.8,  lng: -92.5 },
         VERACRUZ_OFF:    { lat: 19.8,  lng: -96.3 },
@@ -62,9 +63,12 @@ const MaritimeRouter = {
 
         ['PANAMA_PAC', 'PANAMA_CAR'],
         ['PANAMA_CAR', 'CARIBBEAN_W'],
+        ['PANAMA_CAR', 'CARTAGENA_OFF'],
         ['CARIBBEAN_W', 'YUCATAN'],
+        ['CARIBBEAN_W', 'CARTAGENA_OFF'],
         ['YUCATAN', 'GULF_CENTRAL'],
         ['GULF_CENTRAL', 'VERACRUZ_OFF'],
+        ['ATL_N_WEST', 'CARTAGENA_OFF'],
         ['CARIBBEAN_W', 'ATL_N_WEST'],
         ['GULF_CENTRAL', 'ATL_N_WEST'],
         ['ATL_N_WEST', 'ATL_N_MID'],
@@ -103,6 +107,7 @@ const MaritimeRouter = {
 
     COASTAL_APPROACHES: [
         { target: { lat: 19.2006, lng: -96.1429 }, approachNode: 'VERACRUZ_OFF', thresholdKm: 220 },
+        { target: { lat: 10.3910, lng: -75.4794 }, approachNode: 'CARTAGENA_OFF', thresholdKm: 220 },
         { target: { lat: -12.0464, lng: -77.1428 }, approachNode: 'CALLAO_OFF', thresholdKm: 180 },
         { target: { lat: 41.3851, lng: 2.1734 },    approachNode: 'BARCELONA_OFF', thresholdKm: 120 },
         { target: { lat: 44.4056, lng: 8.9463 },    approachNode: 'GENOA_OFF', thresholdKm: 120 },
@@ -114,7 +119,7 @@ const MaritimeRouter = {
     REGION_NODE_CANDIDATES: {
         PAC_N: ['PAC_N_EAST', 'PAC_N_MID', 'PAC_N_WEST', 'PANAMA_PAC', 'TOKYO_APPROACH'],
         PAC_S: ['PAC_S_EAST', 'PAC_S_MID', 'PAC_S_WEST', 'PANAMA_PAC', 'CAPE_HORN_PAC', 'CALLAO_OFF'],
-        ATL_N: ['PANAMA_CAR', 'CARIBBEAN_W', 'YUCATAN', 'GULF_CENTRAL', 'VERACRUZ_OFF', 'ATL_N_WEST', 'ATL_N_MID', 'GIBRALTAR'],
+        ATL_N: ['PANAMA_CAR', 'CARIBBEAN_W', 'CARTAGENA_OFF', 'YUCATAN', 'GULF_CENTRAL', 'VERACRUZ_OFF', 'ATL_N_WEST', 'ATL_N_MID', 'GIBRALTAR'],
         ATL_S: ['ATL_S_WEST', 'ATL_S_EAST', 'CAPE_HORN_ATL', 'GOOD_HOPE', 'BUENOS_AIRES_OFF', 'SANTOS_OFF'],
         MED: ['GIBRALTAR', 'MED_WEST', 'MED_CENTRAL', 'BARCELONA_OFF', 'GENOA_OFF', 'SUEZ_MED'],
         RED_SEA: ['SUEZ_RED', 'RED_SEA_S'],
@@ -248,7 +253,7 @@ const MaritimeRouter = {
                     return ['VERACRUZ_OFF', 'GULF_CENTRAL', 'YUCATAN', 'CARIBBEAN_W', 'ATL_N_WEST'].indexOf(id) === -1;
                 }));
         } else if (this.isCaribbean(lat, lng)) {
-            candidates = ['PANAMA_CAR', 'CARIBBEAN_W', 'YUCATAN', 'ATL_N_WEST']
+            candidates = ['CARTAGENA_OFF', 'PANAMA_CAR', 'CARIBBEAN_W', 'YUCATAN', 'ATL_N_WEST']
                 .concat(candidates)
                 .filter(function(id, index, list) { return list.indexOf(id) === index; });
         }
