@@ -2,6 +2,54 @@
 const MapManager = {
     map: null,
     markers: {},
+
+    createSvgIconMarkup: function(type, options = {}) {
+        const primary = options.primary || '#0d6efd';
+        const accent = options.accent || '#ffffff';
+        const outline = options.outline || 'rgba(15, 23, 42, 0.35)';
+
+        if (type === 'boat') {
+            return `
+                <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+                    <defs>
+                        <filter id="boat-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="rgba(15,23,42,0.28)"/>
+                        </filter>
+                    </defs>
+                    <g filter="url(#boat-shadow)">
+                        <circle cx="17" cy="17" r="14" fill="${accent}" fill-opacity="0.96" stroke="${outline}" stroke-width="1"/>
+                        <path d="M9 19.5h16l-2.5 5.5H11.5L9 19.5z" fill="${primary}" stroke="${outline}" stroke-width="0.6" stroke-linejoin="round"/>
+                        <path d="M13 12h5.2l3 3.1v4H13V12z" fill="${primary}" fill-opacity="0.9"/>
+                        <path d="M18.2 10.3l3.8 1.8-3.8 1.8z" fill="${primary}"/>
+                        <path d="M12 22.6c1.1.85 2.2.85 3.3 0 1.1-.85 2.2-.85 3.3 0 1.1.85 2.2.85 3.3 0" fill="none" stroke="#7dd3fc" stroke-width="1.5" stroke-linecap="round"/>
+                    </g>
+                </svg>`;
+        }
+
+        return `
+            <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+                <defs>
+                    <filter id="port-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="rgba(15,23,42,0.28)"/>
+                    </filter>
+                </defs>
+                <g filter="url(#port-shadow)">
+                    <path d="M17 3.8c-5.25 0-9.5 4.13-9.5 9.24 0 6.62 7.56 13.37 8.47 14.16a1.55 1.55 0 0 0 2.06 0c0.91-.79 8.47-7.54 8.47-14.16 0-5.11-4.25-9.24-9.5-9.24z" fill="${primary}" stroke="${outline}" stroke-width="0.8"/>
+                    <circle cx="17" cy="13" r="5.2" fill="${accent}"/>
+                    <path d="M17 8.8v7.3M14 11.5h6M15 14.3c0 1.7.65 2.8 2 3.5 1.35-.7 2-1.8 2-3.5" fill="none" stroke="${primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </g>
+            </svg>`;
+    },
+
+    createLeafletIcon: function(type, options = {}) {
+        return L.divIcon({
+            html: `<div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;">${this.createSvgIconMarkup(type, options)}</div>`,
+            className: `${type}-marker-icon`,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
+            popupAnchor: [0, -14]
+        });
+    },
     
     // Inicializar mapa
     init: function(containerId, centerLat = 0, centerLng = 0, zoom = 3) {
@@ -25,11 +73,9 @@ const MapManager = {
         
         const color = MapConfig.boatStatusColors[boat.estado] || '#333';
         
-        const icon = L.divIcon({
-            html: `<div style="font-size: 24px; text-shadow: 0 0 3px white;">${MapConfig.boatIcon}</div>`,
-            className: 'boat-marker',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+        const icon = this.createLeafletIcon('boat', {
+            primary: color,
+            accent: '#f8fbff'
         });
         
         const marker = L.marker([lat, lng], { icon: icon });
@@ -51,11 +97,9 @@ const MapManager = {
     
     // Crear marcador de puerto
     createPortMarker: function(port) {
-        const icon = L.divIcon({
-            html: `<div style="font-size: 24px; text-shadow: 0 0 3px white;">${MapConfig.portIcon}</div>`,
-            className: 'port-marker',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+        const icon = this.createLeafletIcon('port', {
+            primary: '#0f766e',
+            accent: '#f8fffd'
         });
         
         const marker = L.marker([port.lat, port.lng], { icon: icon });

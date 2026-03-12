@@ -316,11 +316,9 @@
 
             // Marcador temporal en el mapa
             removeExtraLayers();
-            const icon = L.divIcon({
-                html: '<div style="font-size:26px;text-shadow:0 0 4px white;">&#9875;</div>',
-                className: '',
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
+            const icon = MapManager.createLeafletIcon('port', {
+                primary: '#0891b2',
+                accent: '#f3fbff'
             });
             const m = L.marker([lat, lng], { icon: icon }).addTo(MapManager.map);
             m.bindPopup(
