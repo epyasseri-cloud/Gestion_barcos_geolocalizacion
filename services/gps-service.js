@@ -183,7 +183,7 @@ const GPSService = {
         }
         
         // Mover el barco en su rumbo actual
-        const distanceKm = GeoUtils.knotsToKmh(speedKnots) / 6; // distancia en 1 minuto
+        const distanceKm = GeoUtils.knotsToKmh(speedKnots) / 600; // distancia en 1 minuto
         const newPos = GeoUtils.getDestinationPoint(
             lastPosition.lat,
             lastPosition.lng,
