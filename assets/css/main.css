@@ -1,0 +1,120 @@
+/* Estilos globales compartidos por las vistas del sistema */
+:root {
+    --color-primary: #0a5f7f;
+    --color-primary-hover: #1a7fa0;
+    --color-bg: #f5f7fa;
+    --color-surface: #ffffff;
+    --color-border: #dfe3e8;
+    --color-text: #1f2933;
+    --color-muted: #52606d;
+    --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+a {
+    color: var(--color-primary);
+}
+
+h1,
+h2,
+h3 {
+    color: #0f4c66;
+    margin-top: 0;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    background: var(--color-primary);
+    color: #fff;
+    border: 0;
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background: var(--color-primary-hover);
+}
+
+button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.65rem 0.7rem;
+    text-align: left;
+}
+
+th {
+    background: #0f5f7f;
+    color: #fff;
+}
+
+.badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #e6f4fa;
+    color: #0f4c66;
+}
+
+.text-muted {
+    color: var(--color-muted);
+}
