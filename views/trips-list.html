@@ -483,8 +483,37 @@
             if (!confirm('¿Cargar datos de ejemplo? Esto agregará viajes de prueba.')) return;
 
             try {
-                const response = await fetch('../data/trips-mock.json');
-                const mockTrips = await response.json();
+                const candidateUrls = [
+                    '/data/trips-mock.json',
+                    '../data/trips-mock.json',
+                    'data/trips-mock.json'
+                ];
+
+                let mockTrips = null;
+                let lastError = null;
+
+                for (const url of candidateUrls) {
+                    try {
+                        const response = await fetch(url, { cache: 'no-store' });
+                        if (!response.ok) {
+                            lastError = new Error(`HTTP ${response.status} al intentar ${url}`);
+                            continue;
+                        }
+
+                        mockTrips = await response.json();
+                        if (Array.isArray(mockTrips)) {
+                            break;
+                        }
+
+                        lastError = new Error(`Formato inválido en ${url}`);
+                    } catch (err) {
+                        lastError = err;
+                    }
+                }
+
+                if (!Array.isArray(mockTrips)) {
+                    throw lastError || new Error('No se pudo cargar trips-mock.json');
+                }
                 
                 mockTrips.forEach(trip => {
                     window.TripService.create(trip);
