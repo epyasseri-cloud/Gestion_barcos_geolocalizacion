@@ -13,7 +13,10 @@ const ProductService = {
     
     // Inicializar con datos mock
     init: function() {
-        if (!localStorage.getItem(this.storageKey)) {
+        const existing = localStorage.getItem(this.storageKey);
+        const needsReload = !existing || JSON.parse(existing).some(p => p.bodega === undefined);
+
+        if (needsReload) {
             fetch('../data/products-mock.json')
                 .then(response => response.json())
                 .then(data => {
@@ -21,7 +24,7 @@ const ProductService = {
                 })
                 .catch(error => {
                     console.error('Error loading mock products:', error);
-                    localStorage.setItem(this.storageKey, JSON.stringify([]));
+                    if (!existing) localStorage.setItem(this.storageKey, JSON.stringify([]));
                 });
         }
     },
