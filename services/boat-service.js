@@ -234,7 +234,10 @@ const BoatService = {
             return { success: false, message: 'Ya existe un barco con esa matrícula' };
         }
         
-        const newId = Helpers.generateId('B', boats);
+        const sequentialIds = boats
+            .map(boat => boat.id)
+            .filter(id => /^B\d{3}$/.test(id));
+        const newId = Helpers.generateSequentialId('B', sequentialIds);
         
         const newBoat = {
             id: newId,

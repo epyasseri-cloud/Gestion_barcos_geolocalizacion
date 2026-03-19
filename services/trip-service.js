@@ -559,16 +559,18 @@ class TripService {
      */
     generateId() {
         const trips = this.getAll();
-        const timestamp = Date.now();
-        let id;
-        let counter = 1;
+        const sequentialNumbers = trips
+            .map(trip => {
+                const match = /^TRIP(\d{4})$/.exec(trip.id);
+                return match ? parseInt(match[1], 10) : null;
+            })
+            .filter(num => num !== null);
 
-        do {
-            id = `TRIP${String(trips.length + counter).padStart(4, '0')}`;
-            counter++;
-        } while (trips.some(trip => trip.id === id));
+        const nextNumber = sequentialNumbers.length > 0
+            ? Math.max(...sequentialNumbers) + 1
+            : 1;
 
-        return id;
+        return `TRIP${String(nextNumber).padStart(4, '0')}`;
     }
 
     /**

@@ -475,16 +475,18 @@ class WarehouseService {
      */
     generateId() {
         const movements = this.getAll();
-        const timestamp = Date.now();
-        let id;
-        let counter = 1;
+        const sequentialNumbers = movements
+            .map(mov => {
+                const match = /^MOV(\d{5})$/.exec(mov.id);
+                return match ? parseInt(match[1], 10) : null;
+            })
+            .filter(num => num !== null);
 
-        do {
-            id = `MOV${String(movements.length + counter).padStart(5, '0')}`;
-            counter++;
-        } while (movements.some(mov => mov.id === id));
+        const nextNumber = sequentialNumbers.length > 0
+            ? Math.max(...sequentialNumbers) + 1
+            : 1;
 
-        return id;
+        return `MOV${String(nextNumber).padStart(5, '0')}`;
     }
 
     /**

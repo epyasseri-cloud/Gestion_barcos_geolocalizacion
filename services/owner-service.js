@@ -78,8 +78,11 @@ const OwnerService = {
             return { success: false, message: 'El email ya está registrado' };
         }
         
-        // Generar ID
-        const newId = Helpers.generateSequentialId('OWN', owners.map(o => o.id));
+        // Generar ID secuencial (OWN001, OWN002, ...) ignorando IDs heredados con formato distinto
+        const sequentialIds = owners
+            .map(o => o.id)
+            .filter(id => /^OWN\d{3}$/.test(id));
+        const newId = Helpers.generateSequentialId('OWN', sequentialIds);
         
         const newOwner = {
             id: newId,

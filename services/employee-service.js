@@ -56,8 +56,11 @@ const EmployeeService = {
             return { success: false, message: 'Ya existe un empleado con ese email' };
         }
         
-        // Generar ID
-        const newId = Helpers.generateId('EMP', employees);
+        // Generar ID secuencial (EMP001, EMP002, ...) ignorando IDs heredados con formato distinto
+        const sequentialIds = employees
+            .map(emp => emp.id)
+            .filter(id => /^EMP\d{3}$/.test(id));
+        const newId = Helpers.generateSequentialId('EMP', sequentialIds);
         
         const newEmployee = {
             id: newId,

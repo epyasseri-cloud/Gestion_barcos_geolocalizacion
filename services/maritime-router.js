@@ -16,8 +16,15 @@ const MaritimeRouter = {
         PAC_N_WEST:      { lat: 32.0,  lng: 160.0 },
         TOKYO_APPROACH:  { lat: 34.8,  lng: 141.5 },
 
-        PANAMA_PAC:      { lat: 8.0,   lng: -79.5 },
+        PANAMA_PAC:      { lat: 7.7,   lng: -79.55 },
         PANAMA_CAR:      { lat: 9.3,   lng: -79.9 },
+        CENTAM_PAC_OFF:  { lat: 8.8,   lng: -89.2 },
+        COSTA_RICA_PAC:  { lat: 8.9,   lng: -84.9 },
+        CHIRIQUI_PAC:    { lat: 7.9,   lng: -82.6 },
+        AZUERO_PAC:      { lat: 7.3,   lng: -80.75 },
+        CANAL_PAC:       { lat: 8.35,  lng: -79.62 },
+        CANAL_MID:       { lat: 8.9,   lng: -79.70 },
+        CANAL_CAR:       { lat: 9.28,  lng: -79.88 },
         CARIBBEAN_W:     { lat: 15.5,  lng: -81.5 },
         CARTAGENA_OFF:   { lat: 10.9,  lng: -76.2 },
         YUCATAN:         { lat: 21.8,  lng: -86.8 },
@@ -27,9 +34,25 @@ const MaritimeRouter = {
         ATL_N_WEST:      { lat: 25.0,  lng: -60.0 },
         ATL_N_MID:       { lat: 25.0,  lng: -35.0 },
         GIBRALTAR:       { lat: 35.9,  lng: -5.6 },
+        PORTUGAL_SW_OFF: { lat: 37.0,  lng: -9.8 },
+        LISBON_OFF:      { lat: 38.6,  lng: -9.7 },
+        MADEIRA_OFF:     { lat: 32.6,  lng: -17.4 },
+        IBERIA_W_OFF:    { lat: 38.9,  lng: -12.6 },
+        PORTO_OFF:       { lat: 41.4,  lng: -9.7 },
+        GALICIA_OFF:     { lat: 43.1,  lng: -9.4 },
+        CANTABRIAN_W:    { lat: 43.9,  lng: -7.0 },
+        BISCAY_OFF:      { lat: 45.5,  lng: -9.2 },
+        SANTANDER_OFF:   { lat: 43.7,  lng: -4.5 },
+        CHANNEL_W:       { lat: 49.2,  lng: -6.3 },
+        SOUTHAMPTON_OFF: { lat: 50.6,  lng: -2.1 },
+        SOLENT_W:        { lat: 50.65, lng: -1.65 },
 
         MED_WEST:        { lat: 38.0,  lng: 0.5 },
         MED_CENTRAL:     { lat: 38.5,  lng: 10.0 },
+        VALENCIA_OFF:    { lat: 39.2,  lng: -0.2 },
+        CARTAGENA_ES_OFF:{ lat: 37.4,  lng: -0.7 },
+        ALBORAN_EAST:    { lat: 36.3,  lng: -2.2 },
+        MALAGA_OFF:      { lat: 36.2,  lng: -4.8 },
         BARCELONA_OFF:   { lat: 41.2,  lng: 2.45 },
         GENOA_OFF:       { lat: 44.2,  lng: 9.2 },
 
@@ -45,6 +68,7 @@ const MaritimeRouter = {
         PAC_S_MID:       { lat: -18.0, lng: -130.0 },
         PAC_S_WEST:      { lat: -15.0, lng: 150.0 },
         CALLAO_OFF:      { lat: -12.5, lng: -78.8 },
+        VALPARAISO_OFF:  { lat: -33.4, lng: -72.3 },
 
         CAPE_HORN_PAC:   { lat: -50.0, lng: -75.5 },
         CAPE_HORN_ATL:   { lat: -57.5, lng: -58.5 },
@@ -59,9 +83,16 @@ const MaritimeRouter = {
         ['PAC_N_EAST', 'PAC_N_MID'],
         ['PAC_N_MID', 'PAC_N_WEST'],
         ['PAC_N_WEST', 'TOKYO_APPROACH'],
-        ['PAC_N_EAST', 'PANAMA_PAC'],
+        ['PAC_N_EAST', 'CENTAM_PAC_OFF'],
 
-        ['PANAMA_PAC', 'PANAMA_CAR'],
+        ['CENTAM_PAC_OFF', 'COSTA_RICA_PAC'],
+        ['COSTA_RICA_PAC', 'CHIRIQUI_PAC'],
+        ['CHIRIQUI_PAC', 'AZUERO_PAC'],
+        ['AZUERO_PAC', 'PANAMA_PAC'],
+        ['PANAMA_PAC', 'CANAL_PAC'],
+        ['CANAL_PAC', 'CANAL_MID'],
+        ['CANAL_MID', 'CANAL_CAR'],
+        ['CANAL_CAR', 'PANAMA_CAR'],
         ['PANAMA_CAR', 'CARIBBEAN_W'],
         ['PANAMA_CAR', 'CARTAGENA_OFF'],
         ['CARIBBEAN_W', 'YUCATAN'],
@@ -73,10 +104,32 @@ const MaritimeRouter = {
         ['GULF_CENTRAL', 'ATL_N_WEST'],
         ['ATL_N_WEST', 'ATL_N_MID'],
         ['ATL_N_MID', 'GIBRALTAR'],
+        ['GIBRALTAR', 'PORTUGAL_SW_OFF'],
+        ['PORTUGAL_SW_OFF', 'LISBON_OFF'],
+        ['PORTUGAL_SW_OFF', 'MADEIRA_OFF'],
+        ['LISBON_OFF', 'PORTO_OFF'],
+        ['PORTO_OFF', 'GALICIA_OFF'],
+        ['GALICIA_OFF', 'CANTABRIAN_W'],
+        ['CANTABRIAN_W', 'SANTANDER_OFF'],
+        ['IBERIA_W_OFF', 'PORTO_OFF'],
+        ['IBERIA_W_OFF', 'GALICIA_OFF'],
+        ['ATL_N_MID', 'IBERIA_W_OFF'],
+        ['GIBRALTAR', 'IBERIA_W_OFF'],
+        ['IBERIA_W_OFF', 'BISCAY_OFF'],
+        ['BISCAY_OFF', 'CANTABRIAN_W'],
+        ['BISCAY_OFF', 'CHANNEL_W'],
+        ['CHANNEL_W', 'SOUTHAMPTON_OFF'],
+        ['CHANNEL_W', 'SOLENT_W'],
+        ['SOLENT_W', 'SOUTHAMPTON_OFF'],
 
-        ['GIBRALTAR', 'MED_WEST'],
         ['MED_WEST', 'MED_CENTRAL'],
-        ['MED_WEST', 'BARCELONA_OFF'],
+        ['MED_WEST', 'VALENCIA_OFF'],
+        ['VALENCIA_OFF', 'BARCELONA_OFF'],
+        ['VALENCIA_OFF', 'CARTAGENA_ES_OFF'],
+        ['CARTAGENA_ES_OFF', 'ALBORAN_EAST'],
+        ['MED_WEST', 'ALBORAN_EAST'],
+        ['ALBORAN_EAST', 'MALAGA_OFF'],
+        ['MALAGA_OFF', 'GIBRALTAR'],
         ['MED_CENTRAL', 'GENOA_OFF'],
         ['MED_CENTRAL', 'SUEZ_MED'],
 
@@ -90,9 +143,12 @@ const MaritimeRouter = {
 
         ['PAC_S_EAST', 'PAC_S_MID'],
         ['PAC_S_MID', 'PAC_S_WEST'],
-        ['PAC_S_EAST', 'PANAMA_PAC'],
+        ['PAC_S_EAST', 'CENTAM_PAC_OFF'],
         ['PAC_S_EAST', 'CALLAO_OFF'],
+        ['PAC_S_EAST', 'VALPARAISO_OFF'],
+        ['CALLAO_OFF', 'VALPARAISO_OFF'],
         ['PAC_S_EAST', 'CAPE_HORN_PAC'],
+        ['VALPARAISO_OFF', 'CAPE_HORN_PAC'],
 
         ['CAPE_HORN_PAC', 'CAPE_HORN_ATL'],
         ['CAPE_HORN_ATL', 'ATL_S_WEST'],
@@ -109,19 +165,25 @@ const MaritimeRouter = {
         { target: { lat: 19.2006, lng: -96.1429 }, approachNode: 'VERACRUZ_OFF', thresholdKm: 220 },
         { target: { lat: 10.3910, lng: -75.4794 }, approachNode: 'CARTAGENA_OFF', thresholdKm: 220 },
         { target: { lat: -12.0464, lng: -77.1428 }, approachNode: 'CALLAO_OFF', thresholdKm: 180 },
+        { target: { lat: -33.0458, lng: -71.6197 }, approachNode: 'VALPARAISO_OFF', thresholdKm: 220 },
         { target: { lat: 41.3851, lng: 2.1734 },    approachNode: 'BARCELONA_OFF', thresholdKm: 120 },
+        { target: { lat: 36.7213, lng: -4.4214 },   approachNode: 'MALAGA_OFF', thresholdKm: 160 },
+        { target: { lat: 43.4623, lng: -3.8100 },   approachNode: 'SANTANDER_OFF', thresholdKm: 180 },
         { target: { lat: 44.4056, lng: 8.9463 },    approachNode: 'GENOA_OFF', thresholdKm: 120 },
+        { target: { lat: 38.7223, lng: -9.1393 },   approachNode: 'LISBON_OFF', thresholdKm: 220 },
+        { target: { lat: 32.6669, lng: -16.9241 },  approachNode: 'MADEIRA_OFF', thresholdKm: 180 },
         { target: { lat: -34.6037, lng: -58.3816 }, approachNode: 'BUENOS_AIRES_OFF', thresholdKm: 250 },
         { target: { lat: -23.9608, lng: -46.3339 }, approachNode: 'SANTOS_OFF', thresholdKm: 180 },
+        { target: { lat: 50.9097, lng: -1.4044 },   approachNode: 'SOLENT_W', thresholdKm: 250 },
         { target: { lat: 35.6167, lng: 139.7667 },  approachNode: 'TOKYO_APPROACH', thresholdKm: 220 }
     ],
 
     REGION_NODE_CANDIDATES: {
-        PAC_N: ['PAC_N_EAST', 'PAC_N_MID', 'PAC_N_WEST', 'PANAMA_PAC', 'TOKYO_APPROACH'],
-        PAC_S: ['PAC_S_EAST', 'PAC_S_MID', 'PAC_S_WEST', 'PANAMA_PAC', 'CAPE_HORN_PAC', 'CALLAO_OFF'],
-        ATL_N: ['PANAMA_CAR', 'CARIBBEAN_W', 'CARTAGENA_OFF', 'YUCATAN', 'GULF_CENTRAL', 'VERACRUZ_OFF', 'ATL_N_WEST', 'ATL_N_MID', 'GIBRALTAR'],
+        PAC_N: ['PAC_N_EAST', 'PAC_N_MID', 'PAC_N_WEST', 'CENTAM_PAC_OFF', 'COSTA_RICA_PAC', 'PANAMA_PAC', 'TOKYO_APPROACH'],
+        PAC_S: ['PAC_S_EAST', 'PAC_S_MID', 'PAC_S_WEST', 'CENTAM_PAC_OFF', 'COSTA_RICA_PAC', 'PANAMA_PAC', 'CAPE_HORN_PAC', 'CALLAO_OFF', 'VALPARAISO_OFF'],
+        ATL_N: ['PANAMA_CAR', 'CARIBBEAN_W', 'CARTAGENA_OFF', 'YUCATAN', 'GULF_CENTRAL', 'VERACRUZ_OFF', 'ATL_N_WEST', 'ATL_N_MID', 'GIBRALTAR', 'PORTUGAL_SW_OFF', 'LISBON_OFF', 'MADEIRA_OFF', 'IBERIA_W_OFF', 'PORTO_OFF', 'GALICIA_OFF', 'CANTABRIAN_W', 'BISCAY_OFF', 'SANTANDER_OFF', 'CHANNEL_W', 'SOLENT_W', 'SOUTHAMPTON_OFF'],
         ATL_S: ['ATL_S_WEST', 'ATL_S_EAST', 'CAPE_HORN_ATL', 'GOOD_HOPE', 'BUENOS_AIRES_OFF', 'SANTOS_OFF'],
-        MED: ['GIBRALTAR', 'MED_WEST', 'MED_CENTRAL', 'BARCELONA_OFF', 'GENOA_OFF', 'SUEZ_MED'],
+        MED: ['GIBRALTAR', 'MED_WEST', 'MED_CENTRAL', 'VALENCIA_OFF', 'CARTAGENA_ES_OFF', 'ALBORAN_EAST', 'MALAGA_OFF', 'BARCELONA_OFF', 'GENOA_OFF', 'SUEZ_MED'],
         RED_SEA: ['SUEZ_RED', 'RED_SEA_S'],
         IND: ['GOOD_HOPE', 'IND_WEST', 'IND_EAST', 'MALACCA', 'SUEZ_RED'],
         OPEN: []
@@ -186,6 +248,17 @@ const MaritimeRouter = {
         var a = this.getNode(aId);
         var b = this.getNode(bId);
         return GeoUtils.calculateDistance(a.lat, a.lng, b.lat, b.lng);
+    },
+
+    getEndpointConnectionCost: function(lat, lng, nodeId) {
+        var node = this.getNode(nodeId);
+        var distance = GeoUtils.calculateDistance(lat, lng, node.lat, node.lng);
+
+        if (nodeId === 'PANAMA_PAC' && distance > 500) {
+            return distance + 900;
+        }
+
+        return distance;
     },
 
     getAdjacency: function() {
@@ -325,8 +398,8 @@ const MaritimeRouter = {
         var path = this.findShortestPath(startId, endId);
         if (!path) return null;
 
-        var cost = GeoUtils.calculateDistance(lat1, lng1, this.getNode(startId).lat, this.getNode(startId).lng) +
-            GeoUtils.calculateDistance(this.getNode(endId).lat, this.getNode(endId).lng, lat2, lng2);
+        var cost = this.getEndpointConnectionCost(lat1, lng1, startId) +
+            this.getEndpointConnectionCost(lat2, lng2, endId);
 
         for (var i = 0; i < path.length - 1; i++) {
             cost += this.getEdgeWeight(path[i], path[i + 1]);
@@ -336,8 +409,10 @@ const MaritimeRouter = {
     },
 
     getBestNodePath: function(lat1, lng1, lat2, lng2) {
-        var startCandidates = this.getCandidateNodes(lat1, lng1);
-        var endCandidates = this.getCandidateNodes(lat2, lng2);
+        var startApproach = this.getNearestApproachNode(lat1, lng1);
+        var endApproach = this.getNearestApproachNode(lat2, lng2);
+        var startCandidates = startApproach ? [startApproach] : this.getCandidateNodes(lat1, lng1);
+        var endCandidates = endApproach ? [endApproach] : this.getCandidateNodes(lat2, lng2);
         var best = null;
 
         for (var i = 0; i < startCandidates.length; i++) {

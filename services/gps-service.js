@@ -121,7 +121,10 @@ const GPSService = {
             return { success: false, message: 'Datos de posición inválidos' };
         }
         
-        const newId = Helpers.generateSequentialId('GPS', positions.map(p => p.id));
+        const sequentialIds = positions
+            .map(p => p.id)
+            .filter(id => /^GPS\d{3}$/.test(id));
+        const newId = Helpers.generateSequentialId('GPS', sequentialIds);
         
         const newPosition = {
             id: newId,

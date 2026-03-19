@@ -63,8 +63,11 @@ const ProductService = {
             return { success: false, message: 'Ya existe un producto con ese nombre' };
         }
         
-        // Generar ID
-        const newId = Helpers.generateId('PROD', products);
+        // Generar ID secuencial (PROD001, PROD002, ...) ignorando IDs heredados con formato distinto
+        const sequentialIds = products
+            .map(prod => prod.id)
+            .filter(id => /^PROD\d{3}$/.test(id));
+        const newId = Helpers.generateSequentialId('PROD', sequentialIds);
         
         const newProduct = {
             id: newId,
