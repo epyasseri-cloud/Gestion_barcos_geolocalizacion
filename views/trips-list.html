@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
         .filters-section {
@@ -344,11 +345,11 @@
                 const estadoClass = `status-${trip.estado.toLowerCase().replace(' ', '-')}`;
 
                 // Botones de acción según estado
-                let actionButtons = `<button class="actions-btn btn-view" title="Ver detalle" onclick="viewTrip('${trip.id}')">👁</button>`;
+                let actionButtons = `<button class="actions-btn btn-view" title="Ver detalle" onclick="viewTrip('${trip.id}')"><i class="bi bi-eye"></i></button>`;
                 
                 if (trip.estado === 'En curso') {
-                    actionButtons += `<button class="actions-btn btn-end" title="Finalizar" onclick="endTrip('${trip.id}')">✓</button>`;
-                    actionButtons += `<button class="actions-btn btn-cancel" title="Cancelar" onclick="cancelTrip('${trip.id}')">✖</button>`;
+                    actionButtons += `<button class="actions-btn btn-end" title="Finalizar" onclick="endTrip('${trip.id}')"><i class="bi bi-check-lg"></i></button>`;
+                    actionButtons += `<button class="actions-btn btn-cancel" title="Cancelar" onclick="cancelTrip('${trip.id}')"><i class="bi bi-x-lg"></i></button>`;
                 }
 
                 return `
@@ -515,10 +516,26 @@
                 if (!Array.isArray(mockTrips)) {
                     throw lastError || new Error('No se pudo cargar trips-mock.json');
                 }
-                
-                mockTrips.forEach(trip => {
-                    window.TripService.create(trip);
+
+                // Merge mock trips into localStorage preserving IDs and coordenadasRuta
+                const existing = window.TripService.getAll();
+                const existingMap = {};
+                existing.forEach(t => { existingMap[t.id] = t; });
+
+                const merged = mockTrips.map(mockTrip => {
+                    const saved = existingMap[mockTrip.id];
+                    if (!saved) return { ...mockTrip };
+                    return {
+                        ...saved,
+                        coordenadasRuta: (saved.coordenadasRuta && saved.coordenadasRuta.length > 0)
+                            ? saved.coordenadasRuta
+                            : (mockTrip.coordenadasRuta || [])
+                    };
                 });
+
+                const mockIds = new Set(mockTrips.map(t => t.id));
+                const extra = existing.filter(t => !mockIds.has(t.id));
+                localStorage.setItem('boat_system_trips', JSON.stringify([...merged, ...extra]));
 
                 alert(`${mockTrips.length} viajes de ejemplo cargados correctamente`);
                 loadTrips();

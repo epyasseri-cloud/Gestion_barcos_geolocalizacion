@@ -6,59 +6,96 @@
     <title>Mapa GPS - Sistema Geolocalización Barcos</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="../assets/css/header.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
-        #map {
-            height: 600px;
-            width: 100%;
-            border: 1px solid #ccc;
-        }
-        
-        .controls {
-            margin: 10px 0;
-        }
-        
-        .boat-list {
-            margin-top: 20px;
-        }
-        
-        .boat-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 5px 0;
-        }
+        /* ---- layout ---- */
+        .page-container { max-width: 1100px; margin: 0 auto; padding: 0 16px 48px; }
+        .page-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 12px; }
+        .page-title { margin: 0; font-size: 20px; font-weight: 700; color: #212529; }
+
+        /* ---- buttons ---- */
+        .btn { padding: 7px 16px; border: none; border-radius: 4px; cursor: pointer;
+               font-size: 14px; font-weight: 500; transition: opacity .15s; }
+        .btn:hover   { opacity: .86; }
+        .btn:disabled { opacity: .48; cursor: not-allowed; }
+        .btn-sm { padding: 5px 12px; font-size: 13px; }
+        .btn-primary   { background: #0d6efd; color: #fff; }
+        .btn-secondary { background: #6c757d; color: #fff; }
+        .btn-warning   { background: #ffc107; color: #212529; border: none; }
+        .btn-outline-primary { background: transparent; border: 1px solid #0d6efd; color: #0d6efd; }
+        .btn-outline-primary.active { background: #0d6efd; color: #fff; }
+        .auto-label { display: inline-flex; align-items: center; gap: 6px;
+                      font-size: 14px; font-weight: 500; cursor: pointer; color: #495057; }
+
+        /* ---- controls panel ---- */
+        .search-panel { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px;
+                        padding: 14px 18px; margin-bottom: 12px; }
+        .controls-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        /* ---- map ---- */
+        #map { height: 520px; width: 100%; border: 1px solid #ced4da; border-radius: 6px;
+               margin-bottom: 8px; }
+        #mapHint { font-size: 12px; color: #6c757d; margin-bottom: 14px; }
+
+        /* ---- info card ---- */
+        .info-card { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 16px; }
+        .info-card h4 { margin: 0 0 12px; font-size: 15px; border-bottom: 2px solid #0d6efd;
+                        padding-bottom: 6px; color: #212529; }
+
+        /* ---- boats table ---- */
+        .boats-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .boats-table th { background: #343a40; color: #fff; padding: 9px 10px;
+                          text-align: left; font-weight: 600; }
+        .boats-table td { padding: 8px 10px; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
+        .boats-table tr:last-child td { border-bottom: none; }
+        .boats-table tr:hover td { background: #f8f9fa; }
+
+        /* ---- status badges ---- */
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
+                        font-size: 12px; font-weight: 600; }
+        .status-activo        { background: #d1e7dd; color: #0f5132; }
+        .status-en-viaje      { background: #cfe2ff; color: #084298; }
+        .status-en-mantenimiento { background: #fff3cd; color: #664d03; }
+        .status-inactivo      { background: #f8d7da; color: #842029; }
+        .status-en-puerto     { background: #e2e3e5; color: #383d41; }
     </style>
 </head>
 <body>
-    <h1>Mapa de Geolocalización GPS</h1>
-    
-    <div>
-        <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+    <div id="app-header-container"></div>
+
+    <div class="page-container">
+
+        <div class="page-header">
+            <button class="btn btn-secondary btn-sm" onclick="location.href='dashboard.html'"><i class="bi bi-arrow-left"></i> Dashboard</button>
+            <h2 class="page-title">Mapa de Geolocalización GPS</h2>
+        </div>
+
+        <div class="search-panel">
+            <div class="controls-row">
+                <button class="btn btn-primary" onclick="loadBoats()"><i class="bi bi-arrow-clockwise"></i> Actualizar Posiciones</button>
+                <button class="btn btn-secondary" onclick="centerMap()">Centrar Mapa</button>
+                <button class="btn btn-secondary" onclick="fitAllBoats()">Ajustar a Todos</button>
+                <button class="btn btn-outline-primary" onclick="togglePorts()"><i class="bi bi-geo-alt"></i> Mostrar/Ocultar Puertos</button>
+                <button class="btn btn-warning" onclick="simulateMovement()"><i class="bi bi-play-fill"></i> Simular Movimiento</button>
+                <label class="auto-label">
+                    <input type="checkbox" id="autoUpdate" onchange="toggleAutoUpdate()"> Actualización Automática
+                </label>
+            </div>
+        </div>
+
+        <div id="map"></div>
+        <div id="mapHint">Barcos activos con posición GPS en tiempo real. Active &ldquo;Simular Movimiento&rdquo; para actualizar rutas dinámicas.</div>
+
+        <div class="info-card">
+            <h4>Barcos en el Sistema (<span id="boatCount">0</span>)</h4>
+            <div id="boatsList"></div>
+        </div>
+
     </div>
-    
-    <br>
-    
-    <div class="controls">
-        <button onclick="loadBoats()"> Actualizar Posiciones</button>
-        <button onclick="centerMap()"> Centrar Mapa</button>
-        <button onclick="fitAllBoats()"> Ajustar a Todos</button>
-        <button onclick="togglePorts()"> Mostrar/Ocultar Puertos</button>
-        <button onclick="simulateMovement()"> Simular Movimiento</button>
-        
-        <label>
-            <input type="checkbox" id="autoUpdate" onchange="toggleAutoUpdate()"> Actualización Automática
-        </label>
-    </div>
-    
-    <div id="map"></div>
-    
-    <div class="boat-list">
-        <h3>Barcos en el Sistema (<span id="boatCount">0</span>)</h3>
-        <div id="boatsList"></div>
-    </div>
-    
+
     <div id="notificationContainer"></div>
     
     <script src="../auth/js/validation.js"></script>
@@ -133,19 +170,42 @@
             const listDiv = document.getElementById('boatsList');
             
             if (boats.length === 0) {
-                listDiv.innerHTML = '<p>No hay barcos disponibles</p>';
+                listDiv.innerHTML = '<p style="color:#6c757d;text-align:center;padding:12px;">No hay barcos disponibles</p>';
                 return;
             }
-            
-            listDiv.innerHTML = boats.map(boat => `
-                <div class="boat-item">
-                    <strong>${boat.nombre}</strong> (${boat.id})<br>
-                    Estado: ${boat.estado} | Velocidad: ${boat.velocidad} nudos<br>
-                    Posición: ${Formatters.formatCoordinates(boat.lat, boat.lng)}<br>
-                    <button onclick="centerOnBoat('${boat.id}', ${boat.lat}, ${boat.lng})">Centrar en Mapa</button>
-                    <button onclick="showBoatDetails('${boat.id}')">Ver Detalles</button>
-                </div>
-            `).join('');
+
+            const statusClass = s => {
+                if (!s) return '';
+                return 'status-' + s.toLowerCase().replace(/\s+/g, '-');
+            };
+
+            listDiv.innerHTML = `
+                <table class="boats-table">
+                    <thead>
+                        <tr>
+                            <th>Barco</th>
+                            <th>Estado</th>
+                            <th>Velocidad</th>
+                            <th>Posición GPS</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${boats.map(boat => `
+                        <tr>
+                            <td><strong>${boat.nombre}</strong><br><small style="color:#6c757d;">${boat.id}</small></td>
+                            <td><span class="status-badge ${statusClass(boat.estado)}">${boat.estado}</span></td>
+                            <td>${boat.velocidad} nudos</td>
+                            <td>${Formatters.formatCoordinates(boat.lat, boat.lng)}</td>
+                            <td style="display:flex;gap:6px;">
+                                <button class="btn btn-sm btn-primary" onclick="centerOnBoat('${boat.id}', ${boat.lat}, ${boat.lng})">Centrar</button>
+                                <button class="btn btn-sm btn-secondary" onclick="showBoatDetails('${boat.id}')">Detalles</button>
+                            </td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
         
         // Centrar mapa

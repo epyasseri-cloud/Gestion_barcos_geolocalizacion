@@ -6,6 +6,7 @@
     <title>Lista de Dueños - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
@@ -134,9 +135,9 @@
                     <td>${owner.pais || '-'}</td>
                     <td>${Formatters.formatDate(owner.fechaRegistro)}</td>
                     <td>
-                        <button class="action-btn" title="Ver detalle" onclick="viewOwner('${owner.id}')">👁</button>
-                        <button class="action-btn" title="Editar" onclick="editOwner('${owner.id}')">✎</button>
-                        <button class="action-btn action-btn-danger" title="Eliminar" onclick="deleteOwner('${owner.id}')">🗑</button>
+                        <button class="action-btn" title="Ver detalle" onclick="viewOwner('${owner.id}')"><i class="bi bi-eye"></i></button>
+                        <button class="action-btn" title="Editar" onclick="editOwner('${owner.id}')"><i class="bi bi-pencil-square"></i></button>
+                        <button class="action-btn action-btn-danger" title="Eliminar" onclick="deleteOwner('${owner.id}')"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
             `).join('');

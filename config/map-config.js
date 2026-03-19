@@ -21,8 +21,8 @@ const MapConfig = {
     },
     
     // Iconos de barcos
-    boatIcon: '🚢',
-    portIcon: '⚓',
+    boatIcon: 'icon-boat',
+    portIcon: 'icon-port',
     
     // Configuración de actualización automática
     autoUpdate: {

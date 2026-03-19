@@ -65,15 +65,15 @@ class TripService {
             const trips = this.getAll();
             
             const newTrip = {
-                id: this.generateId(),
+                id: tripData.id || this.generateId(),
                 barcoId: tripData.barcoId,
                 puertoOrigen: tripData.puertoOrigen,
                 puertoDestino: tripData.puertoDestino,
                 fechaInicio: tripData.fechaInicio || new Date().toISOString(),
-                fechaFin: null,
-                estado: this.TRIP_STATES.EN_CURSO,
+                fechaFin: tripData.fechaFin || null,
+                estado: tripData.estado || this.TRIP_STATES.EN_CURSO,
                 tripulacion: tripData.tripulacion || [],
-                coordenadasRuta: [],
+                coordenadasRuta: tripData.coordenadasRuta || [],
                 observaciones: tripData.observaciones || '',
                 distanciaEstimada: tripData.distanciaEstimada || null,
                 cargaTransportada: tripData.cargaTransportada || [],

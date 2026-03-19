@@ -6,87 +6,118 @@
     <title>Formulario de Barco - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 980px; margin: 0 auto; padding: 2rem; }
+        h1 { color: #0a5f7f; margin-top: 0; }
+        form { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .full { grid-column: 1 / -1; }
+        label { font-weight: 700; color: #264b5d; font-size: 0.92rem; }
+        input, select, textarea { padding: 9px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; width: 100%; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #0a5f7f; box-shadow: 0 0 0 3px rgba(10,95,127,0.1); }
+        textarea { resize: vertical; min-height: 80px; }
+        .toolbar { display: flex; gap: 8px; margin-top: 16px; }
+        button { padding: 8px 14px; border: 0; border-radius: 4px; background-color: #0a5f7f; color: #fff; cursor: pointer; font-size: 0.95rem; }
+        button:hover { background-color: #1a7fa0; }
+        .muted { color: #666; font-size: 0.85rem; }
+        .section-title { font-size: 1rem; font-weight: 700; color: #0a5f7f; margin: 18px 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #e0f0f5; }
+        .error-box { margin-top: 12px; padding: 10px; border-radius: 6px; background: #fee4e2; color: #b42318; display: none; }
+        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body class="crud-page">
-    <div id="navbar"></div>
-    
-    <h1 id="formTitle">Nuevo Barco</h1>
-    
-    <div>
-        <button onclick="location.href='boats-list.html'">← Volver a Lista</button>
+    <div id="app-header-container"></div>
+
+    <div class="container">
+        <h1 id="formTitle">Nuevo Barco</h1>
+
+        <div class="toolbar" style="margin-bottom: 10px;">
+            <button type="button" onclick="location.href='boats-list.html'">← Volver a Lista</button>
+        </div>
+
+        <form id="boatForm">
+            <p class="section-title">Información del Barco</p>
+            <div class="grid">
+                <div class="field">
+                    <label for="nombre">Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Nombre del barco">
+                </div>
+                <div class="field">
+                    <label for="matricula">Matrícula *</label>
+                    <input type="text" id="matricula" name="matricula" required placeholder="Ej: MAT-001">
+                </div>
+                <div class="field">
+                    <label for="bandera">Bandera / País *</label>
+                    <input type="text" id="bandera" name="bandera" required placeholder="Ej: España">
+                </div>
+                <div class="field">
+                    <label for="tipo">Tipo *</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Seleccionar tipo...</option>
+                        <option value="Pesquero">Pesquero</option>
+                        <option value="Carga">Carga</option>
+                        <option value="Pasajeros">Pasajeros</option>
+                        <option value="Tanquero">Tanquero</option>
+                        <option value="Portacontenedores">Portacontenedores</option>
+                        <option value="Turístico">Turístico</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="capacidadToneladas">Capacidad (Toneladas)</label>
+                    <input type="number" id="capacidadToneladas" name="capacidadToneladas" min="0" step="0.01" placeholder="0">
+                </div>
+                <div class="field">
+                    <label for="anoFabricacion">Año de Fabricación</label>
+                    <input type="number" id="anoFabricacion" name="anoFabricacion" min="1900" max="2026" placeholder="Ej: 2018">
+                </div>
+                <div class="field">
+                    <label for="dueñoId">Dueño</label>
+                    <select id="dueñoId" name="dueñoId">
+                        <option value="">Sin dueño asignado</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="Activo">Activo</option>
+                        <option value="En Viaje">En Viaje</option>
+                        <option value="En Mantenimiento">En Mantenimiento</option>
+                        <option value="En Puerto">En Puerto</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+                <div class="field full">
+                    <label for="fechaRegistro">Fecha de Registro</label>
+                    <input type="date" id="fechaRegistro" name="fechaRegistro">
+                </div>
+            </div>
+
+            <p class="section-title">Posición GPS Inicial (Opcional)</p>
+            <div class="grid">
+                <div class="field">
+                    <label for="lat">Latitud</label>
+                    <input type="number" id="lat" name="lat" step="0.000001" min="-90" max="90" value="0">
+                </div>
+                <div class="field">
+                    <label for="lng">Longitud</label>
+                    <input type="number" id="lng" name="lng" step="0.000001" min="-180" max="180" value="0">
+                </div>
+                <div class="field">
+                    <label for="velocidad">Velocidad (nudos)</label>
+                    <input type="number" id="velocidad" name="velocidad" min="0" step="0.1" value="0">
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button type="submit">Guardar Barco</button>
+                <button type="button" onclick="location.href='boats-list.html'">Cancelar</button>
+            </div>
+            <div id="errorBox" class="error-box"></div>
+        </form>
     </div>
-    
-    <br>
-    
-    <form id="boatForm">
-        <fieldset>
-            <legend>Información del Barco</legend>
-            
-            <label>Nombre: *</label><br>
-            <input type="text" id="nombre" name="nombre" required><br><br>
-            
-            <label>Matrícula: *</label><br>
-            <input type="text" id="matricula" name="matricula" required><br><br>
-            
-            <label>Bandera/País: *</label><br>
-            <input type="text" id="bandera" name="bandera" required><br><br>
-            
-            <label>Tipo: *</label><br>
-            <select id="tipo" name="tipo" required>
-                <option value="">Seleccionar tipo...</option>
-                <option value="Pesquero">Pesquero</option>
-                <option value="Carga">Carga</option>
-                <option value="Pasajeros">Pasajeros</option>
-                <option value="Tanquero">Tanquero</option>
-                <option value="Portacontenedores">Portacontenedores</option>
-                <option value="Turístico">Turístico</option>
-            </select><br><br>
-            
-            <label>Capacidad (Toneladas):</label><br>
-            <input type="number" id="capacidadToneladas" name="capacidadToneladas" min="0" step="0.01"><br><br>
-            
-            <label>Año de Fabricación:</label><br>
-            <input type="number" id="anoFabricacion" name="anoFabricacion" min="1900" max="2026"><br><br>
-            
-            <label>Dueño:</label><br>
-            <select id="dueñoId" name="dueñoId">
-                <option value="">Sin dueño asignado</option>
-            </select><br><br>
-            
-            <label>Estado:</label><br>
-            <select id="estado" name="estado">
-                <option value="Activo">Activo</option>
-                <option value="En Viaje">En Viaje</option>
-                <option value="En Mantenimiento">En Mantenimiento</option>
-                <option value="En Puerto">En Puerto</option>
-                <option value="Inactivo">Inactivo</option>
-            </select><br><br>
-            
-            <label>Fecha de Registro:</label><br>
-            <input type="date" id="fechaRegistro" name="fechaRegistro"><br><br>
-        </fieldset>
-        
-        <br>
-        
-        <fieldset>
-            <legend>Posición GPS Inicial (Opcional)</legend>
-            
-            <label>Latitud:</label><br>
-            <input type="number" id="lat" name="lat" step="0.000001" min="-90" max="90" value="0"><br><br>
-            
-            <label>Longitud:</label><br>
-            <input type="number" id="lng" name="lng" step="0.000001" min="-180" max="180" value="0"><br><br>
-            
-            <label>Velocidad (nudos):</label><br>
-            <input type="number" id="velocidad" name="velocidad" min="0" step="0.1" value="0"><br><br>
-        </fieldset>
-        
-        <br>
-        
-        <button type="submit"> Guardar Barco</button>
-        <button type="button" onclick="location.href='boats-list.html'">Cancelar</button>
-    </form>
-    
+
     <div id="notificationContainer"></div>
     
     <script src="../auth/js/validation.js"></script>
