@@ -102,6 +102,10 @@
                             <td>${Formatters.formatCurrency(product.precioUnitario * product.stock)}</td>
                         </tr>
                         <tr>
+                            <td><strong>Bodega:</strong></td>
+                            <td>${product.bodega || 'No asignada'}</td>
+                        </tr>
+                        <tr>
                             <td><strong>Estado:</strong></td>
                             <td><strong>${product.estado}</strong></td>
                         </tr>

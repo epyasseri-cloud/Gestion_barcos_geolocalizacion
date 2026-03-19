@@ -72,6 +72,7 @@ const ProductService = {
             precioUnitario: parseFloat(productData.precioUnitario) || 0,
             stock: parseInt(productData.stock) || 0,
             estado: productData.estado || 'Activo',
+            bodega: productData.bodega || '',
             fechaCreacion: new Date().toISOString()
         };
         
@@ -114,6 +115,7 @@ const ProductService = {
             precioUnitario: parseFloat(productData.precioUnitario) || 0,
             stock: parseInt(productData.stock) || 0,
             estado: productData.estado,
+            bodega: productData.bodega || '',
             fechaModificacion: new Date().toISOString()
         };
         

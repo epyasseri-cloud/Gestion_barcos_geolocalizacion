@@ -73,13 +73,14 @@
                 <th onclick="sortTable('unidadMedida')">Unidad</th>
                 <th onclick="sortTable('precioUnitario')">Precio</th>
                 <th onclick="sortTable('stock')">Stock</th>
+                <th onclick="sortTable('bodega')">Bodega</th>
                 <th onclick="sortTable('estado')">Estado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="productsTable">
             <tr>
-                <td colspan="8" style="text-align: center;">Cargando productos...</td>
+                <td colspan="9" style="text-align: center;">Cargando productos...</td>
             </tr>
         </tbody>
     </table>
@@ -119,7 +120,7 @@
             const tbody = document.getElementById('productsTable');
             
             if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay productos registrados</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay productos registrados</td></tr>';
                 return;
             }
             
@@ -131,6 +132,7 @@
                     <td>${prod.unidadMedida}</td>
                     <td>${Formatters.formatCurrency(prod.precioUnitario)}</td>
                     <td>${prod.stock}</td>
+                    <td>${prod.bodega || '-'}</td>
                     <td>${prod.estado}</td>
                     <td>
                         <button onclick="viewProduct('${prod.id}')">Ver</button>

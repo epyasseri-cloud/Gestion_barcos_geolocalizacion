@@ -53,6 +53,10 @@
             <label>Stock Inicial:</label><br>
             <input type="number" id="stock" name="stock" min="0" value="0"><br><br>
             
+            <label>Bodega:</label><br>
+            <input type="text" id="bodega" name="bodega" placeholder="Ej: BOD001" style="text-transform: uppercase;"><br>
+            <small>(Índice de bodega donde se almacena el producto)</small><br><br>
+
             <label>Estado:</label><br>
             <select id="estado" name="estado">
                 <option value="Activo">Activo</option>
@@ -116,6 +120,7 @@
             document.getElementById('precioUnitario').value = product.precioUnitario || 0;
             document.getElementById('stock').value = product.stock || 0;
             document.getElementById('estado').value = product.estado;
+            document.getElementById('bodega').value = product.bodega || '';
         }
         
         // Manejar envío del formulario
@@ -129,7 +134,8 @@
                 unidadMedida: document.getElementById('unidadMedida').value,
                 precioUnitario: parseFloat(document.getElementById('precioUnitario').value) || 0,
                 stock: parseInt(document.getElementById('stock').value) || 0,
-                estado: document.getElementById('estado').value
+                estado: document.getElementById('estado').value,
+                bodega: document.getElementById('bodega').value.trim().toUpperCase()
             };
             
             // Validaciones adicionales
