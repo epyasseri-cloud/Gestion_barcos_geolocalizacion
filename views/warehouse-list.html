@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos de Bodega - Sistema Geolocalizacion Barcos</title>
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        h1 { color: #0a5f7f; margin-top: 0; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 14px 0; }
+        table { width: 100%; background: white; border-collapse: collapse; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: top; }
+        th { background-color: #0a5f7f; color: white; }
+        button, select, input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #0a5f7f; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #1a7fa0; }
+        .btn-danger { background-color: #b42318; }
+        .btn-danger:hover { background-color: #8b1d13; }
+        .muted { color: #666; }
+        .nowrap { white-space: nowrap; }
+        .obs { max-width: 260px; }
+        .stats { margin: 12px 0; }
+    </style>
+</head>
+<body class="crud-page">
+    <div id="app-header-container"></div>
+
+    <div class="container">
+        <h1>Movimientos de Bodega</h1>
+
+        <div class="toolbar">
+            <button onclick="location.href='dashboard.html'">← Volver al Dashboard</button>
+            <button onclick="location.href='warehouse-form.html'">+ Nuevo movimiento</button>
+            <button onclick="exportJSON()">Exportar JSON</button>
+            <button onclick="exportCSV()">Exportar CSV</button>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Buscar por ID, producto, observaciones...">
+
+            <select id="typeFilter">
+                <option value="">Todos los tipos</option>
+            </select>
+
+            <select id="boatFilter">
+                <option value="">Todos los barcos</option>
+            </select>
+
+            <select id="productFilter">
+                <option value="">Todos los productos</option>
+            </select>
+
+            <input type="date" id="startDate" title="Fecha inicio">
+            <input type="date" id="endDate" title="Fecha fin">
+        </div>
+
+        <div class="toolbar">
+            <button onclick="applyFilters()">Filtrar</button>
+            <button onclick="clearFilters()">Limpiar</button>
+        </div>
+
+        <div class="stats">
+            <strong>Total:</strong> <span id="totalCount">0</span>
+            <span class="muted">| Ingreso: <span id="ingresosCount">0</span> | Egreso: <span id="egresosCount">0</span> | Traslado: <span id="trasladosCount">0</span></span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Barco / Origen / Destino</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Fecha</th>
+                    <th>Responsable</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="movementsTable">
+                <tr><td colspan="10" style="text-align:center;">Cargando movimientos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="notificationContainer"></div>
+
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/product-service.js"></script>
+    <script src="../services/warehouse-service.js"></script>
+
+    <script>
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+
+        if (typeof BoatService.init === 'function') BoatService.init();
+        if (typeof ProductService.init === 'function') ProductService.init();
+
+        let currentMovements = [];
+
+        function summarizeText(text, maxLen) {
+            const value = (text || '').trim();
+            if (value.length <= maxLen) return value || '-';
+            return value.slice(0, maxLen - 1) + '...';
+        }
+
+        function getBoatName(boatId) {
+            if (!boatId) return '-';
+            const boat = BoatService.getById(boatId);
+            return boat ? `${boat.nombre} (${boat.id})` : boatId;
+        }
+
+        function getProductName(productId) {
+            const product = ProductService.getById(productId);
+            return product ? `${product.nombre} (${product.id})` : productId;
+        }
+
+        function getBoatMovementDisplay(mov) {
+            if (mov.tipo === window.WarehouseService.MOVEMENT_TYPES.TRASLADO) {
+                return `${getBoatName(mov.barcoOrigenId)} -> ${getBoatName(mov.barcoDestinoId)}`;
+            }
+            return getBoatName(mov.barcoId);
+        }
+
+        function loadFilterOptions() {
+            const typeFilter = document.getElementById('typeFilter');
+            const boatFilter = document.getElementById('boatFilter');
+            const productFilter = document.getElementById('productFilter');
+
+            Object.values(window.WarehouseService.MOVEMENT_TYPES).forEach(function(type) {
+                const opt = document.createElement('option');
+                opt.value = type;
+                opt.textContent = type;
+                typeFilter.appendChild(opt);
+            });
+
+            BoatService.getAll().forEach(function(boat) {
+                const opt = document.createElement('option');
+                opt.value = boat.id;
+                opt.textContent = `${boat.nombre} (${boat.id})`;
+                boatFilter.appendChild(opt);
+            });
+
+            ProductService.getAll().forEach(function(product) {
+                const opt = document.createElement('option');
+                opt.value = product.id;
+                opt.textContent = `${product.nombre} (${product.id})`;
+                productFilter.appendChild(opt);
+            });
+        }
+
+        function updateStats(movements) {
+            const counts = {
+                Ingreso: 0,
+                Egreso: 0,
+                Traslado: 0
+            };
+
+            movements.forEach(function(mov) {
+                counts[mov.tipo] = (counts[mov.tipo] || 0) + 1;
+            });
+
+            document.getElementById('totalCount').textContent = movements.length;
+            document.getElementById('ingresosCount').textContent = counts.Ingreso;
+            document.getElementById('egresosCount').textContent = counts.Egreso;
+            document.getElementById('trasladosCount').textContent = counts.Traslado;
+        }
+
+        function renderTable(movements) {
+            const tbody = document.getElementById('movementsTable');
+
+            if (!movements.length) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;">No hay movimientos registrados</td></tr>';
+                return;
+            }
+
+            const ordered = window.WarehouseService.sortBy(movements, 'fecha', 'desc');
+
+            tbody.innerHTML = ordered.map(function(mov) {
+                const fecha = mov.fecha ? new Date(mov.fecha).toLocaleString('es-ES') : '-';
+                const responsable = mov.responsableId || '-';
+
+                return `
+                    <tr>
+                        <td class="nowrap">${mov.id}</td>
+                        <td>${mov.tipo}</td>
+                        <td>${getBoatMovementDisplay(mov)}</td>
+                        <td>${getProductName(mov.productoId)}</td>
+                        <td>${mov.cantidad}</td>
+                        <td>${mov.unidad || '-'}</td>
+                        <td class="nowrap">${fecha}</td>
+                        <td>${responsable}</td>
+                        <td class="obs" title="${(mov.observaciones || '').replace(/"/g, '&quot;')}">${summarizeText(mov.observaciones, 45)}</td>
+                        <td class="nowrap">
+                            <button title="Ver detalle" onclick="viewMovement('${mov.id}')">👁</button>
+                            <button title="Editar" onclick="editMovement('${mov.id}')">✎</button>
+                            <button class="btn-danger" title="Eliminar" onclick="deleteMovement('${mov.id}')">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function applyFilters() {
+            const term = document.getElementById('searchInput').value.trim().toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+            const boatId = document.getElementById('boatFilter').value;
+            const productId = document.getElementById('productFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let movements = window.WarehouseService.getAll();
+
+            if (term) {
+                movements = movements.filter(function(mov) {
+                    const haystack = [
+                        mov.id,
+                        mov.tipo,
+                        mov.barcoId,
+                        mov.barcoOrigenId,
+                        mov.barcoDestinoId,
+                        mov.productoId,
+                        mov.responsableId,
+                        mov.observaciones
+                    ].join(' ').toLowerCase();
+                    return haystack.includes(term);
+                });
+            }
+
+            if (type) {
+                movements = movements.filter(function(mov) { return mov.tipo === type; });
+            }
+
+            if (boatId) {
+                movements = movements.filter(function(mov) {
+                    return mov.barcoId === boatId || mov.barcoOrigenId === boatId || mov.barcoDestinoId === boatId;
+                });
+            }
+
+            if (productId) {
+                movements = movements.filter(function(mov) { return mov.productoId === productId; });
+            }
+
+            if (startDate) {
+                const start = new Date(startDate + 'T00:00:00');
+                movements = movements.filter(function(mov) { return new Date(mov.fecha) >= start; });
+            }
+
+            if (endDate) {
+                const end = new Date(endDate + 'T23:59:59');
+                movements = movements.filter(function(mov) { return new Date(mov.fecha) <= end; });
+            }
+
+            currentMovements = movements;
+            renderTable(movements);
+            updateStats(movements);
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('boatFilter').value = '';
+            document.getElementById('productFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            loadMovements();
+        }
+
+        function loadMovements() {
+            const movements = window.WarehouseService.getAll();
+            currentMovements = movements;
+            renderTable(movements);
+            updateStats(movements);
+        }
+
+        function viewMovement(id) {
+            window.location.href = `warehouse-detail.html?id=${id}`;
+        }
+
+        function editMovement(id) {
+            window.location.href = `warehouse-form.html?id=${id}`;
+        }
+
+        function deleteMovement(id) {
+            const movement = window.WarehouseService.getById(id);
+            if (!movement) {
+                Notification.error('Movimiento no encontrado');
+                return;
+            }
+
+            if (!confirm(`¿Eliminar movimiento ${id}?`)) return;
+
+            const result = window.WarehouseService.delete(id);
+            if (result.success) {
+                Notification.success('Movimiento eliminado');
+                loadMovements();
+            } else {
+                Notification.error(result.error || 'No se pudo eliminar');
+            }
+        }
+
+        function exportJSON() {
+            const json = window.WarehouseService.exportJSON(currentMovements);
+            const stamp = new Date().toISOString().slice(0, 10);
+            Helpers.downloadFile(json, `movimientos_bodega_${stamp}.json`, 'application/json');
+            Notification.success('Exportacion JSON generada');
+        }
+
+        function exportCSV() {
+            const csv = window.WarehouseService.exportCSV(currentMovements);
+            if (!csv) {
+                Notification.error('No hay datos para exportar');
+                return;
+            }
+            const stamp = new Date().toISOString().slice(0, 10);
+            Helpers.downloadFile(csv, `movimientos_bodega_${stamp}.csv`, 'text/csv');
+            Notification.success('Exportacion CSV generada');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFilterOptions();
+            loadMovements();
+
+            document.getElementById('searchInput').addEventListener('input', function() {
+                if (this.value.length >= 2 || this.value.length === 0) {
+                    applyFilters();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

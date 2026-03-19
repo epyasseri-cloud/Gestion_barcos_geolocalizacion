@@ -134,9 +134,13 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
-            <div class="quick-actions" id="quickActions"></div>
+            <!-- Data Management -->
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"><i class="fas fa-database"></i> Gestión de datos</h3>
+            <div class="quick-actions" id="managementActions"></div>
+
+            <!-- Data Query -->
+            <h3 style="margin-bottom: 1rem; margin-top: 2rem;"><i class="fas fa-search"></i> Consulta de datos</h3>
+            <div class="quick-actions" id="queryActions"></div>
 
             <!-- Notification History -->
             <div style="margin-top: 2rem;">
@@ -188,54 +192,57 @@
         
         // Cargar acciones rápidas según el rol
         function loadQuickActions(role) {
-            const actionsDiv = document.getElementById('quickActions');
-            
-            const actions = [
+            const managementDiv = document.getElementById('managementActions');
+            const queryDiv = document.getElementById('queryActions');
+
+            const managementActions = [
                 { icon: '<i class="fas fa-user-tie"></i>', title: 'Gestionar Dueños', description: 'Ver y administrar dueños de barcos', link: 'owners-list.html' },
                 { icon: '<i class="fas fa-ship"></i>', title: 'Gestionar Barcos', description: 'Ver y administrar flota de barcos', link: 'boats-list.html' },
                 { icon: '<i class="fas fa-users"></i>', title: 'Gestionar Empleados', description: 'Ver y administrar tripulaciones', link: 'employees-list.html' },
                 { icon: '<i class="fas fa-boxes"></i>', title: 'Gestionar Productos', description: 'Ver y administrar inventario de productos', link: 'products-list.html' },
                 { icon: '<i class="fas fa-route"></i>', title: 'Gestión de Viajes', description: 'Iniciar y monitorear viajes', link: 'trips-list.html' },
+                { icon: '<i class="fas fa-warehouse"></i>', title: 'Gestor de bodega', description: 'Registrar y consultar movimientos de bodega', link: 'warehouse-list.html' }
+            ];
+
+            const queryActions = [
                 { icon: '<i class="fas fa-chart-bar"></i>', title: 'Disponibilidad', description: 'Consultar productos por bandera', link: 'product-availability.html' },
                 { icon: '<i class="fas fa-chart-pie"></i>', title: 'Estadísticas', description: 'Ver reportes y estadísticas de viajes', link: 'trip-statistics.html' },
                 { icon: '<i class="fas fa-map-marked-alt"></i>', title: 'Mapa GPS', description: 'Ver ubicación en tiempo real', link: 'map-view.html' },
                 { icon: '<i class="fas fa-search-location"></i>', title: 'Barco Cercano', description: 'Localizar barco más cercano', link: 'nearest-boat-finder.html' }
             ];
+
+            const renderActions = (items) => items.map(action => `
+                <a href="${action.link}" class="action-card">
+                    <div class="action-icon">${action.icon}</div>
+                    <div class="action-title">${action.title}</div>
+                    <div class="action-description">${action.description}</div>
+                </a>
+            `).join('');
             
-            let actionsHTML = '';
+            let managementItems = [];
+            let queryItems = [];
             
             if (role === 'admin') {
                 // Admin ve todas las acciones
-                actionsHTML = actions.map(action => `
-                    <a href="${action.link}" class="action-card">
-                        <div class="action-icon">${action.icon}</div>
-                        <div class="action-title">${action.title}</div>
-                        <div class="action-description">${action.description}</div>
-                    </a>
-                `).join('');
+                managementItems = managementActions;
+                queryItems = queryActions;
             } else if (role === 'gerente_operaciones') {
-                // Gerente de operaciones ve viajes, disponibilidad, estadísticas y mapa
-                const managerActions = [actions[4], actions[5], actions[6], actions[7], actions[8]];
-                actionsHTML = managerActions.map(action => `
-                    <a href="${action.link}" class="action-card">
-                        <div class="action-icon">${action.icon}</div>
-                        <div class="action-title">${action.title}</div>
-                        <div class="action-description">${action.description}</div>
-                    </a>
-                `).join('');
+                // Gerente de operaciones ve solo gestión operativa y consultas
+                managementItems = [managementActions[4], managementActions[5]];
+                queryItems = queryActions;
             } else {
-                // Usuario regular solo ve mapa y barco cercano
-                const userActions = [actions[7], actions[8]];
-                actionsHTML = userActions.map(action => `
-                    <a href="${action.link}" class="action-card">
-                        <div class="action-icon">${action.icon}</div>
-                        <div class="action-title">${action.title}</div>
-                        <div class="action-description">${action.description}</div>
-                    </a>
-                `).join('');
+                // Usuario regular solo ve consultas de ubicación
+                managementItems = [];
+                queryItems = [queryActions[2], queryActions[3]];
             }
-            
-            actionsDiv.innerHTML = actionsHTML;
+
+            managementDiv.innerHTML = managementItems.length > 0
+                ? renderActions(managementItems)
+                : '<p class="action-description">No tienes acciones de gestión disponibles.</p>';
+
+            queryDiv.innerHTML = queryItems.length > 0
+                ? renderActions(queryItems)
+                : '<p class="action-description">No tienes consultas disponibles.</p>';
         }
         
         // Cargar estadísticas del sistema

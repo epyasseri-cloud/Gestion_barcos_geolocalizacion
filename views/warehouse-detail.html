@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Movimiento - Sistema Geolocalizacion Barcos</title>
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 980px; margin: 0 auto; padding: 2rem; }
+        h1 { color: #0a5f7f; margin-top: 0; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+        button { padding: 8px; border: 0; border-radius: 4px; background-color: #0a5f7f; color: #fff; cursor: pointer; }
+        button:hover { background-color: #1a7fa0; }
+        .btn-danger { background-color: #b42318; }
+        .btn-danger:hover { background-color: #8b1d13; }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 1rem; margin-top: 1rem; }
+        .grid { display: grid; grid-template-columns: 220px 1fr; gap: 8px 12px; }
+        .label { color: #264b5d; font-weight: 700; }
+        .value { color: #1d1d1d; word-break: break-word; }
+    </style>
+</head>
+<body class="crud-page">
+    <div id="app-header-container"></div>
+
+    <div class="container">
+        <h1>Detalle de Movimiento de Bodega</h1>
+
+        <div class="toolbar">
+            <button onclick="location.href='warehouse-list.html'">← Volver al listado</button>
+            <button onclick="goToEdit()">Editar</button>
+            <button class="btn-danger" onclick="deleteMovement()">Eliminar</button>
+        </div>
+
+        <div id="detailCard" class="card">
+            Cargando movimiento...
+        </div>
+    </div>
+
+    <div id="notificationContainer"></div>
+
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/product-service.js"></script>
+    <script src="../services/warehouse-service.js"></script>
+
+    <script>
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+
+        if (typeof BoatService.init === 'function') BoatService.init();
+        if (typeof ProductService.init === 'function') ProductService.init();
+
+        const params = new URLSearchParams(window.location.search);
+        const movementId = params.get('id');
+
+        function getBoatName(boatId) {
+            if (!boatId) return '-';
+            const boat = BoatService.getById(boatId);
+            return boat ? `${boat.nombre} (${boat.id})` : boatId;
+        }
+
+        function getProductName(productId) {
+            const product = ProductService.getById(productId);
+            return product ? `${product.nombre} (${product.id})` : productId;
+        }
+
+        function renderDetail(mov) {
+            const fecha = mov.fecha ? new Date(mov.fecha).toLocaleString('es-ES') : '-';
+            const createdAt = mov.createdAt ? new Date(mov.createdAt).toLocaleString('es-ES') : '-';
+            const updatedAt = mov.updatedAt ? new Date(mov.updatedAt).toLocaleString('es-ES') : '-';
+
+            let barcosInvolucrados = getBoatName(mov.barcoId);
+            if (mov.tipo === window.WarehouseService.MOVEMENT_TYPES.TRASLADO) {
+                barcosInvolucrados = `${getBoatName(mov.barcoOrigenId)} -> ${getBoatName(mov.barcoDestinoId)}`;
+            }
+
+            document.getElementById('detailCard').innerHTML = `
+                <div class="grid">
+                    <div class="label">ID</div><div class="value">${mov.id}</div>
+                    <div class="label">Tipo</div><div class="value">${mov.tipo}</div>
+                    <div class="label">Barco(s) involucrado(s)</div><div class="value">${barcosInvolucrados}</div>
+                    <div class="label">Producto</div><div class="value">${getProductName(mov.productoId)}</div>
+                    <div class="label">Cantidad</div><div class="value">${mov.cantidad}</div>
+                    <div class="label">Unidad</div><div class="value">${mov.unidad || '-'}</div>
+                    <div class="label">Fecha del movimiento</div><div class="value">${fecha}</div>
+                    <div class="label">Responsable</div><div class="value">${mov.responsableId || '-'}</div>
+                    <div class="label">Observaciones</div><div class="value">${mov.observaciones || '-'}</div>
+                    <div class="label">Creado</div><div class="value">${createdAt}</div>
+                    <div class="label">Actualizado</div><div class="value">${updatedAt}</div>
+                </div>
+            `;
+        }
+
+        function loadDetail() {
+            if (!movementId) {
+                Notification.error('ID de movimiento no especificado');
+                setTimeout(function() { window.location.href = 'warehouse-list.html'; }, 1200);
+                return;
+            }
+
+            const movement = window.WarehouseService.getById(movementId);
+            if (!movement) {
+                document.getElementById('detailCard').textContent = 'Movimiento no encontrado';
+                Notification.error('Movimiento no encontrado');
+                return;
+            }
+
+            renderDetail(movement);
+        }
+
+        function goToEdit() {
+            if (!movementId) return;
+            window.location.href = `warehouse-form.html?id=${movementId}`;
+        }
+
+        function deleteMovement() {
+            if (!movementId) return;
+            if (!confirm(`¿Eliminar movimiento ${movementId}?`)) return;
+
+            const result = window.WarehouseService.delete(movementId);
+            if (result.success) {
+                Notification.success('Movimiento eliminado');
+                setTimeout(function() { window.location.href = 'warehouse-list.html'; }, 800);
+            } else {
+                Notification.error(result.error || 'No se pudo eliminar');
+            }
+        }
+
+        loadDetail();
+    </script>
+</body>
+</html>

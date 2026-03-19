@@ -19,7 +19,7 @@ const Sidebar = {
             ],
             supervisor: [
                 { id: 'products', label: 'Productos', url: 'products-list.html' },
-                { id: 'warehouse', label: 'Bodega', url: 'warehouse-movements.html' },
+                { id: 'warehouse', label: 'Bodega', url: 'warehouse-list.html' },
                 { id: 'inventory', label: 'Inventario', url: 'inventory-view.html' }
             ],
             gerente_operaciones: [

@@ -64,12 +64,13 @@ const AppHeader = {
     getNavItems: function() {
         return [
             { id: 'dashboard', label: 'Dashboard', href: 'dashboard.html' },
-            { id: 'boats', label: 'Barcos', href: 'boats-list.html' },
             { id: 'map', label: 'Mapa GPS', href: 'map-view.html' },
-            { id: 'trips', label: 'Viajes', href: 'trips-list.html' },
+            { id: 'boats', label: 'Barcos', href: 'boats-list.html' },
+            { id: 'warehouse', label: 'Bodega', href: 'warehouse-list.html' },
             { id: 'employees', label: 'Empleados', href: 'employees-list.html' },
+            { id: 'products', label: 'Productos', href: 'products-list.html' },
             { id: 'owners', label: 'Propietarios', href: 'owners-list.html' },
-            { id: 'products', label: 'Productos', href: 'products-list.html' }
+            { id: 'trips', label: 'Viajes', href: 'trips-list.html' }
         ];
     },
 

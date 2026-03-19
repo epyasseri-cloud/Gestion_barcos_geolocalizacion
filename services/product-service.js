@@ -14,7 +14,22 @@ const ProductService = {
     // Inicializar con datos mock
     init: function() {
         const existing = localStorage.getItem(this.storageKey);
-        const needsReload = !existing || JSON.parse(existing).some(p => p.bodega === undefined);
+        const needsReload = !existing;
+
+        if (existing) {
+            try {
+                const parsed = JSON.parse(existing);
+                if (Array.isArray(parsed) && parsed.some(p => Object.prototype.hasOwnProperty.call(p, 'bodega'))) {
+                    const cleaned = parsed.map(function(product) {
+                        const { bodega, ...rest } = product;
+                        return rest;
+                    });
+                    localStorage.setItem(this.storageKey, JSON.stringify(cleaned));
+                }
+            } catch (error) {
+                console.error('Error parsing existing products data:', error);
+            }
+        }
 
         if (needsReload) {
             fetch('../data/products-mock.json')
@@ -78,7 +93,6 @@ const ProductService = {
             precioUnitario: parseFloat(productData.precioUnitario) || 0,
             stock: parseInt(productData.stock) || 0,
             estado: productData.estado || 'Activo',
-            bodega: productData.bodega || '',
             fechaCreacion: new Date().toISOString()
         };
         
@@ -121,7 +135,6 @@ const ProductService = {
             precioUnitario: parseFloat(productData.precioUnitario) || 0,
             stock: parseInt(productData.stock) || 0,
             estado: productData.estado,
-            bodega: productData.bodega || '',
             fechaModificacion: new Date().toISOString()
         };
         

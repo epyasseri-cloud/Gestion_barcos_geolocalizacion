@@ -13,6 +13,7 @@ class WarehouseService {
             TRASLADO: 'Traslado'
         };
         this.initializeStorage();
+        this.seedInitialData();
     }
 
     /**
@@ -22,6 +23,114 @@ class WarehouseService {
         if (!localStorage.getItem(this.storageKey)) {
             localStorage.setItem(this.storageKey, JSON.stringify([]));
         }
+    }
+
+    /**
+     * Siembra movimientos iniciales si no hay datos.
+     * No sobreescribe movimientos existentes del usuario.
+     */
+    seedInitialData() {
+        const existing = this.getAll();
+        if (existing.length > 0) return;
+
+        const now = new Date();
+        const toIso = function(date) { return date.toISOString(); };
+        const daysAgo = function(days) {
+            const d = new Date(now);
+            d.setDate(d.getDate() - days);
+            return d;
+        };
+
+        const mock = [
+            {
+                id: 'MOV00001',
+                barcoId: 'B001',
+                productoId: 'PROD001',
+                tipo: this.MOVEMENT_TYPES.INGRESO,
+                cantidad: 150,
+                unidad: this.getProductUnit('PROD001'),
+                fecha: toIso(daysAgo(7)),
+                responsableId: 'EMP001',
+                observaciones: 'Ingreso inicial de stock para zarpe.',
+                barcoOrigenId: null,
+                barcoDestinoId: null,
+                createdAt: toIso(daysAgo(7)),
+                updatedAt: toIso(daysAgo(7))
+            },
+            {
+                id: 'MOV00002',
+                barcoId: 'B002',
+                productoId: 'PROD002',
+                tipo: this.MOVEMENT_TYPES.INGRESO,
+                cantidad: 320,
+                unidad: this.getProductUnit('PROD002'),
+                fecha: toIso(daysAgo(6)),
+                responsableId: 'EMP002',
+                observaciones: 'Reposicion de bodega en puerto.',
+                barcoOrigenId: null,
+                barcoDestinoId: null,
+                createdAt: toIso(daysAgo(6)),
+                updatedAt: toIso(daysAgo(6))
+            },
+            {
+                id: 'MOV00003',
+                barcoId: 'B001',
+                productoId: 'PROD001',
+                tipo: this.MOVEMENT_TYPES.EGRESO,
+                cantidad: 45,
+                unidad: this.getProductUnit('PROD001'),
+                fecha: toIso(daysAgo(4)),
+                responsableId: 'EMP003',
+                observaciones: 'Consumo durante operacion en ruta.',
+                barcoOrigenId: null,
+                barcoDestinoId: null,
+                createdAt: toIso(daysAgo(4)),
+                updatedAt: toIso(daysAgo(4))
+            },
+            {
+                id: 'MOV00004',
+                barcoId: null,
+                productoId: 'PROD003',
+                tipo: this.MOVEMENT_TYPES.TRASLADO,
+                cantidad: 80,
+                unidad: this.getProductUnit('PROD003'),
+                fecha: toIso(daysAgo(3)),
+                responsableId: 'EMP004',
+                observaciones: 'Traslado entre barcos por balance de carga.',
+                barcoOrigenId: 'B003',
+                barcoDestinoId: 'B004',
+                createdAt: toIso(daysAgo(3)),
+                updatedAt: toIso(daysAgo(3))
+            },
+            {
+                id: 'MOV00005',
+                barcoId: 'B005',
+                productoId: 'PROD004',
+                tipo: this.MOVEMENT_TYPES.EGRESO,
+                cantidad: 25,
+                unidad: this.getProductUnit('PROD004'),
+                fecha: toIso(daysAgo(1)),
+                responsableId: 'EMP005',
+                observaciones: 'Entrega parcial en puerto de destino.',
+                barcoOrigenId: null,
+                barcoDestinoId: null,
+                createdAt: toIso(daysAgo(1)),
+                updatedAt: toIso(daysAgo(1))
+            }
+        ];
+
+        localStorage.setItem(this.storageKey, JSON.stringify(mock));
+    }
+
+    /**
+     * Obtiene unidad desde ProductService cuando este disponible.
+     */
+    getProductUnit(productoId) {
+        if (window.ProductService && typeof window.ProductService.getById === 'function') {
+            const product = window.ProductService.getById(productoId);
+            if (product && product.unidadMedida) return product.unidadMedida;
+        }
+        return 'Unidad';
     }
 
     /**

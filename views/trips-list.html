@@ -6,6 +6,7 @@
     <title>Gestión de Viajes - Sistema de Barcos</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <style>
         .filters-section {
@@ -134,7 +135,7 @@
         }
     </style>
 </head>
-<body>
+<body class="crud-page">
     <div id="app-header-container"></div>
     <main class="main-content">
             <header class="content-header">
@@ -343,11 +344,11 @@
                 const estadoClass = `status-${trip.estado.toLowerCase().replace(' ', '-')}`;
 
                 // Botones de acción según estado
-                let actionButtons = `<button class="actions-btn btn-view" onclick="viewTrip('${trip.id}')">Ver</button>`;
+                let actionButtons = `<button class="actions-btn btn-view" title="Ver detalle" onclick="viewTrip('${trip.id}')">👁</button>`;
                 
                 if (trip.estado === 'En curso') {
-                    actionButtons += `<button class="actions-btn btn-end" onclick="endTrip('${trip.id}')">Finalizar</button>`;
-                    actionButtons += `<button class="actions-btn btn-cancel" onclick="cancelTrip('${trip.id}')">Cancelar</button>`;
+                    actionButtons += `<button class="actions-btn btn-end" title="Finalizar" onclick="endTrip('${trip.id}')">✓</button>`;
+                    actionButtons += `<button class="actions-btn btn-cancel" title="Cancelar" onclick="cancelTrip('${trip.id}')">✖</button>`;
                 }
 
                 return `

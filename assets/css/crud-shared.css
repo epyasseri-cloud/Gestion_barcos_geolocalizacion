@@ -1,0 +1,111 @@
+/* Shared visual system for CRUD-style views (list/detail/form). */
+
+.crud-page {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.crud-page .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.crud-page h1 {
+    color: #0a5f7f;
+    margin-top: 0;
+}
+
+.crud-page .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.crud-page table {
+    width: 100%;
+    background: #fff;
+    border-collapse: collapse;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.crud-page th,
+.crud-page td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.crud-page th {
+    background-color: #0a5f7f;
+    color: #fff;
+}
+
+.crud-page button,
+.crud-page select,
+.crud-page input,
+.crud-page textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.crud-page button {
+    background-color: #0a5f7f;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.crud-page button:hover {
+    background-color: #1a7fa0;
+}
+
+.crud-page .action-btn {
+    padding: 6px 8px;
+    margin: 0 2px;
+    min-width: 32px;
+}
+
+.crud-page .action-btn-danger,
+.crud-page .btn-danger {
+    background-color: #b42318;
+}
+
+.crud-page .action-btn-danger:hover,
+.crud-page .btn-danger:hover {
+    background-color: #8b1d13;
+}
+
+.crud-page .card,
+.crud-page form {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.crud-page .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.crud-page .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crud-page .full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 800px) {
+    .crud-page .grid {
+        grid-template-columns: 1fr;
+    }
+}

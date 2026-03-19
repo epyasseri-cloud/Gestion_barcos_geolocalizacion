@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Barcos - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
         .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
@@ -16,9 +17,12 @@
         button { background-color: #0a5f7f; color: white; padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; margin: 5px 2px; }
         button:hover { background-color: #1a7fa0; }
         select, input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .action-btn { padding: 6px 8px; margin: 0 2px; min-width: 32px; }
+        .action-btn-danger { background-color: #b42318; }
+        .action-btn-danger:hover { background-color: #8b1d13; }
     </style>
 </head>
-<body>
+<body class="crud-page">
     <div id="app-header-container"></div>
     
     <div class="container">
@@ -147,9 +151,9 @@
                         <td>${boat.estado}</td>
                         <td>${ownerName}</td>
                         <td>
-                            <button onclick="viewBoat('${boat.id}')">Ver</button>
-                            <button onclick="editBoat('${boat.id}')">Editar</button>
-                            <button onclick="deleteBoat('${boat.id}')">Eliminar</button>
+                            <button class="action-btn" title="Ver detalle" onclick="viewBoat('${boat.id}')">👁</button>
+                            <button class="action-btn" title="Editar" onclick="editBoat('${boat.id}')">✎</button>
+                            <button class="action-btn action-btn-danger" title="Eliminar" onclick="deleteBoat('${boat.id}')">🗑</button>
                         </td>
                     </tr>
                 `;

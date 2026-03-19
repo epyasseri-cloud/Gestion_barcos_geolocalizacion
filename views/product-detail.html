@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Producto - Sistema Geolocalización Barcos</title>
     <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
 </head>
-<body>
+<body class="crud-page">
     <div id="navbar"></div>
     
     <h1>Detalle del Producto</h1>
@@ -102,10 +103,6 @@
                             <td>${Formatters.formatCurrency(product.precioUnitario * product.stock)}</td>
                         </tr>
                         <tr>
-                            <td><strong>Bodega:</strong></td>
-                            <td>${product.bodega || 'No asignada'}</td>
-                        </tr>
-                        <tr>
                             <td><strong>Estado:</strong></td>
                             <td><strong>${product.estado}</strong></td>
                         </tr>
@@ -119,9 +116,9 @@
                     <label>Cantidad: </label>
                     <input type="number" id="stockQuantity" min="0" value="10" style="width: 100px;">
                     
-                    <button onclick="updateStock('add')">➕ Agregar Stock</button>
-                    <button onclick="updateStock('subtract')">➖ Restar Stock</button>
-                    <button onclick="updateStock('set')">🔄 Establecer Stock</button>
+                    <button onclick="updateStock('add')"> Agregar Stock</button>
+                    <button onclick="updateStock('subtract')"> Restar Stock</button>
+                    <button onclick="updateStock('set')"> Establecer Stock</button>
                 </fieldset>
             `;
             

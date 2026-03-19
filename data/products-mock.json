@@ -7,8 +7,7 @@
     "unidadMedida": "Unidades",
     "precioUnitario": 500.00,
     "stock": 60,
-    "estado": "Activo",
-    "bodega": "BOD001"
+    "estado": "Activo"
   },
   {
     "id": "PROD002",
@@ -18,8 +17,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 12.50,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD002"
+    "estado": "Activo"
   },
   {
     "id": "PROD003",
@@ -29,8 +27,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 18.75,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD003"
+    "estado": "Activo"
   },
   {
     "id": "PROD004",
@@ -40,8 +37,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 15.00,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD004"
+    "estado": "Activo"
   },
   {
     "id": "PROD005",
@@ -51,8 +47,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 8.50,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD005"
+    "estado": "Activo"
   },
   {
     "id": "PROD006",
@@ -62,8 +57,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 10.25,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD006"
+    "estado": "Activo"
   },
   {
     "id": "PROD007",
@@ -73,8 +67,7 @@
     "unidadMedida": "Paquete",
     "precioUnitario": 25.00,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD007"
+    "estado": "Activo"
   },
   {
     "id": "PROD008",
@@ -84,8 +77,7 @@
     "unidadMedida": "Caja",
     "precioUnitario": 45.00,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD008"
+    "estado": "Activo"
   },
   {
     "id": "PROD009",
@@ -95,8 +87,7 @@
     "unidadMedida": "Lata",
     "precioUnitario": 2.75,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD009"
+    "estado": "Activo"
   },
   {
     "id": "PROD010",
@@ -106,8 +97,7 @@
     "unidadMedida": "Kg",
     "precioUnitario": 45.00,
     "stock": 0,
-    "estado": "Activo",
-    "bodega": "BOD010"
+    "estado": "Activo"
   },
   {
     "id": "PROD011",
@@ -117,7 +107,6 @@
     "unidadMedida": "Kg",
     "precioUnitario": 22.00,
     "stock": 0,
-    "estado": "Inactivo",
-    "bodega": "BOD011"
+    "estado": "Inactivo"
   }
 ]

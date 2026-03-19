@@ -7,6 +7,7 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="../assets/css/header.css" />
+    <link rel="stylesheet" href="../assets/css/crud-shared.css" />
     
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
@@ -23,7 +24,7 @@
         button:hover { background-color: #1a7fa0; }
     </style>
 </head>
-<body>
+<body class="crud-page">
     <script src="../assets/js/header.js"></script>
     <div id="app-header-container"></div>
     
@@ -67,9 +68,6 @@
         if (!Session.isActive()) {
             window.location.href = '../auth/views/login.html';
         }
-        
-        // Cargar componentes
-        Navbar.render('navbar');
         
         // Obtener ID de barco desde URL
         const urlParams = new URLSearchParams(window.location.search);

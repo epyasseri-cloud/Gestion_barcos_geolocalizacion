@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Movimiento - Sistema Geolocalizacion Barcos</title>
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 980px; margin: 0 auto; padding: 2rem; }
+        h1 { color: #0a5f7f; margin-top: 0; }
+        form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .full { grid-column: 1 / -1; }
+        label { font-weight: 700; color: #264b5d; }
+        input, select, textarea { padding: 9px; border: 1px solid #ddd; border-radius: 4px; }
+        textarea { resize: vertical; min-height: 90px; }
+        .toolbar { display: flex; gap: 8px; margin-top: 14px; }
+        button { padding: 8px 12px; border: 0; border-radius: 4px; background-color: #0a5f7f; color: #fff; cursor: pointer; }
+        button:hover { background-color: #1a7fa0; }
+        .muted { color: #666; font-size: 0.9rem; }
+        .hidden { display: none; }
+        .error-box { margin-top: 12px; padding: 10px; border-radius: 6px; background: #fee4e2; color: #b42318; display: none; }
+        @media (max-width: 800px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="crud-page">
+    <div id="app-header-container"></div>
+
+    <div class="container">
+        <h1 id="formTitle">Nuevo Movimiento de Bodega</h1>
+
+        <div class="toolbar" style="margin-bottom: 10px;">
+            <button type="button" onclick="location.href='warehouse-list.html'">← Volver al listado</button>
+        </div>
+
+        <form id="movementForm">
+            <div class="grid">
+                <div class="field">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" required>
+                        <option value="">Seleccionar tipo...</option>
+                    </select>
+                </div>
+
+                <div class="field" id="singleBoatField">
+                    <label for="barcoId">Barco</label>
+                    <select id="barcoId">
+                        <option value="">Seleccionar barco...</option>
+                    </select>
+                </div>
+
+                <div class="field hidden" id="originBoatField">
+                    <label for="barcoOrigenId">Barco origen</label>
+                    <select id="barcoOrigenId">
+                        <option value="">Seleccionar barco origen...</option>
+                    </select>
+                </div>
+
+                <div class="field hidden" id="destinationBoatField">
+                    <label for="barcoDestinoId">Barco destino</label>
+                    <select id="barcoDestinoId">
+                        <option value="">Seleccionar barco destino...</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="productoId">Producto</label>
+                    <select id="productoId" required>
+                        <option value="">Seleccionar producto...</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="cantidad">Cantidad</label>
+                    <input type="number" id="cantidad" min="0.0001" step="any" required>
+                </div>
+
+                <div class="field">
+                    <label for="unidad">Unidad</label>
+                    <select id="unidad" required>
+                        <option value="">Seleccionar unidad...</option>
+                    </select>
+                    <span class="muted">Se puede cambiar en edición si aplica.</span>
+                </div>
+
+                <div class="field">
+                    <label for="fecha">Fecha</label>
+                    <input type="datetime-local" id="fecha" required>
+                </div>
+
+                <div class="field full">
+                    <label for="responsableId">Responsable</label>
+                    <input type="text" id="responsableId" placeholder="Ej: EMP001 o nombre del responsable" required>
+                    <span class="muted">Puedes escribir ID o nombre.</span>
+                </div>
+
+                <div class="field full">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea id="observaciones" placeholder="Notas adicionales..."></textarea>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button type="submit">Guardar</button>
+                <button type="button" onclick="location.href='warehouse-list.html'">Cancelar</button>
+            </div>
+
+            <div id="errorBox" class="error-box"></div>
+        </form>
+    </div>
+
+    <div id="notificationContainer"></div>
+
+    <script src="../auth/js/validation.js"></script>
+    <script src="../auth/js/session.js"></script>
+    <script src="../auth/js/auth.js"></script>
+    <script src="../assets/js/header.js"></script>
+    <script src="../components/notification.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../utils/helpers.js"></script>
+    <script src="../utils/formatters.js"></script>
+    <script src="../services/boat-service.js"></script>
+    <script src="../services/product-service.js"></script>
+    <script src="../services/employee-service.js"></script>
+    <script src="../services/warehouse-service.js"></script>
+
+    <script>
+        if (!Session.isActive()) {
+            window.location.href = '../auth/views/login.html';
+        }
+
+        if (typeof BoatService.init === 'function') BoatService.init();
+        if (typeof ProductService.init === 'function') ProductService.init();
+        if (typeof EmployeeService.init === 'function') EmployeeService.init();
+
+        const params = new URLSearchParams(window.location.search);
+        const movementId = params.get('id');
+        const isEditMode = !!movementId;
+
+        function showError(message) {
+            const box = document.getElementById('errorBox');
+            box.textContent = message;
+            box.style.display = 'block';
+        }
+
+        function clearError() {
+            const box = document.getElementById('errorBox');
+            box.style.display = 'none';
+            box.textContent = '';
+        }
+
+        function toDateTimeLocalValue(isoString) {
+            if (!isoString) return '';
+            const d = new Date(isoString);
+            if (Number.isNaN(d.getTime())) return '';
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function populateTypeOptions() {
+            const typeSelect = document.getElementById('tipo');
+            Object.values(window.WarehouseService.MOVEMENT_TYPES).forEach(function(type) {
+                const opt = document.createElement('option');
+                opt.value = type;
+                opt.textContent = type;
+                typeSelect.appendChild(opt);
+            });
+        }
+
+        function populateBoatOptions() {
+            const boats = BoatService.getAll();
+            const ids = ['barcoId', 'barcoOrigenId', 'barcoDestinoId'];
+
+            ids.forEach(function(selectId) {
+                const select = document.getElementById(selectId);
+                boats.forEach(function(boat) {
+                    const opt = document.createElement('option');
+                    opt.value = boat.id;
+                    opt.textContent = `${boat.nombre} (${boat.id})`;
+                    select.appendChild(opt);
+                });
+            });
+        }
+
+        function populateProductOptions() {
+            const select = document.getElementById('productoId');
+            ProductService.getAll().forEach(function(product) {
+                const opt = document.createElement('option');
+                opt.value = product.id;
+                opt.textContent = `${product.nombre} (${product.id})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function populateUnitOptions() {
+            const select = document.getElementById('unidad');
+            const units = (window.ProductService && Array.isArray(window.ProductService.UNITS))
+                ? window.ProductService.UNITS
+                : ['Kg', 'Ton', 'Lata', 'Caja', 'Paquete', 'Unidad', 'Litro'];
+
+            units.forEach(function(unit) {
+                const opt = document.createElement('option');
+                opt.value = unit;
+                opt.textContent = unit;
+                select.appendChild(opt);
+            });
+        }
+
+        function toggleTypeFields() {
+            const type = document.getElementById('tipo').value;
+            const isTraslado = type === window.WarehouseService.MOVEMENT_TYPES.TRASLADO;
+
+            document.getElementById('singleBoatField').classList.toggle('hidden', isTraslado);
+            document.getElementById('originBoatField').classList.toggle('hidden', !isTraslado);
+            document.getElementById('destinationBoatField').classList.toggle('hidden', !isTraslado);
+
+            if (isTraslado) {
+                document.getElementById('barcoId').value = '';
+            } else {
+                document.getElementById('barcoOrigenId').value = '';
+                document.getElementById('barcoDestinoId').value = '';
+            }
+        }
+
+        function loadEditData() {
+            if (!isEditMode) {
+                document.getElementById('fecha').value = toDateTimeLocalValue(new Date().toISOString());
+                return;
+            }
+
+            const movement = window.WarehouseService.getById(movementId);
+            if (!movement) {
+                Notification.error('Movimiento no encontrado');
+                setTimeout(function() { window.location.href = 'warehouse-list.html'; }, 1000);
+                return;
+            }
+
+            document.getElementById('formTitle').textContent = `Editar Movimiento ${movement.id}`;
+            document.getElementById('tipo').value = movement.tipo;
+            toggleTypeFields();
+
+            document.getElementById('barcoId').value = movement.barcoId || '';
+            document.getElementById('barcoOrigenId').value = movement.barcoOrigenId || '';
+            document.getElementById('barcoDestinoId').value = movement.barcoDestinoId || '';
+            document.getElementById('productoId').value = movement.productoId || '';
+            document.getElementById('cantidad').value = movement.cantidad;
+            document.getElementById('unidad').value = movement.unidad || '';
+            document.getElementById('fecha').value = toDateTimeLocalValue(movement.fecha);
+            document.getElementById('responsableId').value = movement.responsableId || '';
+            document.getElementById('observaciones').value = movement.observaciones || '';
+        }
+
+        function buildPayload() {
+            const type = document.getElementById('tipo').value;
+            const rawDate = document.getElementById('fecha').value;
+
+            const payload = {
+                tipo: type,
+                productoId: document.getElementById('productoId').value,
+                cantidad: parseFloat(document.getElementById('cantidad').value),
+                unidad: document.getElementById('unidad').value,
+                fecha: rawDate ? new Date(rawDate).toISOString() : null,
+                responsableId: document.getElementById('responsableId').value.trim(),
+                observaciones: document.getElementById('observaciones').value.trim()
+            };
+
+            if (type === window.WarehouseService.MOVEMENT_TYPES.TRASLADO) {
+                payload.barcoId = null;
+                payload.barcoOrigenId = document.getElementById('barcoOrigenId').value;
+                payload.barcoDestinoId = document.getElementById('barcoDestinoId').value;
+            } else {
+                payload.barcoId = document.getElementById('barcoId').value;
+                payload.barcoOrigenId = null;
+                payload.barcoDestinoId = null;
+            }
+
+            return payload;
+        }
+
+        document.getElementById('tipo').addEventListener('change', toggleTypeFields);
+
+        document.getElementById('movementForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            clearError();
+
+            const payload = buildPayload();
+            const validation = window.WarehouseService.validateMovement(payload);
+            if (!validation.valid) {
+                showError(validation.error || 'Datos de movimiento invalidos');
+                return;
+            }
+
+            let result;
+            if (isEditMode) {
+                result = window.WarehouseService.update(movementId, payload);
+            } else {
+                result = window.WarehouseService.create(payload);
+            }
+
+            if (result.success) {
+                Notification.success(isEditMode ? 'Movimiento actualizado' : 'Movimiento creado');
+                setTimeout(function() { window.location.href = 'warehouse-list.html'; }, 800);
+            } else {
+                showError(result.error || 'No se pudo guardar el movimiento');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTypeOptions();
+            populateBoatOptions();
+            populateProductOptions();
+            populateUnitOptions();
+            loadEditData();
+        });
+    </script>
+</body>
+</html>

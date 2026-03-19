@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/crud-shared.css">
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="../assets/css/header.css">
@@ -200,7 +201,7 @@
         }
     </style>
 </head>
-<body>
+<body class="crud-page">
     <div id="app-header-container"></div>
     <main class="main-content">
             <header class="content-header">
@@ -282,6 +283,7 @@
     <script src="../utils/formatters.js"></script>
     <script src="../utils/date-utils.js"></script>
     <script src="../services/boat-service.js"></script>
+    <script src="../services/owner-service.js"></script>
     <script src="../services/trip-service.js"></script>
     <script src="../services/employee-service.js"></script>
     
@@ -304,6 +306,12 @@
 
         // Cargar detalle del viaje
         function loadTripDetail(tripId) {
+            if (!window.TripService || typeof window.TripService.getById !== 'function') {
+                alert('El servicio de viajes no está disponible en este momento.');
+                window.location.href = 'trips-list.html';
+                return;
+            }
+
             trip = window.TripService.getById(tripId);
 
             if (!trip) {
@@ -401,6 +409,13 @@
 
         // Mostrar información del barco
         function displayBoatInfo() {
+            if (!window.BoatService || typeof window.BoatService.getById !== 'function') {
+                document.getElementById('boatInfo').innerHTML = `
+                    <p style="color: #e74c3c;">Servicio de barcos no disponible</p>
+                `;
+                return;
+            }
+
             const boat = window.BoatService.getById(trip.barcoId);
             
             if (!boat) {
@@ -410,7 +425,9 @@
                 return;
             }
 
-            const owner = window.OwnerService.getById(boat.dueñoId);
+            const owner = window.OwnerService && typeof window.OwnerService.getById === 'function'
+                ? window.OwnerService.getById(boat.dueñoId)
+                : null;
             const ownerName = owner ? `${owner.nombre} ${owner.apellido}` : 'N/A';
 
             document.getElementById('boatInfo').innerHTML = `

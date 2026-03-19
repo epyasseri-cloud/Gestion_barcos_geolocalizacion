@@ -18,7 +18,10 @@ const Navbar = {
         `;
         
         if (containerId) {
-            document.getElementById(containerId).innerHTML = navHTML;
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = navHTML;
+            }
         }
         
         return navHTML;
